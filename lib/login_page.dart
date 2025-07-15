@@ -206,11 +206,12 @@ class _LoginPageState extends State<LoginPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Image.asset("https://www.citypng.com/public/uploads/preview/google-logo-icon-gsuite-hd-701751694791470gzbayltphh.png", height: 45, width: 45),
+                      Image.asset("assets/google.png", height: 45, width: 45),           // Local image ✅
                       const SizedBox(width: 30.0),
-                      Image.asset("images/apple1.png", height: 50, width: 50),
+                      Image.asset("assets/apple1.jpg", height: 50, width: 50),        // Use Image.asset here too ✅
                     ],
                   ),
+
                   const SizedBox(height: 40.0),
 
                   // Sign Up Redirect
