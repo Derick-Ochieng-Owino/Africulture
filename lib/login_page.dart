@@ -206,9 +206,9 @@ class _LoginPageState extends State<LoginPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Image.asset("assets/google.png", height: 45, width: 45),           // Local image ✅
+                      Image.asset("assets/google.png", height: 45, width: 45),
                       const SizedBox(width: 30.0),
-                      Image.asset("assets/apple1.jpg", height: 50, width: 50),        // Use Image.asset here too ✅
+                      Image.asset("assets/apple.png", height: 50, width: 50),
                     ],
                   ),
 
