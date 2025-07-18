@@ -1,4 +1,4 @@
-import 'package:africulture/signup_page.dart';
+import 'package:africulture/screens/signup_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -15,7 +15,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
 
   final _formkey = GlobalKey<FormState>();
 
-  resetPassword() async {
+  Future<void> resetPassword() async {
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -41,8 +41,8 @@ class _ForgotPasswordState extends State<ForgotPassword> {
         children: [
           // Background Image
           Positioned.fill(
-            child: Image.network(
-              "https://images.unsplash.com/photo-1594093578194-a3b4924398f8?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            child: Image.asset(
+              "assets/b.png",
               fit: BoxFit.cover,
             ),
           ),

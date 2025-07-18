@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'login_page.dart';
+
+import '../service/auth.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -27,7 +27,7 @@ class _SignUpState extends State<SignUp> {
 
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text("Registered Successfully", style: TextStyle(fontSize: 18)),
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.blueGrey,
       ));
 
       // Navigate to login page or home page
@@ -50,15 +50,12 @@ class _SignUpState extends State<SignUp> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text('Sign Up'),
-        backgroundColor: CupertinoColors.activeGreen,
-      ),
+
       body: Stack(
         children: [
           // Background Image
           Positioned.fill(
-            child: Image.network("https://images.unsplash.com/photo-1658821282998-5e65f44c5670?w=1000&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fHBvdHJhaXQlMjBiYWNrZ3JvdW5kJTIwcGhvdG8lMjB0aGF0JTIwcmVsYXRlcyUyMHRvJTIwYWdyaWN1bHR1cmV8ZW58MHx8MHx8fDA%3D",
+            child: Image.asset("assets/b.png",
               fit: BoxFit.cover,
             ),
           ),
@@ -149,7 +146,11 @@ class _SignUpState extends State<SignUp> {
                                 borderRadius: BorderRadius.circular(30)),
                           ),
                           child: const Text("Sign Up",
-                              style: TextStyle(fontSize: 18)),
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.white,
+                              )
+                          ),
                         ),
                       ],
                     ),
@@ -166,13 +167,14 @@ class _SignUpState extends State<SignUp> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Image.network(
-                          "https://www.citypng.com/public/uploads/preview/google-logo-icon-gsuite-hd-701751694791470gzbayltphh.png",
-                          height: 45),
+                      GestureDetector(
+                        onTap: () {
+                          AuthMethods().signInWithGoogle(context);
+                        },
+                        child: Image.asset("assets/google.png", height: 45),
+                      ),
                       const SizedBox(width: 20),
-                      Image.network(
-                          "https://1000logos.net/wp-content/uploads/2016/10/Apple-Logo.jpg",
-                          height: 45),
+                      Image.asset("assets/apple.png", height: 45),
                     ],
                   ),
                   const SizedBox(height: 30),
@@ -183,7 +185,7 @@ class _SignUpState extends State<SignUp> {
                           style: TextStyle(color: Colors.white)),
                       TextButton(
                         onPressed: () {
-                          Navigator.pushReplacementNamed(context, '/login');
+                          Navigator.pushReplacementNamed(context, "/login");
                         },
                         child: const Text("Log In",
                             style: TextStyle(

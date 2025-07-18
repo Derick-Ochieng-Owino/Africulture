@@ -12,7 +12,20 @@
           "package_name": "com.example.africulture"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "771225555427-00c00irouton8drpmd659ufd3hpdgj7f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.africulture",
+            "certificate_hash": "61605fff81596daf7d09ca746c7d899f9da5fde7"
+          }
+        },
+        {
+          "client_id": "771225555427-2mirv8fg96bud6mlv1ca058rhp6bh3cu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDH0bOX-Mbu8LMFXx9uQsalhqGaD87s5ok"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "771225555427-2mirv8fg96bud6mlv1ca058rhp6bh3cu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
