@@ -230,10 +230,10 @@ class _WeatherPageState extends State<WeatherPage> with SingleTickerProviderStat
                     _fetchWeatherByCity(_searchController.text);
                     FocusScope.of(context).unfocus();
                   },
-                  child: Text('Search'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                   ),
+                  child: Text('Search'),
                 ),
               ],
             ),
@@ -267,10 +267,10 @@ class _WeatherPageState extends State<WeatherPage> with SingleTickerProviderStat
                           });
                         });
                       },
-                      child: Text('Retry Location'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                       ),
+                      child: Text('Retry Location'),
                     ),
                   ],
                 ),

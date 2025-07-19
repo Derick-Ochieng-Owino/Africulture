@@ -1,7 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../service/auth.dart';
-import 'home.dart';
+import '../pages/home.dart';
+import 'package:africulture/widgets/button.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -153,7 +154,7 @@ class _LoginPageState extends State<LoginPage> {
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 13.0, horizontal: 30.0),
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFF273671),
+                                        color: const Color(0xFF279671),
                                         borderRadius: BorderRadius.circular(30),
                                       ),
                                       child: const Center(
@@ -193,19 +194,108 @@ class _LoginPageState extends State<LoginPage> {
                                   fontWeight: FontWeight.w500),
                             ),
                             const SizedBox(height: 30.0),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+
+
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                GestureDetector(
-                                  onTap: () {
+                                const SizedBox(height: 15),
+                                CustomButton(
+                                  onPressed: () {
+                                    Navigator.pushNamed(context, '/phone-signin');
+                                  },
+                                  color: Colors.white,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center, // ✅ center contents
+                                    children: [
+                                      const Text(
+                                        'Continue with',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Image.asset("assets/phone.png", height: 30),
+                                    ],
+                                  ),
+                                ),
+
+                                const SizedBox(height: 15,),
+                                CustomButton(
+                                  onPressed: () {
                                     AuthMethods().signInWithGoogle(context);
                                   },
-                                  child: Image.asset("assets/google.png", height: 45),
+                                  color: Colors.white,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center, // ✅ center contents
+                                    children: [
+                                      const Text(
+                                        'Continue with',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.orangeAccent,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Image.asset("assets/google.png", height: 25),
+                                    ],
+                                  ),
                                 ),
-                                const SizedBox(width: 20),
-                                Image.asset("assets/apple.png", height: 45),
+
+                                //Facebook
+                                const SizedBox(height: 15),
+                                CustomButton(
+                                  onPressed: () {
+                                    // Facebook sign-in logic
+                                  },
+                                  color: Colors.blueGrey,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center, // ✅ center contents
+                                    children: [
+                                      const Text(
+                                        'Continue with',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.blue,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Image.asset("assets/facebook.png", height: 30),
+                                    ],
+                                  ),
+                                ),
+
+                                const SizedBox(height: 15),
+                                CustomButton(
+                                  onPressed: () {
+                                    // Apple sign-in logic
+                                  },
+                                  color: Colors.white,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center, // ✅ center contents
+                                    children: [
+                                      const Text(
+                                        'Continue with',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Image.asset("assets/apple.png", height: 30),
+                                    ],
+                                  ),
+                                ),
+
+
                               ],
                             ),
+
                             const SizedBox(height: 40.0),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,

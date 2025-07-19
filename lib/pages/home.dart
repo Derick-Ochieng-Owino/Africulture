@@ -1,6 +1,8 @@
 import 'package:africulture/forum_page.dart';
 import 'package:africulture/hire_page.dart';
 import 'package:africulture/news_screen.dart';
+import 'package:africulture/pages/user_profile_modal.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +13,7 @@ import '../iot_devices_screen.dart';
 import '../market_place.dart';
 import '../service/weather_service.dart';
 import '../service/location_service.dart';
-import 'package:africulture/screens/profile.dart';
+import 'package:africulture/pages/profile.dart';
 import '/screens/notifications_screen.dart';
 
 void main() async {
@@ -42,6 +44,21 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+Future<void> checkProfileAndShowModal(BuildContext context, String uid) async {
+  final doc = await FirebaseFirestore.instance.collection('farmers').doc(uid).get();
+  final data = doc.data();
+  final isComplete = data != null && (data['profileComplete'] == true);
+
+  if (!isComplete) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => UserProfileModal(uid: uid),
+    );
+  }
+}
+
+
 class _MyHomePageState extends State<MyHomePage> {
   int myIndex = 0;
   late PageController _pageController;
@@ -54,6 +71,14 @@ class _MyHomePageState extends State<MyHomePage> {
     _pageController = PageController();
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
+
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        checkProfileAndShowModal(context, currentUser.uid);
+      });
+    }
+
   }
 
   void _scrollListener() {

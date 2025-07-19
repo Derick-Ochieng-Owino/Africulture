@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
 import '../service/auth.dart';
+import '../widgets/button.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -16,6 +16,7 @@ class _SignUpState extends State<SignUp> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController phonenumberController = TextEditingController();
 
   Future<void> registerUser() async {
     try {
@@ -86,21 +87,6 @@ class _SignUpState extends State<SignUp> {
                     key: _formKey,
                     child: Column(
                       children: [
-                        // Name Field
-                        TextFormField(
-                          controller: nameController,
-                          decoration: const InputDecoration(
-                            labelText: "Name",
-                            border: OutlineInputBorder(),
-                            fillColor: Colors.white,
-                            filled: true,
-                          ),
-                          validator: (value) => value == null || value.isEmpty
-                              ? 'Please enter your name'
-                              : null,
-                        ),
-                        const SizedBox(height: 20),
-
                         // Email Field
                         TextFormField(
                           controller: emailController,
@@ -163,36 +149,98 @@ class _SignUpState extends State<SignUp> {
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
+
                   const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      GestureDetector(
-                        onTap: () {
+                      CustomButton(
+                        onPressed: () {
                           AuthMethods().signInWithGoogle(context);
                         },
-                        child: Image.asset("assets/google.png", height: 45),
+                        color: Colors.white,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center, // ✅ center contents
+                          children: [
+                            const Text(
+                              'Continue with',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.orangeAccent,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Image.asset("assets/google.png", height: 25),
+                          ],
+                        ),
                       ),
-                      const SizedBox(width: 20),
-                      Image.asset("assets/apple.png", height: 45),
+
+                      //Facebook
+                      const SizedBox(height: 15),
+                      CustomButton(
+                        onPressed: () {
+                          // Facebook sign-in logic
+                        },
+                        color: Colors.blueGrey,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center, // ✅ center contents
+                          children: [
+                            const Text(
+                              'Continue with',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.blue,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Image.asset("assets/facebook.png", height: 30),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 15),
+                      CustomButton(
+                        onPressed: () {
+                          // Apple sign-in logic
+                        },
+                        color: Colors.white,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center, // ✅ center contents
+                          children: [
+                            const Text(
+                              'Continue with',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Image.asset("assets/apple.png", height: 30),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 30),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text("Already have an account?",
+                              style: TextStyle(color: Colors.white)),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pushReplacementNamed(context, "/login");
+                            },
+                            child: const Text("Log In",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, color: Colors.white)),
+                          ),
+                        ],
+                      )
                     ],
                   ),
-                  const SizedBox(height: 30),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text("Already have an account?",
-                          style: TextStyle(color: Colors.white)),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pushReplacementNamed(context, "/login");
-                        },
-                        child: const Text("Log In",
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, color: Colors.white)),
-                      ),
-                    ],
-                  )
                 ],
               ),
             ),
