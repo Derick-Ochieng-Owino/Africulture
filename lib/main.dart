@@ -1,19 +1,26 @@
 import 'package:africulture/forgot_password.dart';
 import 'package:africulture/screens/login_page.dart';
 import 'package:africulture/screens/signup_page.dart';
-import 'package:africulture/pages/profile.dart';
+import 'package:africulture/screens/profile.dart';
 import 'package:africulture/screens/splash_screen.dart';
-import 'package:africulture/pages/home.dart';
+import 'package:africulture/screens/home.dart';
+import 'package:africulture/service/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import '/pages/phone_signin.dart';
-import 'package:africulture/pages/edit_profile.dart';
+import '/screens/phone_signin.dart';
+import 'package:africulture/screens/edit_profile.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => AuthMethods(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -32,7 +39,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const SplashScreen(),
         '/login': (context) => const LoginPage(),
-        '/signup': (context) => const SignUp(),
+        '/signup': (context) => const SignUpPage(),
         '/home': (context) => const MyHomePage(),
         '/forgot_password': (context) => const ForgotPassword(),
         '/phone-signin': (context) => const PhoneSignInPage(),

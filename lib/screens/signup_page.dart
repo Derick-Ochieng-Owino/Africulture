@@ -1,251 +1,228 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import '../widgets/social_button.dart';
 import '../service/auth.dart';
-import '../widgets/button.dart';
 
-class SignUp extends StatefulWidget {
-  const SignUp({super.key});
+class SignUpPage extends StatefulWidget {
+  const SignUpPage({super.key});
 
   @override
-  State<SignUp> createState() => _SignUpState();
+  State<SignUpPage> createState() => _SignUpPageState();
 }
 
-class _SignUpState extends State<SignUp> {
+class _SignUpPageState extends State<SignUpPage> {
   final _formKey = GlobalKey<FormState>();
+  bool _obscureText = true;
 
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController phonenumberController = TextEditingController();
+  final firstNameController = TextEditingController();
+  final lastNameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
 
   Future<void> registerUser() async {
+    debugPrint("Attempting to register user...");
+    debugPrint("Email: ${emailController.text.trim()}");
+    debugPrint("Password Length: ${passwordController.text.trim().length}");
+
     try {
-      UserCredential userCredential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
 
+      debugPrint("Registration successful");
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("Registered Successfully", style: TextStyle(fontSize: 18)),
-        backgroundColor: Colors.blueGrey,
+        content: Text("Registered Successfully"),
+        backgroundColor: Colors.green,
       ));
 
-      // Navigate to login page or home page
       Navigator.pushReplacementNamed(context, '/login');
     } on FirebaseAuthException catch (e) {
       String errorMessage = "Registration failed";
+      debugPrint("FirebaseAuthException: ${e.code}");
+
       if (e.code == 'weak-password') {
         errorMessage = "Password is too weak.";
       } else if (e.code == 'email-already-in-use') {
         errorMessage = "Email is already in use.";
+      } else {
+        errorMessage = e.message ?? errorMessage;
       }
+
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(errorMessage),
         backgroundColor: Colors.red,
       ));
+    } catch (e) {
+      debugPrint("Unknown registration error: $e");
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<AuthMethods>(context);
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              children: [
+                const SizedBox(height: 20),
+                Center(
+                  child: const Text("Sign Up Account",
+                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
+                ),
+                const SizedBox(height: 8),
+                Center(
+                  child: const Text("Enter your personal data to create your account.",
+                      style: TextStyle(fontSize: 16, color: Colors.black54)),
+                ),
+                const SizedBox(height: 24),
 
-      body: Stack(
-        children: [
-          // Background Image
-          Positioned.fill(
-            child: Image.asset("assets/b.png",
-              fit: BoxFit.cover,
+                SocialButton(
+                  label: "Google",
+                  logoPath: "assets/google.png",
+                  onPressed: auth.isSigningIn
+                      ? null
+                      : () {
+                    debugPrint("Pressed Google Sign In");
+                    auth.signInWithGoogle(context);
+                  },
+                ),
+                const SizedBox(height: 12),
+                SocialButton(
+                  label: "Apple",
+                  logoPath: "assets/apple.png",
+                  onPressed: () {
+                    debugPrint("Apple Sign In pressed");
+                  },
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: const [
+                    Expanded(child: Divider()),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Text("OR"),
+                    ),
+                    Expanded(child: Divider()),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: firstNameController,
+                        decoration: const InputDecoration(
+                          labelText: "First Name",
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) {
+                          debugPrint("First name input: $value");
+                          return value!.isEmpty ? "Enter first name" : null;
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextFormField(
+                        controller: lastNameController,
+                        decoration: const InputDecoration(
+                          labelText: "Last Name",
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) {
+                          debugPrint("Last name input: $value");
+                          return value!.isEmpty ? "Enter last name" : null;
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                TextFormField(
+                  controller: emailController,
+                  decoration: const InputDecoration(
+                    labelText: "Email Address",
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    debugPrint("Email input: $value");
+                    return value!.isEmpty ? "Please enter email" : null;
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                TextFormField(
+                  controller: passwordController,
+                  obscureText: _obscureText,
+                  decoration: InputDecoration(
+                    labelText: "Password",
+                    border: const OutlineInputBorder(),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                          _obscureText ? Icons.visibility_off : Icons.visibility),
+                      onPressed: () {
+                        debugPrint("Toggled password visibility");
+                        setState(() {
+                          _obscureText = !_obscureText;
+                        });
+                      },
+                    ),
+                  ),
+                  validator: (value) {
+                    debugPrint("Password input: $value");
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter password';
+                    } else if (value.length < 6) {
+                      return 'Must contain at least 6 characters.';
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () {
+                    debugPrint("Sign Up button pressed");
+                    if (_formKey.currentState!.validate()) {
+                      registerUser();
+                    } else {
+                      debugPrint("Form validation failed");
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                  child: const Text("Sign Up", style: TextStyle(fontSize: 18, color: Colors.white)),
+                ),
+                const SizedBox(height: 20),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Already have an Account?"),
+                    TextButton(
+                      onPressed: () {
+                        debugPrint("Navigate to login page");
+                        Navigator.pushReplacementNamed(context, "/login");
+                      },
+                      child: const Text("Sign In"),
+                    )
+                  ],
+                ),
+              ],
             ),
           ),
-
-          // Foreground Content with transparent background
-          Positioned.fill(
-            child: Container(
-              color: Colors.black.withOpacity(0.5), // Optional dark overlay
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  const SizedBox(height: 40),
-
-                  // Heading
-                  const Center(
-                    child: Text(
-                      "Create Account",
-                      style: TextStyle(
-                        fontSize: 28,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        // Email Field
-                        TextFormField(
-                          controller: emailController,
-                          decoration: const InputDecoration(
-                            labelText: "Email",
-                            border: OutlineInputBorder(),
-                            fillColor: Colors.white,
-                            filled: true,
-                          ),
-                          validator: (value) => value == null || value.isEmpty
-                              ? 'Please enter your email'
-                              : null,
-                        ),
-                        const SizedBox(height: 20),
-
-                        // Password Field
-                        TextFormField(
-                          controller: passwordController,
-                          obscureText: true,
-                          decoration: const InputDecoration(
-                            labelText: "Password",
-                            border: OutlineInputBorder(),
-                            fillColor: Colors.white,
-                            filled: true,
-                          ),
-                          validator: (value) => value == null || value.isEmpty
-                              ? 'Please enter your password'
-                              : null,
-                        ),
-                        const SizedBox(height: 30),
-
-                        ElevatedButton(
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              registerUser();
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF273671),
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            minimumSize: const Size.fromHeight(50),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30)),
-                          ),
-                          child: const Text("Sign Up",
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.white,
-                              )
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-                  const Center(
-                    child: Text(
-                      "or Log In with",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      CustomButton(
-                        onPressed: () {
-                          AuthMethods().signInWithGoogle(context);
-                        },
-                        color: Colors.white,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center, // ✅ center contents
-                          children: [
-                            const Text(
-                              'Continue with',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.orangeAccent,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Image.asset("assets/google.png", height: 25),
-                          ],
-                        ),
-                      ),
-
-                      //Facebook
-                      const SizedBox(height: 15),
-                      CustomButton(
-                        onPressed: () {
-                          // Facebook sign-in logic
-                        },
-                        color: Colors.blueGrey,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center, // ✅ center contents
-                          children: [
-                            const Text(
-                              'Continue with',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.blue,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Image.asset("assets/facebook.png", height: 30),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 15),
-                      CustomButton(
-                        onPressed: () {
-                          // Apple sign-in logic
-                        },
-                        color: Colors.white,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center, // ✅ center contents
-                          children: [
-                            const Text(
-                              'Continue with',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Image.asset("assets/apple.png", height: 30),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 30),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text("Already have an account?",
-                              style: TextStyle(color: Colors.white)),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pushReplacementNamed(context, "/login");
-                            },
-                            child: const Text("Log In",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, color: Colors.white)),
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

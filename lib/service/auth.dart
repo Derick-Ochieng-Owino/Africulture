@@ -1,74 +1,57 @@
-import 'package:africulture/pages/home.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
+class AuthMethods with ChangeNotifier {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
-class AuthMethods {
-  final FirebaseAuth auth = FirebaseAuth.instance;
-
-  Future<User?>? getCurrentUser() async {
-    return await auth.currentUser;
-  }
+  bool _isSigningIn = false;
+  bool get isSigningIn => _isSigningIn;
 
   Future<void> signInWithGoogle(BuildContext context) async {
-    final GoogleSignIn googleSignIn = GoogleSignIn(
-      scopes: ['email'],
-      // Optional: Only needed if Firebase throws a web client error
-      clientId: '771225555427-2mirv8fg96bud6mlv1ca058rhp6bh3cu.apps.googleusercontent.com',
-    );
+    if (_isSigningIn) {
+      debugPrint("Already signing in, skipping...");
+      return;
+    }
 
-    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-    if (googleUser == null) return; // canceled
+    try {
+      _isSigningIn = true;
+      notifyListeners();
+      debugPrint("START: Google Sign-In");
 
-    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
-    final AuthCredential credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
+      if (googleUser == null) {
+        debugPrint("User canceled Google sign-in");
+        return;
+      }
 
-    UserCredential result = await FirebaseAuth.instance.signInWithCredential(credential);
-    User? user = result.user;
+      debugPrint("Google user: ${googleUser.email}");
 
-    if (user != null) {
-      // ✅ Proceed to your home page
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => MyHomePage()));
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+      debugPrint("Access Token: ${googleAuth.accessToken}");
+      debugPrint("ID Token: ${googleAuth.idToken}");
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final userCredential = await _auth.signInWithCredential(credential);
+      debugPrint("Signed in as: ${userCredential.user?.email}");
+
+      Navigator.pushReplacementNamed(context, '/home');
+    } catch (e) {
+      debugPrint("ERROR during Google sign-in: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Google Sign-In Failed: $e")),
+      );
+    } finally {
+      _isSigningIn = false;
+      notifyListeners();
+      debugPrint("END: Google Sign-In");
     }
   }
-
-
-//   Future<User> signInWithApple({List<Scope> scopes = const []}) async {
-//     final result = await TheAppleSignIn.performRequests(
-//         [AppleIdRequest(requestedScopes: scopes)]);
-//     switch (result.status) {
-//       case AuthorizationStatus.authorized:
-//         final AppleIdCredential = result.credential!;
-//         final oAuthCredential = OAuthProvider('apple.com');
-//         final credential = oAuthCredential.credential(
-//             idToken: String.fromCharCodes(AppleIdCredential.identityToken!));
-//         final UserCredential = await auth.signInWithCredential(credential);
-//         final firebaseUser = UserCredential.user!;
-//         if (scopes.contains(Scope.fullName)) {
-//           final fullName = AppleIdCredential.fullName;
-//           if (fullName != null &&
-//               fullName.givenName != null &&
-//               fullName.familyName != null) {
-//             final displayName = '${fullName.givenName}${fullName.familyName}';
-//             await firebaseUser.updateDisplayName(displayName);
-//           }
-//         }
-//         return firebaseUser;
-//       case AuthorizationStatus.error:
-//         throw PlatformException(
-//             code: 'ERROR_AUTHORIZATION_DENIED',
-//             message: result.error.toString());
-//
-//       case AuthorizationStatus.cancelled:
-//         throw PlatformException(
-//             code: 'ERROR_ABORTED_BY_USER', message: 'Sign in aborted by user');
-//       default:
-//         throw UnimplementedError();
-//     }
-//   }
 }

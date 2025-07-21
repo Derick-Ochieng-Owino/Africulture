@@ -1,7 +1,7 @@
 import 'package:africulture/forum_page.dart';
 import 'package:africulture/hire_page.dart';
 import 'package:africulture/news_screen.dart';
-import 'package:africulture/pages/user_profile_modal.dart';
+import 'package:africulture/screens/user_profile_modal.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -13,7 +13,7 @@ import '../iot_devices_screen.dart';
 import '../market_place.dart';
 import '../service/weather_service.dart';
 import '../service/location_service.dart';
-import 'package:africulture/pages/profile.dart';
+import 'package:africulture/screens/profile.dart';
 import '/screens/notifications_screen.dart';
 
 void main() async {
@@ -31,7 +31,12 @@ class MyApp extends StatelessWidget {
       title: 'Africulture',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.green, // Your green color scheme
+        fontFamily: 'Arial',
+        primaryColor: Colors.green[700],
+        scaffoldBackgroundColor: const Color(0xFFF5FBEF),
+        textTheme: const TextTheme(
+          bodyMedium: TextStyle(color: Colors.black87),
+        ),
       ),
     );
   }
@@ -58,7 +63,6 @@ Future<void> checkProfileAndShowModal(BuildContext context, String uid) async {
   }
 }
 
-
 class _MyHomePageState extends State<MyHomePage> {
   int myIndex = 0;
   late PageController _pageController;
@@ -78,7 +82,6 @@ class _MyHomePageState extends State<MyHomePage> {
         checkProfileAndShowModal(context, currentUser.uid);
       });
     }
-
   }
 
   void _scrollListener() {
@@ -115,26 +118,28 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        title: const Text(
+          'Africulture',
+          style: TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+          ),
+        ),
         leading: IconButton(
-          icon: const Icon(Icons.person, color: Colors.white),
+          icon: const Icon(Icons.menu, color: Colors.black87),
           onPressed: () {
-            final currentUser = FirebaseAuth.instance.currentUser;
-            if (currentUser != null) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ProfilePage(user: currentUser),
-                ),
-              );
-            } else {
-              Navigator.pushReplacementNamed(context, '/login');
-            }
+            // TODO: Open drawer or modal
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Menu clicked')),
+            );
           },
         ),
-        title: const Text('Africulture', style: TextStyle(color: Colors.white)),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.white),
+            icon: const Icon(Icons.notifications_none, color: Colors.black87),
             onPressed: () {
               Navigator.push(
                 context,
@@ -142,10 +147,8 @@ class _MyHomePageState extends State<MyHomePage> {
               );
             },
           ),
+          const SizedBox(width: 8),
         ],
-        backgroundColor: Colors.green, // Your green app bar
-        elevation: 0,
-        centerTitle: true,
       ),
       body: PageView(
         controller: _pageController,
@@ -164,7 +167,10 @@ class _MyHomePageState extends State<MyHomePage> {
         duration: const Duration(milliseconds: 300),
         height: _isBottomBarVisible ? kBottomNavigationBarHeight : 0,
         child: BottomNavigationBar(
+          backgroundColor: Colors.white,
           currentIndex: myIndex,
+          selectedItemColor: Colors.green[800],
+          unselectedItemColor: Colors.grey,
           onTap: onTabTapped,
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
@@ -223,17 +229,13 @@ class _HomePageContentState extends State<HomePageContent> {
         controller: widget.scrollController,
         padding: const EdgeInsets.only(bottom: 40),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 20),
-            const Text(
-              'Welcome to Africulture!',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: _isLoading
-                  ? const CircularProgressIndicator()
+                  ? const Center(child: CircularProgressIndicator())
                   : _error.isNotEmpty
                   ? Text(_error)
                   : WeatherSummaryCard(
@@ -242,11 +244,21 @@ class _HomePageContentState extends State<HomePageContent> {
                 error: _error,
               ),
             ),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                "Quick Actions",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green[900]),
+              ),
+            ),
             GridView.count(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
               crossAxisCount: 2,
-              padding: const EdgeInsets.all(10),
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(16),
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
               children: const [
                 FeatureCard(icon: Icons.thermostat, title: "Weather", destination: WeatherPage()),
                 FeatureCard(icon: Icons.shopping_cart, title: "Market", destination: MarketPage()),
@@ -275,56 +287,51 @@ class WeatherSummaryCard extends StatelessWidget {
     required this.error,
   });
 
-  LinearGradient _getGradient(String condition) {
-    switch (condition.toLowerCase()) {
-      case 'clear':
-        return const LinearGradient(colors: [Colors.orange, Colors.yellow]);
-      case 'rain':
-        return const LinearGradient(colors: [Colors.blueGrey, Colors.blue]);
-      case 'clouds':
-        return LinearGradient(colors: [Colors.grey.shade600, Colors.grey.shade300]);
-      case 'thunderstorm':
-        return const LinearGradient(colors: [Colors.indigo, Colors.deepPurple]);
-      default:
-        return LinearGradient(colors: [Colors.green.shade700, Colors.green.shade400]);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WeatherPage())),
-      child: Card(
-        elevation: 4,
-        margin: const EdgeInsets.all(12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            gradient: _getGradient(weatherData['weather'][0]['main']),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                weatherData['name'],
-                style: const TextStyle(
-                  fontSize: 22,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                "${weatherData['weather'][0]['main']} | ${weatherData['main']['temp'].toStringAsFixed(1)}°C",
-                style: const TextStyle(fontSize: 18, color: Colors.white70),
-              ),
-            ],
-          ),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFB5E655), Color(0xFFE4F89A)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
+        borderRadius: BorderRadius.circular(20),
       ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "${weatherData['main']['temp'].toStringAsFixed(1)}°C",
+            style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black87),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            "${weatherData['weather'][0]['main']} • ${weatherData['name']}",
+            style: const TextStyle(fontSize: 18, color: Colors.black54),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _iconInfo(Icons.air, "${weatherData['wind']['speed']} km/h"),
+              _iconInfo(Icons.water_drop, "${weatherData['main']['humidity']}%"),
+              _iconInfo(Icons.invert_colors, "${weatherData['main']['pressure']} hPa"),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _iconInfo(IconData icon, String value) {
+    return Column(
+      children: [
+        Icon(icon, color: Colors.green[800], size: 24),
+        const SizedBox(height: 4),
+        Text(value, style: const TextStyle(fontSize: 14)),
+      ],
     );
   }
 }
@@ -343,27 +350,25 @@ class FeatureCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 3,
-      margin: const EdgeInsets.all(8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    return Material(
+      elevation: 4,
+      color: const Color(0xFFE8F8BF),
+      borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => destination)),
-        child: SizedBox(
-          height: 120,
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(icon, size: 40, color: Colors.green), // Your green icons
-                const SizedBox(height: 8),
-                Text(title, style: const TextStyle(fontSize: 16)),
-              ],
-            ),
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 36, color: Colors.green[900]),
+              const SizedBox(height: 10),
+              Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            ],
           ),
         ),
       ),
     );
   }
 }
-

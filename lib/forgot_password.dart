@@ -149,7 +149,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => const SignUp()));
+                                        builder: (context) => const SignUpPage()));
                               },
                               child: const Text(
                                 "Create",

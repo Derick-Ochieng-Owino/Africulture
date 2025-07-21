@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
-import '/pages/edit_profile.dart';
+import '/screens/edit_profile.dart';
 
 class ProfilePage extends StatelessWidget {
   final User user;
