@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:africulture/screens/login_page.dart'; // Replace with your actual import
+import 'package:africulture/screens/auth/login_page.dart'; // Replace with your actual import
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

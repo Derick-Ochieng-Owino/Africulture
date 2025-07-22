@@ -2,8 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
-import '../widgets/social_button.dart';
-import '../service/auth.dart';
+import '../../widgets/social_button.dart';
+import '../../service/auth.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -49,14 +49,14 @@ class _LoginPageState extends State<LoginPage> {
             // 🌄 Background image
           SizedBox.expand(
             child: Image.asset(
-              'assets/back2.png', // 👈 Change path to your actual image
+              'assets/back6.jpg', // 👈 Change path to your actual image
               fit: BoxFit.cover,
             ),
           ),
 
           // 🧼 Optional overlay (for darkening the image)
           Container(
-          color: Colors.black.withOpacity(0.4),
+          color: Colors.black.withOpacity(0.2),
           ),
 
           // ✅ Existing content

@@ -1,20 +1,21 @@
+import 'package:africulture/02_iot/screens/dashboard.dart';
 import 'package:africulture/forum_page.dart';
-import 'package:africulture/hire_page.dart';
-import 'package:africulture/news_screen.dart';
+import 'package:africulture/05_hire/screens/hire_page.dart';
+import 'package:africulture/04_news/screens/news_screen.dart';
 import 'package:africulture/screens/user_profile_modal.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:africulture/weather_page.dart';
+import 'package:africulture/03_weather/screens/weather_page.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
-import '../iot_devices_screen.dart';
-import '../market_place.dart';
-import '../service/weather_service.dart';
-import '../service/location_service.dart';
+import '../06_market/screens/market_place.dart';
+import '../03_weather/services/weather_service.dart';
+import '../01_location/services/location_service.dart';
 import 'package:africulture/screens/profile.dart';
 import '/screens/notifications_screen.dart';
+import 'package:africulture/widgets/custom_drawer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -117,9 +118,14 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: const CustomDrawer(
+        userName: 'John Doe',
+        userEmail: 'john@example.com',
+        profileImageUrl: 'https://via.placeholder.com/150',
+      ),
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.green,
         title: const Text(
           'Africulture',
           style: TextStyle(
@@ -128,15 +134,15 @@ class _MyHomePageState extends State<MyHomePage> {
             fontSize: 22,
           ),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: Colors.black87),
-          onPressed: () {
-            // TODO: Open drawer or modal
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Menu clicked')),
-            );
-          },
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu, color: Colors.black87),
+            onPressed: () {
+              Scaffold.of(context).openDrawer(); // ✅ Open the drawer
+            },
+          ),
         ),
+
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_none, color: Colors.black87),
@@ -265,7 +271,7 @@ class _HomePageContentState extends State<HomePageContent> {
                 FeatureCard(icon: Icons.article, title: "News", destination: NewsPage()),
                 FeatureCard(icon: Icons.forum, title: "Forum", destination: ForumPage()),
                 FeatureCard(icon: Icons.fire_truck, title: "Hire", destination: HirePage()),
-                FeatureCard(icon: Icons.devices, title: "IoT Devices", destination: IoTDevicesScreen()),
+                FeatureCard(icon: Icons.devices, title: "IoT Devices", destination: DashboardPage()),
               ],
             ),
           ],

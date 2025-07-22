@@ -17,8 +17,9 @@ class SocialButton extends StatelessWidget {
     return OutlinedButton(
       onPressed: onPressed,
       style: OutlinedButton.styleFrom(
+        backgroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 14),
-        side: const BorderSide(color: Colors.grey),
+        side: const BorderSide(color: Colors.green),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),

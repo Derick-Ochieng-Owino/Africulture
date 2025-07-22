@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
-import '../widgets/social_button.dart';
-import '../service/auth.dart';
+import '../../widgets/social_button.dart';
+import '../../service/auth.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -64,10 +64,26 @@ class _SignUpPageState extends State<SignUpPage> {
     final auth = Provider.of<AuthMethods>(context);
 
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
+      body: Stack(
+        children: [
+      // 🌄 Background image
+      SizedBox.expand(
+      child: Image.asset(
+        'assets/back6.jpg', // 👈 Change path to your actual image
+        fit: BoxFit.cover,
+      ),
+    ),
+
+    // 🧼 Optional overlay (for darkening the image)
+    Container(
+    color: Colors.black.withOpacity(0.2),
+    ),
+
+    // ✅ Existing content
+    SafeArea(
+    child: Padding(
+    padding: const EdgeInsets.all(24.0),
+    child: Form(
             key: _formKey,
             child: ListView(
               children: [
@@ -223,6 +239,8 @@ class _SignUpPageState extends State<SignUpPage> {
             ),
           ),
         ),
+      ),
+    ]
       ),
     );
   }

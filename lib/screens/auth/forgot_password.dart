@@ -1,4 +1,4 @@
-import 'package:africulture/screens/signup_page.dart';
+import 'package:africulture/screens/auth/signup_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -42,7 +42,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
           // Background Image
           Positioned.fill(
             child: Image.asset(
-              "assets/b.png",
+              "assets/back6.jpg",
               fit: BoxFit.cover,
             ),
           ),
@@ -50,7 +50,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
           // Dark overlay for readability
           Positioned.fill(
             child: Container(
-              color: Colors.black.withOpacity(0.6),
+              color: Colors.black.withOpacity(0.2),
             ),
           ),
 
@@ -64,7 +64,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                   child: Text(
                     "Password Recovery",
                     style: TextStyle(
-                        color: Colors.white,
+                        color: Colors.black54,
                         fontSize: 30.0,
                         fontWeight: FontWeight.bold),
                   ),
@@ -73,7 +73,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                 const Text(
                   "Enter your mail",
                   style: TextStyle(
-                      color: Colors.white,
+                      color: Colors.black54,
                       fontSize: 20.0,
                       fontWeight: FontWeight.bold),
                 ),
@@ -127,7 +127,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                               child: Text(
                                 "Send Email",
                                 style: TextStyle(
-                                    color: Colors.black,
+                                    color: Colors.black54,
                                     fontSize: 18.0,
                                     fontWeight: FontWeight.bold),
                               ),
