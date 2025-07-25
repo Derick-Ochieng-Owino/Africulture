@@ -72,9 +72,8 @@ class MyApp extends StatelessWidget {
         '/profile': (context) {
           final user = FirebaseAuth.instance.currentUser;
           if (user == null) {
-            // Redirect to login if user is not authenticated
             Future.microtask(() => Navigator.pushReplacementNamed(context, '/login'));
-            return const SizedBox(); // Temporary empty widget
+            return const SizedBox();
           }
           return ProfilePage(user: user);
         },
