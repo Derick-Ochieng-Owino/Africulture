@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:africulture/screens/auth/forgot_password.dart';
 import 'package:africulture/screens/auth/login_page.dart';
 import 'package:africulture/screens/auth/signup_page.dart';
@@ -13,13 +15,15 @@ import 'screens/auth/phone_signin.dart';
 import 'package:africulture/screens/edit_profile.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
-
-import 'forum_page.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '08_community/forum_page.dart';
 import '06_market/screens/market_place.dart';
 
 
 void main() async {
+  print("Current directory: ${Directory.current.path}");
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load();
   await Firebase.initializeApp();
 
   await FirebaseAppCheck.instance.activate(

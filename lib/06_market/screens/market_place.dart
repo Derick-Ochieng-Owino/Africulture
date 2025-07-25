@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:africulture/models/product.dart';
 import '/product_detail_page.dart';
-import '/add_product_page.dart'; // Make sure this import exists
+import 'add_product_page.dart'; // Make sure this import exists
 
 class MarketPage extends StatelessWidget {
   const MarketPage({super.key});

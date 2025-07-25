@@ -1,5 +1,5 @@
 import 'package:africulture/02_iot/screens/dashboard.dart';
-import 'package:africulture/forum_page.dart';
+import 'package:africulture/08_community/forum_page.dart';
 import 'package:africulture/05_hire/screens/hire_page.dart';
 import 'package:africulture/04_news/screens/news_screen.dart';
 import 'package:africulture/screens/user_profile_modal.dart';
@@ -14,6 +14,7 @@ import '../06_market/screens/market_place.dart';
 import '../03_weather/services/weather_service.dart';
 import '../01_location/services/location_service.dart';
 import 'package:africulture/screens/profile.dart';
+import '../07_AIassistant/widgets/ai_assistant_popup.dart';
 import '/screens/notifications_screen.dart';
 import 'package:africulture/widgets/custom_drawer.dart';
 
@@ -34,7 +35,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: 'Arial',
         primaryColor: Colors.green[700],
-        scaffoldBackgroundColor: const Color(0xFFF5FBEF),
+        scaffoldBackgroundColor: const Color(0xFFE6F7EC),
         textTheme: const TextTheme(
           bodyMedium: TextStyle(color: Colors.black87),
         ),
@@ -169,10 +170,10 @@ class _MyHomePageState extends State<MyHomePage> {
           const NewsPage(),
         ],
       ),
-      bottomNavigationBar: AnimatedContainer(
+      bottomNavigationBar: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
-        height: _isBottomBarVisible ? kBottomNavigationBarHeight : 0,
-        child: BottomNavigationBar(
+        child: _isBottomBarVisible
+            ? BottomNavigationBar(
           backgroundColor: Colors.white,
           currentIndex: myIndex,
           selectedItemColor: Colors.green[800],
@@ -183,8 +184,10 @@ class _MyHomePageState extends State<MyHomePage> {
             BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
             BottomNavigationBarItem(icon: Icon(Icons.newspaper), label: 'News'),
           ],
-        ),
+        )
+            : const SizedBox.shrink(), // hides it completely with no layout space
       ),
+
     );
   }
 }
@@ -202,6 +205,7 @@ class _HomePageContentState extends State<HomePageContent> {
   Map<String, dynamic>? _weatherData;
   bool _isLoading = true;
   String _error = '';
+  bool showPopupBubble = true;
 
   @override
   void initState() {
@@ -231,51 +235,90 @@ class _HomePageContentState extends State<HomePageContent> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: SingleChildScrollView(
-        controller: widget.scrollController,
-        padding: const EdgeInsets.only(bottom: 40),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : _error.isNotEmpty
-                  ? Text(_error)
-                  : WeatherSummaryCard(
-                weatherData: _weatherData!,
-                isLoading: _isLoading,
-                error: _error,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                "Quick Actions",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green[900]),
-              ),
-            ),
-            GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(16),
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              children: const [
-                FeatureCard(icon: Icons.thermostat, title: "Weather", destination: WeatherPage()),
-                FeatureCard(icon: Icons.shopping_cart, title: "Market", destination: MarketPage()),
-                FeatureCard(icon: Icons.article, title: "News", destination: NewsPage()),
-                FeatureCard(icon: Icons.forum, title: "Forum", destination: ForumPage()),
-                FeatureCard(icon: Icons.fire_truck, title: "Hire", destination: HirePage()),
-                FeatureCard(icon: Icons.devices, title: "IoT Devices", destination: DashboardPage()),
+      child: Stack(
+        children: [
+          // Main scrollable content
+          SingleChildScrollView(
+            controller: widget.scrollController,
+            padding: const EdgeInsets.only(bottom: 80), // Add padding so AI icon doesn't overlap content
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : _error.isNotEmpty
+                      ? Text(_error)
+                      : WeatherSummaryCard(
+                    weatherData: _weatherData!,
+                    isLoading: _isLoading,
+                    error: _error,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    "Quick Actions",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green[900]),
+                  ),
+                ),
+                GridView.count(
+                  crossAxisCount: 2,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(16),
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  children: [
+                    const FeatureCard(icon: Icons.thermostat, title: "Weather", destination: WeatherPage()),
+                    const FeatureCard(icon: Icons.shopping_cart, title: "Market", destination: MarketPage()),
+                    const FeatureCard(icon: Icons.article, title: "News", destination: NewsPage()),
+                    const FeatureCard(icon: Icons.forum, title: "Forum", destination: ForumPage()),
+                    FeatureCard(icon: Icons.fire_truck, title: "Hire", destination: TransportHirePage()),
+                    const FeatureCard(icon: Icons.devices, title: "IoT Devices", destination: DashboardPage()),
+                  ],
+                ),
               ],
             ),
-          ],
-        ),
+          ),
+
+          // Floating AI button and popup
+          Positioned(
+            bottom: 20,
+            right: 20,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                if (showPopupBubble)
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.green[100],
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: const Text("Tap here for AI help!"),
+                  ),
+                FloatingActionButton(
+                  backgroundColor: Colors.greenAccent,
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      barrierDismissible: true,
+                      builder: (BuildContext context) {
+                        return const AIAssistantPopup();
+                      },
+                    );
+                  },
+                  child: const Icon(Icons.smart_toy_outlined),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
