@@ -1,43 +1,147 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <base href="/">
   <meta charset="UTF-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta http-equiv="Content-Security-Policy" content="worker-src 'self' blob:">
   <title>Africulture</title>
-  <!-- Flutter Web Runtime -->
-  <script src="flutter.js" defer></script>
   <style>
-    body { margin: 0; overflow: hidden; }
-    #flutter-view { height: 100vh; width: 100vw; }
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #ffffff; /* Default white */
+    }
+    #flutter-view {
+      height: 100vh;
+      width: 100vw;
+      position: relative;
+    }
     .loading {
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       font-family: Arial, sans-serif;
+      z-index: 1000;
+    }
+    #error-fallback {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: white;
+      padding: 20px;
+      z-index: 9999;
+      text-align: center;
+    }
+    flt-glass-pane {
+      display: block !important;
+      position: absolute !important;
+      width: 100% !important;
+      height: 100% !important;
     }
   </style>
 </head>
 <body>
 <div id="flutter-view"></div>
 <div class="loading" id="loading">Loading Africulture...</div>
+<div id="error-fallback">
+  <h2>Loading Error</h2>
+  <p id="error-details">The application failed to load properly.</p>
+  <button onclick="window.location.reload()">Refresh Page</button>
+</div>
 
+<!-- Main Flutter Loader Script -->
+<script src="flutter.js" defer></script>
+
+<!-- Consolidated Initialization Script -->
 <script>
-  const serviceWorkerVersion = '1.0';
- window.addEventListener('load', function() {
-   let loading = document.getElementById('loading');
-   loading.style.display = 'none';
+  // Debugging setup
+  console.log("[DEBUG] Initializing Flutter loader...");
 
-   _flutter.loader.loadEntrypoint({
-     serviceWorker: {
-       serviceWorkerVersion: serviceWorkerVersion,
-     },
-     onEntrypointLoaded: async function(engineInitializer) {
-       let appRunner = await engineInitializer.initializeEngine();
-       await appRunner.runApp();
-     }
-   });
- });
+  // Service worker management
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(regs => {
+      regs.forEach(reg => reg.unregister());
+      console.log("[DEBUG] Service workers unregistered");
+    });
+    caches.keys().then(keys => {
+      keys.forEach(key => caches.delete(key));
+      console.log("[DEBUG] Cache cleared");
+    });
+  }
+
+  // Flutter loader configuration
+  window._flutter = window._flutter || {};
+  window._flutter.loader = window._flutter.loader || {
+    loadEntrypoint: () => Promise.resolve()
+  };
+
+  const serviceWorkerVersion = Date.now().toString(); // Dynamic version
+
+  // Main initialization
+  window.addEventListener('load', function() {
+    console.log("[DEBUG] Window loaded, starting Flutter...");
+
+    _flutter.loader.loadEntrypoint({
+      serviceWorker: {
+        serviceWorkerVersion: serviceWorkerVersion,
+      },
+      onEntrypointLoaded: async function(engineInitializer) {
+        try {
+          console.log("[DEBUG] Engine entrypoint loaded");
+          const appRunner = await engineInitializer.initializeEngine();
+          console.log("[DEBUG] Engine initialized");
+          await appRunner.runApp();
+        } catch (error) {
+          console.error("[ERROR] Flutter initialization failed:", error);
+          showError("Initialization failed: " + error.message);
+        }
+      }
+    });
+  });
+
+  // First-frame detection
+  window.addEventListener('flutter-first-frame', () => {
+    console.log("[DEBUG] 🎉 First frame rendered!");
+    document.getElementById('loading').style.display = 'none';
+    document.body.style.backgroundColor = '#ffffff'; // Reset debug color
+  });
+
+  // Fallback timeout
+  const renderCheck = setInterval(() => {
+    if (document.querySelector('flt-glass-pane')) {
+      console.log("[DEBUG] Flutter elements detected");
+      clearInterval(renderCheck);
+    } else {
+      console.log("[DEBUG] Waiting for Flutter elements...");
+    }
+  }, 500);
+
+  // Final timeout check
+  setTimeout(() => {
+    if (!document.querySelector('flt-glass-pane')) {
+      console.error("[ERROR] Flutter canvas elements missing after timeout");
+      showError("Application failed to render. Please try refreshing.");
+    }
+  }, 10000); // 10 second timeout
+
+  function showError(message) {
+    const loading = document.getElementById('loading');
+    const errorFallback = document.getElementById('error-fallback');
+    const errorDetails = document.getElementById('error-details');
+
+    loading.style.display = 'none';
+    errorDetails.textContent = message;
+    errorFallback.style.display = 'block';
+    document.body.style.backgroundColor = '#ffebee'; // Light red
+  }
 </script>
 </body>
 </html>
