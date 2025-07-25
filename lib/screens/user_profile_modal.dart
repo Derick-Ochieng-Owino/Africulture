@@ -89,6 +89,7 @@ class _UserProfileModalState extends State<UserProfileModal> {
       targetPath,
       quality: 70,
     );
+    return null;
   }
 
 

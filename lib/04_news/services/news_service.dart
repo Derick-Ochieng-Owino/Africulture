@@ -1,8 +1,9 @@
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 class NewsService {
-  static const String _apiKey = 'bea4cfbb7ce042b09e44710ff2082ff8';
+  static final String _apiKey = dotenv.env['NEWS_API_KEY'] ?? '';
   static const String _baseUrl = 'https://newsapi.org/v2';
 
   Future<List<dynamic>> fetchAgricultureNews() async {  // Renamed to match
