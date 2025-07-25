@@ -30,25 +30,25 @@ class _TransportHirePageState extends State<TransportHirePage> {
       'type': 'pickup_truck',
       'name': 'Pickup Truck',
       'rate': 50.0,
-      'image': 'assets/images/vehicles/pickup_truck.jpg'
+      'image': 'assets/vehicles/pickup_truck.jpg'
     },
     {
       'type': 'tractor_trailer',
       'name': 'Tractor Trailer',
       'rate': 80.0,
-      'image': 'assets/images/vehicles/tractor_trailer.jpg'
+      'image': 'assets/vehicles/tractor_trailer.jpg'
     },
     {
       'type': 'refrigerated_van',
       'name': 'Refrigerated Van',
       'rate': 70.0,
-      'image': 'assets/images/vehicles/refrigerated_van.jpg'
+      'image': 'assets/vehicles/refrigerated_van.jpg'
     },
     {
       'type': 'motorcycle',
       'name': 'Motorcycle',
       'rate': 30.0,
-      'image': 'assets/images/vehicles/motorcycle.jpg'
+      'image': 'assets/vehicles/motorcycle.jpg'
     },
   ];
 
