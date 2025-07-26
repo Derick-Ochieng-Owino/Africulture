@@ -1,0 +1,24 @@
+{
+  "forum": {
+    "title": "Farmers Forum",
+    "problem_banner": {
+      "title": "Hujambo! Tell us your farming problem"
+    },
+    "speak": "Speak",
+    "type": "Type",
+    "listening": "Listening...",
+    "language_support": "Available in Swahili, English, Sheng, Luo, Kikuyu & Luhya",
+    "create_post": "Create New Post",
+    "add_image": "Add Image (optional)",
+    "title_optional": "Title (optional)",
+    "share_prompt": "What would you like to share?",
+    "content_required": "Please enter your post content",
+    "post": "POST",
+    "comments": "Comments",
+    "add_comment": "Add a comment..."
+  },
+  "language": {
+    "english": "English",
+    "swahili": "Swahili"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "forum": {
+    "title": "Jukwaa la Wakulima",
+    "problem_banner": {
+      "title": "Hujambo! Tuambie shida yako ya kilimo"
+    },
+    "speak": "Sema",
+    "type": "Chapa",
+    "listening": "Inasikiliza...",
+    "language_support": "Inapatikana kwa Kiswahili, Kiingereza, Sheng, Kiluo, Kikuyu na Luhya",
+    "create_post": "Unda Chapisho Jipya",
+    "add_image": "Ongeza Picha (hiari)",
+    "title_optional": "Kichwa (hiari)",
+    "share_prompt": "Ungependa kushare nini?",
+    "content_required": "Tafadhali ingiza maudhui ya chapisho",
+    "post": "TUM",
+    "comments": "Maoni",
+    "add_comment": "Ongeza maoni..."
+  },
+  "language": {
+    "english": "Kiingereza",
+    "swahili": "Kiswahili"
+  }
+}

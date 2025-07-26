@@ -5,7 +5,6 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../services/gemini_service.dart';
 import '../services/image_upload_service.dart';
-import '../services/image_upload_service.dart' as ImageUploadService;
 import '../widgets/chat_message.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
@@ -128,7 +127,7 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
     if (!_isListening) {
       bool available = await _speech.initialize(
         onStatus: (status) => print('Speech status: $status'),
-        onError: (error) => print('Speech error: $error'),
+        onError: (error) => debugPrint('Speech error: $error'),
       );
 
       if (available) {
@@ -141,7 +140,7 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
           },
         );
       } else {
-        print("Speech recognition not available");
+        debugPrint("Speech recognition not available");
       }
     } else {
       setState(() => _isListening = false);

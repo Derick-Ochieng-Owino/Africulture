@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 
@@ -14,14 +15,14 @@ class IoTService {
 
     client.onConnected = () {
       isConnected = true;
-      print('✅ Connected');
+      debugPrint('✅ Connected');
     };
     client.onDisconnected = () {
       isConnected = false;
-      print('❌ Disconnected');
+      debugPrint('❌ Disconnected');
     };
     client.onSubscribed = (String topic) {
-      print('📌 Subscribed to $topic');
+      debugPrint('📌 Subscribed to $topic');
     };
 
     final connMessage = MqttConnectMessage()
