@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:africulture/models/product.dart';
-import 'package:africulture/service/cart_service.dart';
+import 'package:africulture/06_market/product.dart';
+import 'package:africulture/06_market/cart_service.dart';
 
 class ProductDetailPage extends StatelessWidget {
   final Product product;

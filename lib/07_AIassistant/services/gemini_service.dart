@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -63,7 +64,7 @@ class GeminiService {
       return data['candidates'][0]['content']['parts'][0]['text']
           .replaceAll("**", "");
     } else {
-      print("Error: ${response.body}");
+      debugPrint("Error: ${response.body}");
       throw Exception('Failed to get image diagnosis');
     }
   }

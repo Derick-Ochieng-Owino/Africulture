@@ -51,7 +51,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
 
     if (pickedFile == null) {
-      print("❌ No image selected");
+      debugPrint("❌ No image selected");
       return;
     }
 
@@ -66,27 +66,27 @@ class _EditProfilePageState extends State<EditProfilePage> {
           .child('profile_images')
           .child('${widget.uid}.jpg');
 
-      print("⏳ Uploading to Firebase Storage...");
+      debugPrint("⏳ Uploading to Firebase Storage...");
       final uploadTask = await storageRef.putFile(imageFile);
 
       if (uploadTask.state == TaskState.success) {
         final downloadUrl = await storageRef.getDownloadURL();
-        print("✅ Image uploaded! URL: $downloadUrl");
+        debugPrint("✅ Image uploaded! URL: $downloadUrl");
 
         await FirebaseFirestore.instance
             .collection('farmers')
             .doc(widget.uid)
             .update({'imageUrl': downloadUrl});
-        print("✅ imageUrl field updated in Firestore");
+        debugPrint("✅ imageUrl field updated in Firestore");
 
         setState(() {
           _existingImageUrl = downloadUrl;
         });
       } else {
-        print("❌ Upload failed: ${uploadTask.state}");
+        debugPrint("❌ Upload failed: ${uploadTask.state}");
       }
     } catch (e) {
-      print("❌ Upload error: $e");
+      debugPrint("❌ Upload error: $e");
     }
   }
 

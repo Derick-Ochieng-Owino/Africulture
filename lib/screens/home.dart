@@ -2,7 +2,7 @@ import 'package:africulture/02_iot/screens/dashboard.dart';
 import 'package:africulture/08_community/forum_page.dart';
 import 'package:africulture/05_hire/screens/hire_page.dart';
 import 'package:africulture/04_news/screens/news_screen.dart';
-import 'package:africulture/screens/user_profile_modal.dart';
+import 'package:africulture/09_profile/user_profile_modal.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -13,10 +13,11 @@ import 'package:flutter/scheduler.dart';
 import '../06_market/screens/market_place.dart';
 import '../03_weather/services/weather_service.dart';
 import '../01_location/services/location_service.dart';
-import 'package:africulture/screens/profile.dart';
+import 'package:africulture/09_profile/profile.dart';
 import '../07_AIassistant/widgets/ai_assistant_popup.dart';
 import '/screens/notifications_screen.dart';
-import 'package:africulture/widgets/custom_drawer.dart';
+import 'package:africulture/09_profile/custom_drawer.dart';
+import 'package:weather_icons/weather_icons.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,9 +34,9 @@ class MyApp extends StatelessWidget {
       title: 'Africulture',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        fontFamily: 'Arial',
+        fontFamily: 'Poppins',
         primaryColor: Colors.green[700],
-        scaffoldBackgroundColor: const Color(0xFFE6F7EC),
+        scaffoldBackgroundColor: const Color(0xFFF1F1F1), // Light Grey
         textTheme: const TextTheme(
           bodyMedium: TextStyle(color: Colors.black87),
         ),
@@ -52,7 +53,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 Future<void> checkProfileAndShowModal(BuildContext context, String uid) async {
-  final doc = await FirebaseFirestore.instance.collection('farmers').doc(uid).get();
+  final doc = await FirebaseFirestore.instance
+      .collection('farmers')
+      .doc(uid)
+      .get();
   final data = doc.data();
   final isComplete = data != null && (data['profileComplete'] == true);
 
@@ -87,13 +91,15 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _scrollListener() {
-    if (_scrollController.position.userScrollDirection == ScrollDirection.reverse) {
+    if (_scrollController.position.userScrollDirection ==
+        ScrollDirection.reverse) {
       if (_isBottomBarVisible) {
         SchedulerBinding.instance.addPostFrameCallback((_) {
           setState(() => _isBottomBarVisible = false);
         });
       }
-    } else if (_scrollController.position.userScrollDirection == ScrollDirection.forward) {
+    } else if (_scrollController.position.userScrollDirection ==
+        ScrollDirection.forward) {
       if (!_isBottomBarVisible) {
         SchedulerBinding.instance.addPostFrameCallback((_) {
           setState(() => _isBottomBarVisible = true);
@@ -119,6 +125,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFFFFFFF),
       drawer: const CustomDrawer(
         userName: 'John Doe',
         userEmail: 'john@example.com',
@@ -126,31 +133,33 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.green,
+        backgroundColor: const Color(0xFF00695C),
         title: const Text(
           'Africulture',
           style: TextStyle(
-            color: Colors.black87,
+            color: Colors.white,
             fontWeight: FontWeight.bold,
             fontSize: 22,
           ),
         ),
         leading: Builder(
           builder: (context) => IconButton(
-            icon: const Icon(Icons.menu, color: Colors.black87),
+            icon: const Icon(Icons.menu, color: Colors.white),
             onPressed: () {
-              Scaffold.of(context).openDrawer(); // ✅ Open the drawer
+              Scaffold.of(context).openDrawer();
             },
           ),
         ),
 
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_none, color: Colors.black87),
+            icon: const Icon(Icons.notifications_none, color: Colors.white),
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const NotificationPage()),
+                MaterialPageRoute(
+                  builder: (context) => const NotificationPage(),
+                ),
               );
             },
           ),
@@ -174,20 +183,28 @@ class _MyHomePageState extends State<MyHomePage> {
         duration: const Duration(milliseconds: 300),
         child: _isBottomBarVisible
             ? BottomNavigationBar(
-          backgroundColor: Colors.white,
-          currentIndex: myIndex,
-          selectedItemColor: Colors.green[800],
-          unselectedItemColor: Colors.grey,
-          onTap: onTabTapped,
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-            BottomNavigationBarItem(icon: Icon(Icons.newspaper), label: 'News'),
-          ],
-        )
+                backgroundColor: Colors.white,
+                currentIndex: myIndex,
+                selectedItemColor: Colors.green[800],
+                unselectedItemColor: Colors.grey,
+                onTap: onTabTapped,
+                items: const [
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.home),
+                    label: 'Home',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.person),
+                    label: 'Profile',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.newspaper),
+                    label: 'News',
+                  ),
+                ],
+              )
             : const SizedBox.shrink(), // hides it completely with no layout space
       ),
-
     );
   }
 }
@@ -240,7 +257,9 @@ class _HomePageContentState extends State<HomePageContent> {
           // Main scrollable content
           SingleChildScrollView(
             controller: widget.scrollController,
-            padding: const EdgeInsets.only(bottom: 80), // Add padding so AI icon doesn't overlap content
+            padding: const EdgeInsets.only(
+              bottom: 80,
+            ), // Add padding so AI icon doesn't overlap content
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -252,17 +271,21 @@ class _HomePageContentState extends State<HomePageContent> {
                       : _error.isNotEmpty
                       ? Text(_error)
                       : WeatherSummaryCard(
-                    weatherData: _weatherData!,
-                    isLoading: _isLoading,
-                    error: _error,
-                  ),
+                          weatherData: _weatherData!,
+                          isLoading: _isLoading,
+                          error: _error,
+                        ),
                 ),
                 const SizedBox(height: 20),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
                     "Quick Actions",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green[900]),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green[900],
+                    ),
                   ),
                 ),
                 GridView.count(
@@ -273,12 +296,36 @@ class _HomePageContentState extends State<HomePageContent> {
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
                   children: [
-                    const FeatureCard(icon: Icons.thermostat, title: "Weather", destination: WeatherPage()),
-                    const FeatureCard(icon: Icons.shopping_cart, title: "Market", destination: MarketPage()),
-                    const FeatureCard(icon: Icons.article, title: "News", destination: NewsPage()),
-                    const FeatureCard(icon: Icons.forum, title: "Forum", destination: ForumPage()),
-                    FeatureCard(icon: Icons.fire_truck, title: "Hire", destination: TransportHirePage()),
-                    const FeatureCard(icon: Icons.devices, title: "IoT Devices", destination: DashboardPage()),
+                    const FeatureCard(
+                      icon: Icons.thermostat,
+                      title: "Weather",
+                      destination: WeatherPage(),
+                    ),
+                    const FeatureCard(
+                      icon: Icons.shopping_cart,
+                      title: "Market",
+                      destination: MarketPage(),
+                    ),
+                    const FeatureCard(
+                      icon: Icons.article,
+                      title: "News",
+                      destination: NewsPage(),
+                    ),
+                    const FeatureCard(
+                      icon: Icons.forum,
+                      title: "Forum",
+                      destination: ForumPage(),
+                    ),
+                    FeatureCard(
+                      icon: Icons.fire_truck,
+                      title: "Hire",
+                      destination: TransportHirePage(),
+                    ),
+                    const FeatureCard(
+                      icon: Icons.devices,
+                      title: "IoT Devices",
+                      destination: DashboardPage(),
+                    ),
                   ],
                 ),
               ],
@@ -295,7 +342,10 @@ class _HomePageContentState extends State<HomePageContent> {
                 if (showPopupBubble)
                   Container(
                     margin: const EdgeInsets.only(bottom: 8),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.green[100],
                       borderRadius: BorderRadius.circular(15),
@@ -339,37 +389,65 @@ class WeatherSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: 180,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFB5E655), Color(0xFFE4F89A)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+        image: DecorationImage(
+          image: AssetImage(
+            'assets/weather_background.jpg',
+          ), // Replace with your asset
+          fit: BoxFit.cover,
         ),
         borderRadius: BorderRadius.circular(20),
       ),
       padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "${weatherData['main']['temp'].toStringAsFixed(1)}°C",
-            style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black87),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            "${weatherData['weather'][0]['main']} • ${weatherData['name']}",
-            style: const TextStyle(fontSize: 18, color: Colors.black54),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _iconInfo(Icons.air, "${weatherData['wind']['speed']} km/h"),
-              _iconInfo(Icons.water_drop, "${weatherData['main']['humidity']}%"),
-              _iconInfo(Icons.invert_colors, "${weatherData['main']['pressure']} hPa"),
-            ],
-          )
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "${weatherData['main']['temp'].toStringAsFixed(1)}°C",
+              style: const TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                BoxedIcon(
+                  getWeatherIcon(weatherData['weather'][0]['main']),
+                  color: Colors.white,
+                  size: 24,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "${weatherData['weather'][0]['main']} • ${weatherData['name']}",
+                  style: const TextStyle(fontSize: 18, color: Colors.white70),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _iconInfo(
+                  WeatherIcons.strong_wind,
+                  "${weatherData['wind']['speed']} km/h",
+                ),
+                _iconInfo(
+                  WeatherIcons.humidity,
+                  "${weatherData['main']['humidity']}%",
+                ),
+                _iconInfo(
+                  WeatherIcons.barometer,
+                  "${weatherData['main']['pressure']} hPa",
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -377,9 +455,9 @@ class WeatherSummaryCard extends StatelessWidget {
   Widget _iconInfo(IconData icon, String value) {
     return Column(
       children: [
-        Icon(icon, color: Colors.green[800], size: 24),
+        BoxedIcon(icon, color: Colors.white, size: 28),
         const SizedBox(height: 4),
-        Text(value, style: const TextStyle(fontSize: 14)),
+        Text(value, style: const TextStyle(fontSize: 14, color: Colors.white)),
       ],
     );
   }
@@ -401,23 +479,57 @@ class FeatureCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       elevation: 4,
-      color: const Color(0xFFE8F8BF),
+      color: const Color(0xFF9EECC2), // Lime Green background
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
-        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => destination)),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => destination),
+        ),
         borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 36, color: Colors.green[900]),
+              Icon(icon, size: 36, color: Color(0xFF00695C)), // Deep Teal icons
               const SizedBox(height: 10),
-              Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF212121), // Charcoal text
+                ),
+              ),
             ],
           ),
         ),
       ),
     );
+  }
+}
+
+
+IconData getWeatherIcon(String condition) {
+  switch (condition.toLowerCase()) {
+    case 'clear':
+      return WeatherIcons.day_sunny;
+    case 'clouds':
+      return WeatherIcons.cloud;
+    case 'rain':
+      return WeatherIcons.rain;
+    case 'drizzle':
+      return WeatherIcons.showers;
+    case 'thunderstorm':
+      return WeatherIcons.thunderstorm;
+    case 'snow':
+      return WeatherIcons.snow;
+    case 'mist':
+    case 'fog':
+    case 'haze':
+      return WeatherIcons.fog;
+    default:
+      return WeatherIcons.day_sunny_overcast;
   }
 }

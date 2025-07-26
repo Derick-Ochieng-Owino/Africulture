@@ -1,4 +1,4 @@
-import 'package:africulture/models/product.dart';
+import 'package:africulture/06_market/product.dart';
 
 class CartService {
   static final List<Product> _cartItems = [];

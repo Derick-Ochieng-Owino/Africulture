@@ -438,6 +438,11 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.2"
+  flutter_localizations:
+    dependency: "direct main"
+    description: flutter
+    source: sdk
+    version: "0.0.0"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -459,6 +464,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_translate:
+    dependency: "direct main"
+    description:
+      name: flutter_translate
+      sha256: edf2f39603fc9dfbe8f27b90445352f15582a3f39143b0e340e872fb0c0bfebb
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.3"
   flutter_tts:
     dependency: "direct main"
     description:
@@ -1032,6 +1045,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.0"
+  share_plus:
+    dependency: "direct main"
+    description:
+      name: share_plus
+      sha256: b2961506569e28948d75ec346c28775bb111986bb69dc6a20754a457e3d97fa0
+      url: "https://pub.dev"
+    source: hosted
+    version: "11.0.0"
+  share_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: share_plus_platform_interface
+      sha256: "1032d392bc5d2095a77447a805aa3f804d2ae6a4d5eef5e6ebb3bd94c1bc19ef"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.0.0"
   shared_preferences:
     dependency: "direct main"
     description:
@@ -1293,6 +1322,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "15.0.0"
+  weather_icons:
+    dependency: "direct main"
+    description:
+      name: weather_icons
+      sha256: "76bd96fda0b723fba74a35083b6d77313306aae4c0f915636cbb7299b69d3b91"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.0"
   web:
     dependency: transitive
     description:

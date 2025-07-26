@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:africulture/service/cart_service.dart';
-import 'package:africulture/models/product.dart';
+import 'package:africulture/06_market/cart_service.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
