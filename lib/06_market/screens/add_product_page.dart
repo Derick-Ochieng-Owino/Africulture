@@ -1,6 +1,7 @@
 // ✅ 1. Product Add Form Page (product_add_page.dart)
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -42,6 +43,7 @@ class _ProductAddPageState extends State<ProductAddPage> {
         'category': category,
         'approved': false,
         'createdAt': FieldValue.serverTimestamp(),
+        'sellerId': FirebaseAuth.instance.currentUser!.uid,
       });
 
       ScaffoldMessenger.of(context).showSnackBar(

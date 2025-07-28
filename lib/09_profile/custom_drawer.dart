@@ -25,7 +25,7 @@ class CustomDrawer extends StatelessWidget {
           Container(
             height: 180,
             decoration: BoxDecoration(
-              color: isDarkMode ? Colors.green[900] : Colors.green[800],
+              color: isDarkMode ? Colors.blue : Colors.blueAccent,
               borderRadius: const BorderRadius.only(
                 bottomRight: Radius.circular(20),
               ),
@@ -39,9 +39,9 @@ class CustomDrawer extends StatelessWidget {
                   backgroundImage: profileImageUrl.isNotEmpty
                       ? NetworkImage(profileImageUrl)
                       : const AssetImage('assets/default_profile.png') as ImageProvider,
-                  backgroundColor: Colors.green[100],
+                  backgroundColor: Colors.white30,
                   child: profileImageUrl.isEmpty
-                      ? const Icon(Icons.person, size: 40, color: Colors.green)
+                      ? const Icon(Icons.person, size: 40, color: Colors.white)
                       : null,
                 ),
                 const SizedBox(width: 16),
@@ -194,7 +194,7 @@ class CustomDrawer extends StatelessWidget {
       }) {
     final theme = Theme.of(context);
     return ListTile(
-      leading: Icon(icon, color: color ?? theme.primaryColor),
+      leading: Icon(icon, color: color ?? Colors.blueAccent),
       title: Text(
         title,
         style: TextStyle(
