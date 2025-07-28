@@ -68,6 +68,13 @@ flutter:
     - assets/vehicles/tractor_trailer.jpg
     - assets/weather_background.jpg
     - assets/locale/
+    - assets/products/
+    - assets/products/seeds/
+    - assets/products/equipment/
+    - assets/products/irrigation/
+    - assets/products/pesticides/
+    - assets/products/tools/
+    - assets/products/fertilizers/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
