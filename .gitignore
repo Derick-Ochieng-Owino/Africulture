@@ -48,7 +48,6 @@ app.*.map.json
 firebase_options.dart
 google-services.json
 .vercel/
-.vercel/
 build/
 android/
 ios/

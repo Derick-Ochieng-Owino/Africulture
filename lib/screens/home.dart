@@ -19,6 +19,7 @@ import '/screens/notifications_screen.dart';
 import 'package:africulture/09_profile/custom_drawer.dart';
 import 'package:weather_icons/weather_icons.dart';
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -36,11 +37,12 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: 'Poppins',
         primaryColor: Colors.green[700],
-        scaffoldBackgroundColor: const Color(0xFFF1F1F1), // Light Grey
+        scaffoldBackgroundColor: const Color(0xFFF5F5F5), // Light Grey
         textTheme: const TextTheme(
           bodyMedium: TextStyle(color: Colors.black87),
         ),
       ),
+      home: const MyHomePage(),
     );
   }
 }
@@ -53,10 +55,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 Future<void> checkProfileAndShowModal(BuildContext context, String uid) async {
-  final doc = await FirebaseFirestore.instance
-      .collection('farmers')
-      .doc(uid)
-      .get();
+  final doc = await FirebaseFirestore.instance.collection('farmers').doc(uid).get();
   final data = doc.data();
   final isComplete = data != null && (data['profileComplete'] == true);
 
@@ -75,6 +74,24 @@ class _MyHomePageState extends State<MyHomePage> {
   late ScrollController _scrollController;
   bool _isBottomBarVisible = true;
 
+  String username = '';
+  String userEmail = '';
+  String profileImageurl = '';
+
+  Future<void> getUserInfo(String uid) async {
+    final doc = await FirebaseFirestore.instance.collection('farmers').doc(uid).get();
+    final data = doc.data();
+    if (data != null) {
+      setState(() {
+        username = data['name'] ?? '';
+        userEmail = data['email'] ?? '';
+        profileImageurl = data['photoUrl'] ?? ''; // change based on your field
+      });
+    }
+  }
+
+
+
   @override
   void initState() {
     super.initState();
@@ -84,6 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser != null) {
+      getUserInfo(currentUser.uid);
       WidgetsBinding.instance.addPostFrameCallback((_) {
         checkProfileAndShowModal(context, currentUser.uid);
       });
@@ -91,15 +109,13 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _scrollListener() {
-    if (_scrollController.position.userScrollDirection ==
-        ScrollDirection.reverse) {
+    if (_scrollController.position.userScrollDirection == ScrollDirection.reverse) {
       if (_isBottomBarVisible) {
         SchedulerBinding.instance.addPostFrameCallback((_) {
           setState(() => _isBottomBarVisible = false);
         });
       }
-    } else if (_scrollController.position.userScrollDirection ==
-        ScrollDirection.forward) {
+    } else if (_scrollController.position.userScrollDirection == ScrollDirection.forward) {
       if (!_isBottomBarVisible) {
         SchedulerBinding.instance.addPostFrameCallback((_) {
           setState(() => _isBottomBarVisible = true);
@@ -126,14 +142,17 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFFFFFF),
-      drawer: const CustomDrawer(
-        userName: 'John Doe',
-        userEmail: 'john@example.com',
-        profileImageUrl: 'https://via.placeholder.com/150',
-      ),
+      drawer: username.isNotEmpty
+          ? CustomDrawer(
+        userName: username,
+        userEmail: userEmail,
+        profileImageUrl: profileImageurl,
+      )
+          : null, // or show a loading drawer or empty
+
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: const Color(0xFF00695C),
+        backgroundColor: const Color(0xFF2E7D32), // Dark Green
         title: const Text(
           'Africulture',
           style: TextStyle(
@@ -145,65 +164,60 @@ class _MyHomePageState extends State<MyHomePage> {
         leading: Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.menu, color: Colors.white),
-            onPressed: () {
-              Scaffold.of(context).openDrawer();
-            },
+            onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
-
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_none, color: Colors.white),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const NotificationPage(),
-                ),
-              );
-            },
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const NotificationPage()),
+            ),
           ),
-          const SizedBox(width: 8),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.language, color: Colors.white),
+            onSelected: (String language) {
+              // Handle language change
+            },
+            itemBuilder: (BuildContext context) => [
+              const PopupMenuItem(value: 'English', child: Text('English')),
+              const PopupMenuItem(value: 'Swahili', child: Text('Swahili')),
+              const PopupMenuItem(value: 'French', child: Text('French')),
+            ],
+          ),
         ],
       ),
       body: PageView(
         controller: _pageController,
-        onPageChanged: (index) {
-          setState(() => myIndex = index);
-        },
+        onPageChanged: (index) => setState(() => myIndex = index),
         children: [
-          HomePageContent(scrollController: _scrollController),
+          HomePageContent(scrollController: _scrollController, userName: username,),
           FirebaseAuth.instance.currentUser != null
               ? ProfilePage(user: FirebaseAuth.instance.currentUser!)
               : const Center(child: Text("Not logged in")),
           const NewsPage(),
         ],
       ),
-      bottomNavigationBar: AnimatedSwitcher(
+      bottomNavigationBar: AnimatedSlide(
         duration: const Duration(milliseconds: 300),
-        child: _isBottomBarVisible
-            ? BottomNavigationBar(
-                backgroundColor: Colors.white,
-                currentIndex: myIndex,
-                selectedItemColor: Colors.green[800],
-                unselectedItemColor: Colors.grey,
-                onTap: onTabTapped,
-                items: const [
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.home),
-                    label: 'Home',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.person),
-                    label: 'Profile',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.newspaper),
-                    label: 'News',
-                  ),
-                ],
-              )
-            : const SizedBox.shrink(), // hides it completely with no layout space
+        offset: _isBottomBarVisible ? Offset.zero : const Offset(0, 1),
+        child: AnimatedOpacity(
+          duration: const Duration(milliseconds: 300),
+          opacity: _isBottomBarVisible ? 1.0 : 0.0,
+          child: BottomNavigationBar(
+            backgroundColor: Colors.white,
+            currentIndex: myIndex,
+            selectedItemColor: const Color(0xFF2E7D32), // Dark Green
+            unselectedItemColor: Colors.grey,
+            onTap: onTabTapped,
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+              BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+              BottomNavigationBarItem(icon: Icon(Icons.newspaper), label: 'News'),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -211,8 +225,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
 class HomePageContent extends StatefulWidget {
   final ScrollController scrollController;
+  final String userName;
 
-  const HomePageContent({super.key, required this.scrollController});
+  const HomePageContent({super.key, required this.scrollController, required this.userName});
 
   @override
   State<HomePageContent> createState() => _HomePageContentState();
@@ -254,15 +269,35 @@ class _HomePageContentState extends State<HomePageContent> {
     return SafeArea(
       child: Stack(
         children: [
-          // Main scrollable content
           SingleChildScrollView(
             controller: widget.scrollController,
-            padding: const EdgeInsets.only(
-              bottom: 80,
-            ), // Add padding so AI icon doesn't overlap content
+            padding: const EdgeInsets.only(bottom: 80),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const SizedBox(height: 20),
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.lightBlue[50], // Light blue background
+                    border: Border.all(
+                      color: Colors.white, // Border color
+                      width: 2,
+                    ),
+                    borderRadius: BorderRadius.circular(12), // Rounded corners
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Welcome Back ${widget.userName} 🧑‍🌾',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 20),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -271,11 +306,13 @@ class _HomePageContentState extends State<HomePageContent> {
                       : _error.isNotEmpty
                       ? Text(_error)
                       : WeatherSummaryCard(
-                          weatherData: _weatherData!,
-                          isLoading: _isLoading,
-                          error: _error,
-                        ),
+                    weatherData: _weatherData!,
+                    isLoading: _isLoading,
+                    error: _error,
+                  ),
                 ),
+                const SizedBox(height: 20),
+                _buildRecommendations(),
                 const SizedBox(height: 20),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -326,13 +363,21 @@ class _HomePageContentState extends State<HomePageContent> {
                       title: "IoT Devices",
                       destination: DashboardPage(),
                     ),
+                    FeatureCard(
+                      icon: Icons.bug_report,
+                      title: "Pest Alert",
+                      destination: ForumPage(), // Replace with PestPage
+                    ),
+                    FeatureCard(
+                      icon: Icons.attach_money,
+                      title: "Loans",
+                      destination: MarketPage(), // Replace with FinancialPage
+                    ),
                   ],
                 ),
               ],
             ),
           ),
-
-          // Floating AI button and popup
           Positioned(
             bottom: 20,
             right: 20,
@@ -342,10 +387,7 @@ class _HomePageContentState extends State<HomePageContent> {
                 if (showPopupBubble)
                   Container(
                     margin: const EdgeInsets.only(bottom: 8),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.green[100],
                       borderRadius: BorderRadius.circular(15),
@@ -354,21 +396,53 @@ class _HomePageContentState extends State<HomePageContent> {
                   ),
                 FloatingActionButton(
                   backgroundColor: Colors.greenAccent,
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      barrierDismissible: true,
-                      builder: (BuildContext context) {
-                        return const AIAssistantPopup();
-                      },
-                    );
-                  },
+                  onPressed: () => showDialog(
+                    context: context,
+                    barrierDismissible: true,
+                    builder: (BuildContext context) => const AIAssistantPopup(),
+                  ),
                   child: const Icon(Icons.smart_toy_outlined),
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildRecommendations() {
+    return SizedBox(
+      height: 150,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        children: [
+          _recommendationCard("Crop Rotation", Icons.grass, "Rotate maize with beans to improve soil health."),
+          _recommendationCard("Market Trends", Icons.trending_up, "Cassava prices are up 15% this month."),
+          _recommendationCard("Grants", Icons.attach_money, "Apply for climate-smart farming grants."),
+        ],
+      ),
+    );
+  }
+
+  Widget _recommendationCard(String title, IconData icon, String subtitle) {
+    return Card(
+      elevation: 4,
+      margin: const EdgeInsets.only(right: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: const Color(0xFF2E7D32), size: 32),
+            const SizedBox(height: 8),
+            Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 4),
+            Text(subtitle, style: const TextStyle(fontSize: 12)),
+          ],
+        ),
       ),
     );
   }
@@ -391,11 +465,10 @@ class WeatherSummaryCard extends StatelessWidget {
     return Container(
       height: 180,
       decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage(
-            'assets/weather_background.jpg',
-          ), // Replace with your asset
-          fit: BoxFit.cover,
+        gradient: const LinearGradient(
+          colors: [Color(0xFF2196F3), Color(0xFF4CAF50)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
       ),
@@ -427,24 +500,28 @@ class WeatherSummaryCard extends StatelessWidget {
                 ),
               ],
             ),
-
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _iconInfo(
-                  WeatherIcons.strong_wind,
-                  "${weatherData['wind']['speed']} km/h",
-                ),
-                _iconInfo(
-                  WeatherIcons.humidity,
-                  "${weatherData['main']['humidity']}%",
-                ),
-                _iconInfo(
-                  WeatherIcons.barometer,
-                  "${weatherData['main']['pressure']} hPa",
-                ),
+                _iconInfo(WeatherIcons.strong_wind, "${weatherData['wind']['speed']} km/h"),
+                _iconInfo(WeatherIcons.humidity, "${weatherData['main']['humidity']}%"),
+                _iconInfo(WeatherIcons.barometer, "${weatherData['main']['pressure']} hPa"),
               ],
+            ),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const WeatherPage()),
+                ),
+                child: const Text(
+                  "7-Day Forecast",
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
             ),
           ],
         ),
@@ -479,7 +556,7 @@ class FeatureCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       elevation: 4,
-      color: const Color(0xFF9EECC2), // Lime Green background
+      color: const Color(0xFFE8F5E9), // Light Green
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: () => Navigator.push(
@@ -492,14 +569,14 @@ class FeatureCard extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 36, color: Color(0xFF00695C)), // Deep Teal icons
+              Icon(icon, size: 36, color: const Color(0xFF2E7D32)), // Dark Green
               const SizedBox(height: 10),
               Text(
                 title,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF212121), // Charcoal text
+                  color: Color(0xFF212121),
                 ),
               ),
             ],
@@ -509,7 +586,6 @@ class FeatureCard extends StatelessWidget {
     );
   }
 }
-
 
 IconData getWeatherIcon(String condition) {
   switch (condition.toLowerCase()) {

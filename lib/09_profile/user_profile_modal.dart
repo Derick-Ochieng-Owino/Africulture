@@ -1,3 +1,5 @@
+import 'dart:io' as io;
+
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
@@ -6,8 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart';
-
-
+import 'package:flutter/foundation.dart';
 
 class UserProfileModal extends StatefulWidget {
   final String uid;
@@ -57,12 +58,23 @@ class _UserProfileModalState extends State<UserProfileModal> {
     }
   }
 
-  Future<String?> _uploadImage(File imageFile) async {
+  Future<String?> _uploadImage(dynamic imageFile) async {
     final ref = FirebaseStorage.instance
         .ref()
         .child('profile_images/${widget.uid}.jpg');
-    await ref.putFile(imageFile);
-    return await ref.getDownloadURL();
+
+    UploadTask uploadTask;
+
+    if (kIsWeb) {
+      // Web: imageFile must be Uint8List
+      uploadTask = ref.putData(imageFile as Uint8List);
+    } else {
+      // Mobile: imageFile must be io.File
+      uploadTask = ref.putFile(imageFile as io.File);
+    }
+
+    final snapshot = await uploadTask;
+    return await snapshot.ref.getDownloadURL();
   }
 
   double _calculateCompleteness() {

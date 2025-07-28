@@ -1,5 +1,6 @@
 import 'dart:io';
-
+import 'dart:io' as io;
+import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -145,12 +146,24 @@ class _CreatePostDialogState extends State<CreatePostDialog> {
 
       // Upload image if selected
       String? imageUrl;
+
       if (_imageFile != null) {
         final ref = FirebaseStorage.instance
             .ref()
             .child('post_images/${DateTime.now().millisecondsSinceEpoch}');
-        await ref.putFile(_imageFile!);
-        imageUrl = await ref.getDownloadURL();
+
+        UploadTask uploadTask;
+
+        if (kIsWeb) {
+          // _imageFile should be Uint8List on web
+          uploadTask = ref.putData(_imageFile as Uint8List);
+        } else {
+          // _imageFile should be File on mobile
+          uploadTask = ref.putFile(_imageFile as io.File);
+        }
+
+        final snapshot = await uploadTask;
+        imageUrl = await snapshot.ref.getDownloadURL();
       }
 
       // Create post document
