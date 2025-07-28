@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../widgets/bottom_navbar.dart';
+
 class AccountScreen extends StatelessWidget {
   const AccountScreen({super.key});
 
@@ -91,6 +93,7 @@ class AccountScreen extends StatelessWidget {
           ),
         ],
       ),
+      bottomNavigationBar: const BottomNavBar(selectedIndex: 3),
     );
   }
 }

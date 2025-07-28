@@ -38,11 +38,7 @@ class CustomDrawer extends StatelessWidget {
                   radius: 40,
                   backgroundImage: profileImageUrl.isNotEmpty
                       ? NetworkImage(profileImageUrl)
-<<<<<<< HEAD
-                      : const AssetImage('assets/default_profile.jpg') as ImageProvider,
-=======
                       : const AssetImage('assets/default_profile.png') as ImageProvider,
->>>>>>> 5df6cc5861a138b5fb059e14e406343467db6cc2
                   backgroundColor: Colors.white30,
                   child: profileImageUrl.isEmpty
                       ? const Icon(Icons.person, size: 40, color: Colors.white)
@@ -50,11 +46,7 @@ class CustomDrawer extends StatelessWidget {
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-<<<<<<< HEAD
-                  child: Column( 
-=======
                   child: Column(
->>>>>>> 5df6cc5861a138b5fb059e14e406343467db6cc2
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

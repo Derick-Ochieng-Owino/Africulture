@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:africulture/10_authenticication/login_page.dart'; // Replace with your actual import
+import 'package:lottie/lottie.dart';
+import 'package:africulture/10_authenticication/login_page.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -16,7 +17,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _navigateToLogin() async {
-    await Future.delayed(const Duration(seconds: 3)); // 3-second delay
+    await Future.delayed(const Duration(seconds: 4));
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const LoginPage()),
@@ -31,7 +32,12 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset("assets/logo.jpg", height: 120), // Add your logo
+            // Play Lottie animation
+            Lottie.asset(
+              'assets/animations/plant_grow.json',
+              height: 200,
+              repeat: true,
+            ),
             const SizedBox(height: 20),
             const Text(
               "Africulture",
@@ -41,8 +47,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 color: Colors.white,
               ),
             ),
-            const SizedBox(height: 10),
-            const CircularProgressIndicator(color: Colors.white),
+            const SizedBox(height: 20),
           ],
         ),
       ),

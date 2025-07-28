@@ -1,3 +1,4 @@
+// lib/widgets/app_drawer.dart
 import 'package:flutter/material.dart';
 
 class AppDrawer extends StatelessWidget {
@@ -43,7 +44,7 @@ class AppDrawer extends StatelessWidget {
             onTap: () {
               Navigator.pushNamedAndRemoveUntil(
                   context,
-                  '/',
+                  '/market',
                       (route) => false
               );
             },

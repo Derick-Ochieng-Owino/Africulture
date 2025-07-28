@@ -23,7 +23,7 @@ class BottomNavBar extends StatelessWidget {
           case 0:
             Navigator.pushNamedAndRemoveUntil(
                 context,
-                '/',
+                '/market',
                     (route) => false
             );
             break;

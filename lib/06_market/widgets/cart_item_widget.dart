@@ -20,27 +20,25 @@ class CartItemWidget extends StatelessWidget {
         padding: const EdgeInsets.all(8),
         child: Row(
           children: [
-            // Product Image
             Container(
               width: 80,
               height: 80,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: NetworkImage(item.product.imagePath),
+                  image: NetworkImage(item.product.imageUrl),
                   fit: BoxFit.cover,
                 ),
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
             const SizedBox(width: 16),
-            // Product Info
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                 Text(
-                  item.product.name,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                item.product.name,
+                style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 Text(
                   '\$${item.product.price.toStringAsFixed(2)}',

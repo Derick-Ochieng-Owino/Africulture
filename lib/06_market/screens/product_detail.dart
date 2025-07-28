@@ -1,3 +1,4 @@
+// lib/screens/product_detail.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/product.dart';
@@ -22,7 +23,7 @@ class ProductDetailScreen extends StatelessWidget {
               height: 300,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: NetworkImage(product.imagePath),
+                  image: NetworkImage(product.imageUrl),
                   fit: BoxFit.cover,
                 ),
               ),

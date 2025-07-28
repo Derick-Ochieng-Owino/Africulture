@@ -1,10 +1,11 @@
+// lib/screens/home_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/product_service.dart';
 import '../widgets/category_card.dart';
 import '../widgets/product_card.dart';
 import '../widgets/app_drawer.dart';
-import 'package:africulture/06_market/widgets/bottom_navbar.dart';
+import '../widgets/bottom_navbar.dart';
 
 class AgriCommerceApp extends StatelessWidget {
   const AgriCommerceApp({super.key});
@@ -46,7 +47,7 @@ class AgriCommerceApp extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 image: const DecorationImage(
                   image: NetworkImage(
-                      'https://source.unsplash.com/random/800x300/?farm'),
+                      'https://i.pinimg.com/736x/59/73/e0/5973e099147f06a5a14dbb3846fab840.jpg'),
                   fit: BoxFit.cover,
                 ),
               ),
