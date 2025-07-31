@@ -1,15 +1,11 @@
-import 'package:africulture/08_community/post_card.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:share_plus/share_plus.dart';
-import 'dart:io';
-
 import 'create_post_dialog.dart';
 import 'delete_post_button.dart';
 

@@ -1,3 +1,4 @@
+import 'package:africulture/06_market/screens/add_product_page.dart';
 import 'package:africulture/10_authenticication/forgot_password.dart';
 import 'package:africulture/10_authenticication/login_page.dart';
 import 'package:africulture/10_authenticication/signup_page.dart';
@@ -18,38 +19,35 @@ import 'package:provider/provider.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:africulture/08_community/forum_page.dart';
-import '06_market/models/product.dart';
-import '06_market/screens/account_screen.dart';
-import '06_market/screens/agricommerce.dart';
-import '06_market/screens/cart_screen.dart';
-import '06_market/screens/categories_screen.dart';
-import '06_market/screens/product_detaIl.dart';
-import '06_market/screens/products_screen.dart';
-import '06_market/screens/search_screen.dart';
-import '06_market/services/cart_service.dart';
-import '06_market/services/product_service.dart';
+import 'package:africulture/06_market/screens/account_screen.dart';
+import 'package:africulture/06_market/screens/admin_dashboard.dart';
+import 'package:africulture/06_market/screens/agricommerce.dart';
+import 'package:africulture/06_market/screens/cart_screen.dart';
+import 'package:africulture/06_market/screens/categories_screen.dart';
+import 'package:africulture/06_market/screens/product_detail.dart';
+import 'package:africulture/06_market/screens/products_screen.dart';
+import 'package:africulture/06_market/screens/search_screen.dart';
+import 'package:africulture/06_market/services/auth_service.dart';
+import 'package:africulture/06_market/services/cart_service.dart';
+import 'package:africulture/06_market/services/product_service.dart';
+import 'package:africulture/06_market/widgets/error_boundary.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  try {
-    await dotenv.load(fileName: '.env');
+  await dotenv.load(fileName: '.env');
 
+  try {
+    // Initialize Firebase with fallback values
     await Firebase.initializeApp(
       options: FirebaseOptions(
-        apiKey: dotenv.get('FIREBASE_API_KEY'),
-        authDomain: dotenv.get('FIREBASE_AUTH_DOMAIN'),
-        projectId: dotenv.get('FIREBASE_PROJECT_ID'),
-        storageBucket: dotenv.get('FIREBASE_STORAGE_BUCKET'),
-        messagingSenderId: dotenv.get('FIREBASE_MESSAGING_SENDER_ID'),
-        appId: dotenv.get('FIREBASE_APP_ID'),
+        apiKey: dotenv.get('FIREBASE_API_KEY', fallback: ''),
+        authDomain: dotenv.get('FIREBASE_AUTH_DOMAIN', fallback: ''),
+        projectId: dotenv.get('FIREBASE_PROJECT_ID', fallback: ''),
+        storageBucket: dotenv.get('FIREBASE_STORAGE_BUCKET', fallback: ''),
+        messagingSenderId: dotenv.get('FIREBASE_MESSAGING_SENDER_ID', fallback: ''),
+        appId: dotenv.get('FIREBASE_APP_ID', fallback: ''),
       ),
-    );
-
-    final localizationDelegate = await LocalizationDelegate.create(
-      fallbackLocale: 'en',
-      supportedLocales: ['en', 'sw'],
-      basePath: 'assets/locale/',
     );
 
     if (!kIsWeb) {
@@ -59,22 +57,30 @@ Future<void> main() async {
       );
     }
 
+    final localizationDelegate = await LocalizationDelegate.create(
+      fallbackLocale: 'en',
+      supportedLocales: ['en', 'sw'],
+      basePath: 'assets/locale/',
+    );
+
     runApp(
-      LocalizedApp(
-        localizationDelegate,
-        ChangeNotifierProvider(
-          create: (_) => AuthMethods(),
-          child: const MyApp(),
+      ErrorBoundary(
+        child: LocalizedApp(
+          localizationDelegate,
+          ChangeNotifierProvider(
+            create: (_) => AuthMethods(),
+            child: const MyApp(),
+          ),
         ),
       ),
     );
   } catch (e) {
     runApp(
-      const MaterialApp(
-        home: Scaffold(
-          body: Center(child: Text('Application initialization failed')),
+        const MaterialApp(
+          home: Scaffold(
+            body: Center(child: Text('Application initialization failed')),
+          ),
         ),
-      ),
     );
   }
 }
@@ -89,6 +95,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthMethods()),
+        ChangeNotifierProvider(create: (_) => AuthService()),
         ChangeNotifierProvider(create: (_) => ProductService()),
         ChangeNotifierProvider(create: (_) => CartService()),
       ],
@@ -123,6 +130,7 @@ class MyApp extends StatelessWidget {
           '/categories': (context) => const CategoriesScreen(),
           '/products': (context) => const ProductsScreen(),
           '/product_detail': (context) => ProductDetailScreen(),
+          '/add-product': (context) => ProductAddPage(),
           '/cart': (context) => const CartScreen(),
           '/search': (context) => const SearchScreen(),
           '/account': (context) => const AccountScreen(),
@@ -132,6 +140,21 @@ class MyApp extends StatelessWidget {
                 ? const LoginPage()
                 : EditProfilePage(uid: user.uid);
           },
+          '/admin': (context) => FutureBuilder<bool>(
+            future: AuthService.isAdmin(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Scaffold(body: Center(child: CircularProgressIndicator()));
+              }
+              if (snapshot.hasError) {
+                return const Scaffold(body: Center(child: Text('Error checking admin status')));
+              }
+              if (snapshot.data == true) {
+                return const AdminDashboard();
+              }
+              return const Scaffold(body: Center(child: Text('Admin access required')));
+            },
+          ),
         },
       ),
     );

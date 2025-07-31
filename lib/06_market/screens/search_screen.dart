@@ -1,7 +1,5 @@
-// lib/screens/search_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/product.dart';
 import '../services/product_service.dart';
 import '../widgets/product_card.dart';
 
@@ -14,7 +12,7 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
-  List<Product> _searchResults = [];
+  bool _isSearching = false;
 
   @override
   void dispose() {
@@ -22,53 +20,71 @@ class _SearchScreenState extends State<SearchScreen> {
     super.dispose();
   }
 
-  void _searchProducts(String query) {
-    final productService = Provider.of<ProductService>(context, listen: false);
-    setState(() {
-      _searchResults = productService.products
-          .where((product) =>
-      product.name.toLowerCase().contains(query.toLowerCase()) ||
-          product.category.toLowerCase().contains(query.toLowerCase()))
-          .toList();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
+    final productService = Provider.of<ProductService>(context);
+    final List products = _isSearching
+        ? productService.searchResults
+        : productService.products;
+
     return Scaffold(
       appBar: AppBar(
         title: TextField(
           controller: _searchController,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             hintText: 'Search for agricultural products...',
             border: InputBorder.none,
+            suffixIcon: _isSearching
+                ? IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () {
+                _searchController.clear();
+                productService.clearSearch();
+                setState(() => _isSearching = false);
+              },
+            )
+                : null,
           ),
           autofocus: true,
-          onChanged: _searchProducts,
+          onChanged: (query) {
+            if (query.isNotEmpty) {
+              setState(() => _isSearching = true);
+              productService.searchProducts(query);
+            } else {
+              setState(() => _isSearching = false);
+              productService.clearSearch();
+            }
+          },
         ),
       ),
-      body: _searchController.text.isEmpty
-          ? const Center(
-        child: Text('Enter a search term to find products'),
-      )
-          : GridView.count(
-        crossAxisCount: 2,
-        childAspectRatio: 0.75,
-        padding: const EdgeInsets.all(8),
-        children: _searchResults
-            .map(
-              (product) => ProductCard(
-            product: product,
-            onTap: () {
-              Navigator.pushNamed(
-                context,
-                '/product_detail',
-                arguments: product,
-              );
-            },
-          ),
-        )
-            .toList(),
+      body: Builder(
+        builder: (context) {
+          if (productService.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (products.isEmpty) {
+            return const Center(
+              child: Text('No products found'),
+            );
+          }
+
+          return GridView.count(
+            crossAxisCount: 2,
+            childAspectRatio: 0.75,
+            padding: const EdgeInsets.all(8),
+            children: products.map(
+                  (product) => ProductCard(
+                product: product,
+                onTap: () => Navigator.pushNamed(
+                  context,
+                  '/product_detail',
+                  arguments: product,
+                ),
+              ),
+            ).toList(),
+          );
+        },
       ),
     );
   }

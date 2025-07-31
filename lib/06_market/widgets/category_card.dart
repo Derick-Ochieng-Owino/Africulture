@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 class CategoryCard extends StatelessWidget {
   final String category;
   final int productCount;
+  final VoidCallback? onTap;
 
   const CategoryCard({
     super.key,
     required this.category,
     required this.productCount,
+    this.onTap,
   });
 
   @override

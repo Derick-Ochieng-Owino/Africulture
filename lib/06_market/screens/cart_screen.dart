@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/cart_service.dart';
-import '../models/cart_item.dart';
 import '../widgets/bottom_navbar.dart';
 import '../widgets/cart_item_widget.dart';
 

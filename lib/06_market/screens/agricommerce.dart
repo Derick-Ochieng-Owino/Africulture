@@ -1,4 +1,3 @@
-// lib/screens/home_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/product_service.dart';
@@ -7,8 +6,21 @@ import '../widgets/product_card.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/bottom_navbar.dart';
 
-class AgriCommerceApp extends StatelessWidget {
+class AgriCommerceApp extends StatefulWidget {
   const AgriCommerceApp({super.key});
+
+  @override
+  State<AgriCommerceApp> createState() => _AgriCommerceAppState();
+}
+
+class _AgriCommerceAppState extends State<AgriCommerceApp>{
+  @override
+  void initState(){
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ProductService>(context, listen: false).loadProducts();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,6 +29,7 @@ class AgriCommerceApp extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('AgriCommerce'),
+        backgroundColor: Colors.orangeAccent,
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
@@ -30,15 +43,23 @@ class AgriCommerceApp extends StatelessWidget {
               Navigator.pushNamed(context, '/cart');
             },
           ),
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () {
+              Navigator.pushNamed(context, '/add-product');
+            },
+          ),
         ],
       ),
+
       drawer: const AppDrawer(),
       body: productService.isLoading
           ? const Center(child: CircularProgressIndicator())
+          : productService.products.isEmpty
+          ? const Center(child: Text('No products found.'))
           : SingleChildScrollView(
         child: Column(
           children: [
-            // Banner Section
             Container(
               height: 180,
               margin: const EdgeInsets.all(16),

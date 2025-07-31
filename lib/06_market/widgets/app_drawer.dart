@@ -44,7 +44,7 @@ class AppDrawer extends StatelessWidget {
             onTap: () {
               Navigator.pushNamedAndRemoveUntil(
                   context,
-                  '/market',
+                  '/home',
                       (route) => false
               );
             },

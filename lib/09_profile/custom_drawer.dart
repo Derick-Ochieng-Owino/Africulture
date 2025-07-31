@@ -38,7 +38,7 @@ class CustomDrawer extends StatelessWidget {
                   radius: 40,
                   backgroundImage: profileImageUrl.isNotEmpty
                       ? NetworkImage(profileImageUrl)
-                      : const AssetImage('assets/default_profile.png') as ImageProvider,
+                      : const AssetImage('assets/default_profile.jpg') as ImageProvider,
                   backgroundColor: Colors.white30,
                   child: profileImageUrl.isEmpty
                       ? const Icon(Icons.person, size: 40, color: Colors.white)
