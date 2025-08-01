@@ -69,8 +69,7 @@ class _AgriCommerceAppState extends State<AgriCommerceApp>{
                 color: Colors.green[50],
                 borderRadius: BorderRadius.circular(12),
                 image: const DecorationImage(
-                  image: NetworkImage(
-                      'https://i.pinimg.com/736x/59/73/e0/5973e099147f06a5a14dbb3846fab840.jpg'),
+                  image: AssetImage('assets/back_images/market_back.jpg'),
                   fit: BoxFit.cover,
                 ),
               ),

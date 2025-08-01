@@ -1,5 +1,5 @@
-// lib/widgets/cart_item.dart
 import 'package:flutter/material.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import '../models/cart_item.dart';
 
 class CartItemWidget extends StatelessWidget {
@@ -20,38 +20,55 @@ class CartItemWidget extends StatelessWidget {
         padding: const EdgeInsets.all(8),
         child: Row(
           children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: NetworkImage(item.product.imageUrl),
-                  fit: BoxFit.cover,
-                ),
-                borderRadius: BorderRadius.circular(8),
-              ),
+            // Image with proper Firebase URL handling
+            FutureBuilder(
+              future: _getSafeImageUrl(item.product.imageUrl),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done &&
+                    snapshot.hasData) {
+                  return Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: NetworkImage(snapshot.data!),
+                        fit: BoxFit.cover,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  );
+                }
+                return Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Center(child: CircularProgressIndicator()),
+                );
+              },
             ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                Text(
-                item.product.name,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  '\$${item.product.price.toStringAsFixed(2)}',
-                  style: TextStyle(
-                    color: Colors.green[800],
-                    fontWeight: FontWeight.bold,
+                  Text(
+                    item.product.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                ),
-                Text('Qty: ${item.quantity}'),
+                  Text(
+                    '\$${item.product.price.toStringAsFixed(2)}',
+                    style: TextStyle(
+                      color: Colors.green[800],
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text('Qty: ${item.quantity}'),
                 ],
               ),
             ),
-            // Remove Button
             IconButton(
               icon: const Icon(Icons.remove_circle_outline),
               color: Colors.red,
@@ -61,5 +78,18 @@ class CartItemWidget extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<String> _getSafeImageUrl(String storageUrl) async {
+    try {
+      // Convert storage URL to reference
+      final ref = FirebaseStorage.instance.refFromURL(storageUrl);
+      // Get fresh download URL with proper CORS headers
+      return await ref.getDownloadURL();
+    } catch (e) {
+      debugPrint('Error getting image URL: $e');
+      // Return a placeholder image URL as fallback
+      return 'https://via.placeholder.com/80';
+    }
   }
 }

@@ -342,7 +342,7 @@ class _HomePageContentState extends State<HomePageContent> {
                       'https://i.pinimg.com/736x/c2/41/41/c24141162ee2853351e012cd0689bb93.jpg',
                       'https://i.pinimg.com/1200x/ca/b3/18/cab318dcb2aa78393cde56dc5986ee7f.jpg',
                       'https://i.pinimg.com/736x/eb/24/b9/eb24b91c97f40e4ab8c180ee9f4cab9c.jpg',
-                    ],
+                    ].map((url) => 'https://africulture.vercel.app/api/proxy?url=${Uri.encodeComponent(url)}').toList(),
                     captions: const [
                       "Real time weather",
                       "Modern irrigation systems",

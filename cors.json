@@ -1,0 +1,12 @@
+[
+  {
+    "origin": [
+      "https://africulture.vercel.app",
+      "http://localhost",
+      "http://localhost:8080"
+    ],
+    "method": ["GET", "HEAD", "OPTIONS"],
+    "responseHeader": ["Content-Type", "Cache-Control"],
+    "maxAgeSeconds": 3600
+  }
+]

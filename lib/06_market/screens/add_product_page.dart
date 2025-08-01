@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -81,12 +82,19 @@ class _ProductAddPageState extends State<ProductAddPage> {
           .ref()
           .child('product_images/$userId/${DateTime.now().millisecondsSinceEpoch}_$fileName');
 
-      final uploadTask = ref.putFile(
-        _imageFile!,
-        SettableMetadata(
-          contentType: 'image/jpeg',
-        ),
-      );
+      UploadTask uploadTask;
+      if (kIsWeb) {
+        final bytes = await _imageFile!.readAsBytes();
+        uploadTask = ref.putData(
+          bytes,
+          SettableMetadata(contentType: 'image/jpeg'),
+        );
+      } else {
+        uploadTask = ref.putFile(
+          _imageFile!,
+          SettableMetadata(contentType: 'image/jpeg'),
+        );
+      }
 
       uploadTask.snapshotEvents.listen((snapshot) {
         setState(() {

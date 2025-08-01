@@ -33,6 +33,7 @@ class _CreatePostDialogState extends State<CreatePostDialog> {
   final FirebaseStorage _storage = FirebaseStorage.instance;
   String? _imagePath;
   bool _isUploading = false;
+  Uint8List? _webImageData;
 
   @override
   void initState() {
@@ -112,13 +113,18 @@ class _CreatePostDialogState extends State<CreatePostDialog> {
   }
 
   Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-    );
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
-      setState(() => _imagePath = pickedFile.path);
+      setState(() {
+        _imagePath = pickedFile.path;
+      });
+
+      if (kIsWeb) {
+        _webImageData = await pickedFile.readAsBytes();
+      }
     }
   }
+
 
   Future<void> _submitPost() async {
     final content = _contentController.text.trim();
@@ -148,10 +154,10 @@ class _CreatePostDialogState extends State<CreatePostDialog> {
         UploadTask uploadTask;
 
         if (kIsWeb) {
-          uploadTask = ref.putData(_imagePath as Uint8List);
+          if (_webImageData == null) throw Exception('Web image data is null');
+          uploadTask = ref.putData(_webImageData!);
         } else {
-          uploadTask = ref.putFile(io.File(_imagePath!));
-
+          uploadTask = ref.putFile(File(_imagePath!));
         }
 
         final snapshot = await uploadTask;
