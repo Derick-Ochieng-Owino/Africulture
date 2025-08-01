@@ -10,10 +10,7 @@ class AuthMethods with ChangeNotifier {
   bool get isSigningIn => _isSigningIn;
 
   Future<void> signInWithGoogle(BuildContext context) async {
-    if (_isSigningIn) {
-      debugPrint("Already signing in, skipping...");
-      return;
-    }
+    if (_isSigningIn) return;
 
     try {
       _isSigningIn = true;
@@ -21,18 +18,12 @@ class AuthMethods with ChangeNotifier {
       debugPrint("START: Google Sign-In");
 
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-
       if (googleUser == null) {
         debugPrint("User canceled Google sign-in");
         return;
       }
 
-      debugPrint("Google user: ${googleUser.email}");
-
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-
-      debugPrint("Access Token: ${googleAuth.accessToken}");
-      debugPrint("ID Token: ${googleAuth.idToken}");
 
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
@@ -40,9 +31,16 @@ class AuthMethods with ChangeNotifier {
       );
 
       final userCredential = await _auth.signInWithCredential(credential);
-      debugPrint("Signed in as: ${userCredential.user?.email}");
+      final user = userCredential.user;
 
-      Navigator.pushReplacementNamed(context, '/home');
+      if (user == null) {
+        debugPrint("Firebase user is null after sign-in");
+        return;
+      }
+
+      debugPrint("Signed in as: ${user.email}");
+
+      Navigator.of(context).pushReplacementNamed('/home');
     } catch (e) {
       debugPrint("ERROR during Google sign-in: $e");
       ScaffoldMessenger.of(context).showSnackBar(
@@ -54,4 +52,5 @@ class AuthMethods with ChangeNotifier {
       debugPrint("END: Google Sign-In");
     }
   }
+
 }

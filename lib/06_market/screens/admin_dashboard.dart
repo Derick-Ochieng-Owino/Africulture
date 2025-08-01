@@ -15,7 +15,7 @@ class AdminDashboard extends StatefulWidget {
 class _AdminDashboardState extends State<AdminDashboard> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  List<String> _selectedIds = [];
+  final List<String> _selectedIds = [];
   bool _isSelecting = false;
 
   @override

@@ -1,4 +1,6 @@
 // lib/screens/login_page.dart
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
@@ -46,20 +48,17 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: Stack(
         children: [
-            // 🌄 Background image
           SizedBox.expand(
             child: Image.asset(
-              'assets/back6.jpg', // 👈 Change path to your actual image
+              'assets/back_images/back6.jpg', // 👈 Change path to your actual image
               fit: BoxFit.cover,
             ),
           ),
 
-          // 🧼 Optional overlay (for darkening the image)
           Container(
           color: Colors.black.withOpacity(0.2),
           ),
 
-          // ✅ Existing content
           SafeArea(
           child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -78,7 +77,7 @@ class _LoginPageState extends State<LoginPage> {
                 // Social login buttons
                 SocialButton(
                   label: "Google",
-                  logoPath: "assets/google.png",
+                  logoPath: "assets/back_images/google.png",
                   onPressed: auth.isSigningIn
                       ? null
                       : () => auth.signInWithGoogle(context),
@@ -89,13 +88,13 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 12),
                 SocialButton(
                   label: "Apple",
-                  logoPath: "assets/apple.png",
+                  logoPath: "assets/back_images/apple.png",
                   onPressed: () {}, // TODO: Add Apple login logic
                 ),
                 const SizedBox(height: 12),
                 SocialButton(
                   label: "Facebook",
-                  logoPath: "assets/facebook.png",
+                  logoPath: "assets/back_images/facebook.png",
                   onPressed: () {}, // TODO: Add Facebook login logic
                 ),
                 const SizedBox(height: 12),

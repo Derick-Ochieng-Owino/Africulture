@@ -1,5 +1,5 @@
 import 'dart:io' as io;
-
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
@@ -23,13 +23,58 @@ class _UserProfileModalState extends State<UserProfileModal> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _countyController = TextEditingController();
-  final _subCountyController = TextEditingController();
-  final _villageController = TextEditingController();
   final _farmingTypeController = TextEditingController();
+  String? _selectedCounty;
+  String? _selectedSubCounty;
+  String? _selectedVillage;
+  bool _isLoading = false;
+
+  final Map<String, Map<String, List<String>>> _kenyaLocations = {
+    'Nairobi': {
+      'Westlands': ['Lavington', 'Kitisuru', 'Parklands'],
+      'Dagoretti': ['Ngando', 'Riruta', 'Uthiru'],
+      'Embakasi': ['Pipeline', 'Umoja', 'Donholm'],
+      'Kasarani': ['Mwiki', 'Githurai', 'Clay City'],
+    },
+    'Mombasa': {
+      'Nyali': ['Kongowea', 'Mkomani', 'Bamburi'],
+      'Kisauni': ['Mtopanga', 'Mjambere', 'Bamburi'],
+      'Changamwe': ['Port Reitz', 'Changamwe', 'Airport'],
+      'Likoni': ['Shika Adabu', 'Likoni', 'Mtongwe'],
+    },
+    'Kakamega': {
+      'Lurambi': ['Mahiakalo', 'Lurambi', 'Butsotso'],
+      'Malava': ['Malava', 'Chegulo', 'Kabras'],
+      'Mumias West': ['Musanda', 'Shibinga', 'Etenje'],
+      'Butere': ['Bukura', 'Shikunga', 'Marama West'],
+    },
+    'Kiambu': {
+      'Ruiru': ['Gatongora', 'Mugutha', 'Biashara'],
+      'Thika Town': ['Township', 'Kamenu', 'Hospital'],
+      'Kikuyu': ['Kikuyu', 'Sigona', 'Karai'],
+    },
+    'Kisumu': {
+      'Kisumu Central': ['Market Milimani', 'Nyalenda', 'Railways'],
+      'Nyando': ['Ahero', 'Kobura', 'Awasi'],
+      'Seme': ['East Seme', 'West Seme', 'North Seme'],
+    },
+    'Nakuru': {
+      'Naivasha': ['Lake View', 'Mai Mahiu', 'Karagita'],
+      'Nakuru Town East': ['Flamingo', 'Menengai', 'Biashara'],
+      'Rongai': ['Visoi', 'Londiani', 'Soin'],
+    },
+    'Uasin Gishu': {
+      'Eldoret East': ['Kapsoya', 'Chepkoilel', 'Simat'],
+      'Turbo': ['Turbo', 'Kamukunji', 'Huruma'],
+    },
+    'Meru': {
+      'Imenti North': ['Municipality', 'Ntima East', 'Ntima West'],
+      'Tigania West': ['Kianjai', 'Muthara', 'Athwana'],
+    },
+  };
+
 
   File? _image;
-  bool _isLoading = false;
 
   @override
   void initState() {
@@ -41,13 +86,14 @@ class _UserProfileModalState extends State<UserProfileModal> {
     final doc = await FirebaseFirestore.instance.collection('farmers').doc(widget.uid).get();
     final data = doc.data();
     if (data != null) {
-      _nameController.text = data['name'] ?? '';
-      _phoneController.text = data['phone'] ?? '';
-      _countyController.text = data['county'] ?? '';
-      _subCountyController.text = data['subCounty'] ?? '';
-      _villageController.text = data['village'] ?? '';
-      _farmingTypeController.text = data['farmingType'] ?? '';
-      // optionally preload image url
+      setState(() {
+        _nameController.text = data['name'] ?? '';
+        _phoneController.text = data['phone'] ?? '';
+        _selectedCounty = data['county'];
+        _selectedSubCounty = data['subCounty'];
+        _selectedVillage = data['village'];
+        _farmingTypeController.text = data['farmingType'] ?? '';
+      });
     }
   }
 
@@ -66,10 +112,8 @@ class _UserProfileModalState extends State<UserProfileModal> {
     UploadTask uploadTask;
 
     if (kIsWeb) {
-      // Web: imageFile must be Uint8List
       uploadTask = ref.putData(imageFile as Uint8List);
     } else {
-      // Mobile: imageFile must be io.File
       uploadTask = ref.putFile(imageFile as io.File);
     }
 
@@ -83,15 +127,16 @@ class _UserProfileModalState extends State<UserProfileModal> {
 
     if (_nameController.text.isNotEmpty) filled++;
     if (_phoneController.text.isNotEmpty) filled++;
-    if (_countyController.text.isNotEmpty) filled++;
-    if (_subCountyController.text.isNotEmpty) filled++;
-    if (_villageController.text.isNotEmpty) filled++;
+    if (_selectedCounty?.isNotEmpty ?? false) filled++;
+    if (_selectedSubCounty?.isNotEmpty ?? false) filled++;
+    if (_selectedVillage?.isNotEmpty ?? false) filled++;
     if (_image != null) filled++;
 
     return filled / totalFields;
   }
 
-  Future<File?> compressImage(File file) async {
+  Future<XFile?> compressImage(File file) async {
+    print(FirebaseAuth.instance.currentUser?.uid);
     final dir = await getTemporaryDirectory();
     final targetPath = "${dir.path}/temp_profile_${widget.uid}.jpg";
 
@@ -100,47 +145,39 @@ class _UserProfileModalState extends State<UserProfileModal> {
       targetPath,
       quality: 70,
     );
-    return null;
+    return result;
   }
 
-
   Future<void> _saveProfile() async {
+    print(FirebaseAuth.instance.currentUser?.uid);
+
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
 
     String? imageUrl;
 
-    // 🔽 Upload image if selected
     if (_image != null) {
-      File? compressedImage = await compressImage(_image!);
+      File? compressedImage = (await compressImage(_image!)) as io.File?;
       if (compressedImage != null) {
-        final ref = FirebaseStorage.instance
-            .ref()
-            .child('profile_images')
-            .child('${widget.uid}.jpg');
-
-        await ref.putFile(compressedImage);
-        imageUrl = await ref.getDownloadURL();
+        imageUrl = await _uploadImage(compressedImage);
       }
     }
 
-    //Save all details to firebase
     await FirebaseFirestore.instance.collection('farmers').doc(widget.uid).set({
       'name': _nameController.text.trim(),
       'phone': _phoneController.text.trim(),
-      'county': _countyController.text.trim(),
-      'subCounty': _subCountyController.text.trim(),
-      'village': _villageController.text.trim(),
+      'county': _selectedCounty,
+      'subCounty': _selectedSubCounty,
+      'village': _selectedVillage,
       'farmingType': _farmingTypeController.text.trim(),
       'profileComplete': _calculateCompleteness() == 1.0,
       if (imageUrl != null) 'photoUrl': imageUrl,
     }, SetOptions(merge: true));
 
     setState(() => _isLoading = false);
-    Navigator.of(context).pop();
+    if (mounted) Navigator.of(context).pop();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -186,20 +223,67 @@ class _UserProfileModalState extends State<UserProfileModal> {
                     keyboardType: TextInputType.phone,
                     validator: (val) => val == null || val.isEmpty ? 'Required' : null,
                   ),
-                  TextFormField(
-                    controller: _countyController,
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: _selectedCounty,
                     decoration: const InputDecoration(labelText: 'County'),
-                    validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+                    items: _kenyaLocations.keys.map((String county) {
+                      return DropdownMenuItem<String>(
+                        value: county,
+                        child: Text(county),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedCounty = newValue;
+                        _selectedSubCounty = null;
+                        _selectedVillage = null;
+                      });
+                    },
+                    validator: (value) => value == null ? 'Please select a county' : null,
                   ),
-                  TextFormField(
-                    controller: _subCountyController,
-                    decoration: const InputDecoration(labelText: 'Sub-county'),
-                    validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: _selectedSubCounty,
+                    decoration: const InputDecoration(labelText: 'Sub-County'),
+                    items: _selectedCounty != null
+                        ? _kenyaLocations[_selectedCounty]!.keys.map((String subCounty) {
+                      return DropdownMenuItem<String>(
+                        value: subCounty,
+                        child: Text(subCounty),
+                      );
+                    }).toList()
+                        : [],
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedSubCounty = newValue;
+                        _selectedVillage = null;
+                      });
+                    },
+                    validator: (value) => value == null ? 'Please select a sub-county' : null,
+                    disabledHint: const Text('Select county first'),
                   ),
-                  TextFormField(
-                    controller: _villageController,
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: _selectedVillage,
                     decoration: const InputDecoration(labelText: 'Village'),
+                    items: _selectedCounty != null && _selectedSubCounty != null
+                        ? _kenyaLocations[_selectedCounty]![_selectedSubCounty]!
+                        .map((String village) {
+                      return DropdownMenuItem<String>(
+                        value: village,
+                        child: Text(village),
+                      );
+                    }).toList()
+                        : [],
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedVillage = newValue;
+                      });
+                    },
+                    disabledHint: const Text('Select sub-county first'),
                   ),
+                  const SizedBox(height: 16),
                   TextFormField(
                     controller: _farmingTypeController,
                     decoration: const InputDecoration(labelText: 'Type of Farming'),

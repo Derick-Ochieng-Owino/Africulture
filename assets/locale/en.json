@@ -2,7 +2,8 @@
   "forum": {
     "title": "Farmers Forum",
     "problem_banner": {
-      "title": "Hujambo! Tell us your farming problem"
+      "title": "Hujambo! Tell us your farming problem",
+      "description": "Report any issues you're facing here and let us help you out quickly."
     },
     "speak": "Speak",
     "type": "Type",
@@ -15,7 +16,12 @@
     "content_required": "Please enter your post content",
     "post": "POST",
     "comments": "Comments",
-    "add_comment": "Add a comment..."
+    "add_comment": "Add a comment...",
+    "forum": {
+      "problem_banner": {
+        "description": "Report any issues you're facing here and let us help you out quickly."
+      }
+    }
   },
   "language": {
     "english": "English",

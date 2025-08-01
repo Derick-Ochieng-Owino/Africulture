@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/product.dart';
@@ -39,7 +41,7 @@ class ProductDetailScreen extends StatelessWidget {
                   child: Image.network(
                     product.imageUrl,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => const Icon(Icons.error),
+                    errorBuilder: (_, _, _) => const Icon(Icons.error),
                   ),
                 ),
               ),

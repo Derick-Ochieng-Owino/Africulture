@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -10,14 +12,14 @@ class AutoScrollingGallery extends StatefulWidget {
   final List<String>? captions; // Optional captions for each image
 
   const AutoScrollingGallery({
-    Key? key,
+    super.key,
     required this.imageUrls,
     this.showIndicators = true,
     this.isPausable = true,
     this.borderRadius = 12.0,
     this.padding,
     this.captions,
-  }) : super(key: key);
+  });
 
   @override
   _AutoScrollingGalleryState createState() => _AutoScrollingGalleryState();

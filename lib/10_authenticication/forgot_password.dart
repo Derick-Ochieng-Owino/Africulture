@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:africulture/10_authenticication/signup_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -42,7 +44,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
           // Background Image
           Positioned.fill(
             child: Image.asset(
-              "assets/back6.jpg",
+              "assets/back_images/back6.jpg",
               fit: BoxFit.cover,
             ),
           ),

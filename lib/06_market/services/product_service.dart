@@ -52,7 +52,6 @@ class ProductService with ChangeNotifier {
         _products.addAll(
           snapshot.docs.map((doc) => Product.fromFirestore(doc)),
         );
-        print("Loaded products count: ${_products.length}");
       }
     } catch (e) {
       _error = 'Failed to load products: ${e.toString()}';

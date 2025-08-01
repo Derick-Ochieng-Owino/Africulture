@@ -23,9 +23,9 @@ class AuthService with ChangeNotifier{
         'uid': targetUserId,
         'email': targetEmail,
       });
-      print(result.data);
+      debugPrint(result.data);
     } catch (e) {
-      print('Error granting admin: $e');
+      debugPrint('Error granting admin: $e');
       rethrow;
     }
   }
@@ -42,7 +42,7 @@ class AuthService with ChangeNotifier{
           .call({'productId': productId});
       return result.data;
     } catch (e) {
-      print('Error approving product: $e');
+      debugPrint('Error approving product: $e');
       rethrow;
     }
   }

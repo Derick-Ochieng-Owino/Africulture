@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:ui';
 import 'package:africulture/02_iot/screens/dashboard.dart';
 import 'package:africulture/08_community/forum_page.dart';
@@ -15,7 +17,7 @@ import '../../06_market/screens/agricommerce.dart';
 import '../widgets/gallery_widget.dart';
 import '../widgets/recommendation_widget.dart';
 import '/03_weather/services/weather_service.dart';
-import '/01_location/services/location_service.dart';
+import '../service/location_service.dart';
 import 'package:africulture/09_profile/profile.dart';
 import '/07_AIassistant/widgets/ai_assistant_popup.dart';
 import '/11_home/screens/notifications_screen.dart';
@@ -390,52 +392,44 @@ class _HomePageContentState extends State<HomePageContent> {
                   mainAxisSpacing: 12,
                   children: [
                     const FeatureCard(
-                      icon: Icons.thermostat,
+                      imagePath: 'assets/icon_s/weather.jpg',
                       title: "Weather",
                       destination: WeatherPage(),
-                      color: Colors.yellow,
                     ),
                     const FeatureCard(
-                      icon: Icons.shopping_cart,
+                      imagePath: 'assets/icon_s/market.jpg',
                       title: "Market",
                       destination: AgriCommerceApp(),
-                      color: Colors.yellow,
                     ),
                     const FeatureCard(
-                      icon: Icons.article,
+                      imagePath: 'assets/icon_s/news.jpg',
                       title: "News",
                       destination: NewsPage(),
-                      color: Colors.yellow,
                     ),
                     const FeatureCard(
-                      icon: Icons.forum,
-                      title: "Forum",
+                      imagePath: 'assets/icon_s/forum.jpg',
+                      title: "Community",
                       destination: ForumPage(),
-                      color: Colors.yellow,
                     ),
                     FeatureCard(
-                      icon: Icons.fire_truck,
-                      title: "Hire",
+                      imagePath: 'assets/icon_s/hire.jpg',
+                      title: "Transport",
                       destination: TransportHirePage(),
-                      color: Colors.yellow,
                     ),
                     const FeatureCard(
-                      icon: Icons.devices,
+                      imagePath: 'assets/icon_s/iot.jpg',
                       title: "IoT Devices",
                       destination: DashboardPage(),
-                      color: Colors.blueAccent,
                     ),
                     FeatureCard(
-                      icon: Icons.bug_report,
+                      imagePath: 'assets/icon_s/wallet.jpg',
                       title: "Pest Alert",
                       destination: ForumPage(),
-                      color: Colors.yellow,
                     ),
                     FeatureCard(
-                      icon: Icons.attach_money,
-                      title: "Loans",
+                      imagePath: 'assets/icon_s/wallet.jpg',
+                      title: "Farm Wallet",
                       destination: ForumPage(),
-                      color: Colors.yellow,
                     ),
                   ],
                 ),
@@ -580,24 +574,22 @@ class WeatherSummaryCard extends StatelessWidget {
 }
 
 class FeatureCard extends StatelessWidget {
-  final IconData icon;
+  final String imagePath;
   final String title;
   final Widget destination;
-  final Color color;
 
   const FeatureCard({
     super.key,
-    required this.icon,
+    required this.imagePath,
     required this.title,
     required this.destination,
-    required this.color,
   });
 
   @override
   Widget build(BuildContext context) {
     return Material(
       elevation: 4,
-      color: const Color(0xFFE8F5E9), // Light Green
+      color: const Color(0xFFE8F5E9),
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: () => Navigator.push(
@@ -605,19 +597,29 @@ class FeatureCard extends StatelessWidget {
           MaterialPageRoute(builder: (context) => destination),
         ),
         borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Icon(icon, size: 36, color: const Color(0xFF2E7D32)), // Dark Green
-              const SizedBox(height: 10),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF212121),
+              Expanded(
+                child: Image.asset(
+                  imagePath,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(10),
+                color: Colors.black54,
+                child: Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ],
@@ -625,6 +627,7 @@ class FeatureCard extends StatelessWidget {
         ),
       ),
     );
+
   }
 }
 

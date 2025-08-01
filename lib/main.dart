@@ -34,7 +34,6 @@ import 'package:africulture/06_market/widgets/error_boundary.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await dotenv.load(fileName: '.env');
 
   try {
@@ -92,6 +91,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final localizationDelegate = LocalizedApp.of(context).delegate;
 
+    final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthMethods()),
@@ -100,6 +100,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CartService()),
       ],
       child: MaterialApp(
+            navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
@@ -109,6 +110,7 @@ class MyApp extends StatelessWidget {
           localizationDelegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: localizationDelegate.supportedLocales,
         locale: localizationDelegate.currentLocale,

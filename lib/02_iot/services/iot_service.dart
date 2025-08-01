@@ -33,19 +33,19 @@ class IoTService {
     client.connectionMessage = connMessage;
 
     try {
-      print('🔌 Connecting to broker...');
+      debugPrint('🔌 Connecting to broker...');
       await client.connect();
 
       if (client.connectionStatus!.state == MqttConnectionState.connected) {
-        print('✅ MQTT Connected');
+        debugPrint('✅ MQTT Connected');
         return true;
       } else {
-        print('❌ Connection failed: ${client.connectionStatus}');
+        debugPrint('❌ Connection failed: ${client.connectionStatus}');
         disconnect();
         return false;
       }
     } catch (e) {
-      print('❌ Exception during connection: $e');
+      debugPrint('❌ Exception during connection: $e');
       disconnect();
       return false;
     }
@@ -59,7 +59,7 @@ class IoTService {
 
   void controlDevice(String deviceId, String command) {
     if (!isConnected || client.connectionStatus!.state != MqttConnectionState.connected) {
-      print('⚠️ Cannot send command. MQTT not connected.');
+      debugPrint('⚠️ Cannot send command. MQTT not connected.');
       return;
     }
 
@@ -72,7 +72,7 @@ class IoTService {
 
     final topic = 'farms/$deviceId/control';
     client.publishMessage(topic, MqttQos.atLeastOnce, builder.payload!);
-    print('📤 Command sent to $topic');
+    debugPrint('📤 Command sent to $topic');
   }
 
   Stream<Map<String, dynamic>> getDeviceUpdates(String deviceId) {
@@ -87,7 +87,7 @@ class IoTService {
     return client.updates!.map((events) {
       final recMsg = events[0].payload as MqttPublishMessage;
       final msg = MqttPublishPayload.bytesToStringAsString(recMsg.payload.message);
-      print('📩 Message received: $msg');
+      debugPrint('📩 Message received: $msg');
       return jsonDecode(msg);
     });
   }

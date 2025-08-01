@@ -10,7 +10,7 @@ class CartService with ChangeNotifier {
   String? _error;
 
   List<CartItem> get items => _items;
-  int get itemCount => _items.fold(0, (sum, item) => sum + item.quantity);
+  int get itemCount => _items.fold(0, (int sum, item) => sum + item.quantity);
   double get totalPrice => _items.fold(0, (sum, item) => sum + item.totalPrice);
   bool get syncing => _syncing;
   String? get error => _error;

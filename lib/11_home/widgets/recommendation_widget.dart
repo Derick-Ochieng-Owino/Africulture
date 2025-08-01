@@ -7,12 +7,12 @@ class RecommendationCard extends StatelessWidget {
   final Color color;
 
   const RecommendationCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.icon,
     required this.subtitle,
     this.color = const Color(0xFF2E7D32),
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -42,10 +42,10 @@ class RecommendationsList extends StatelessWidget {
   final Color? iconColor;
 
   const RecommendationsList({
-    Key? key,
+    super.key,
     required this.recommendations,
     this.iconColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -30,12 +30,11 @@ class GeminiService {
       return data['candidates'][0]['content']['parts'][0]['text']
           .replaceAll("**", "");
     } else {
-      print("Error: ${response.body}");
+      debugPrint("Error: ${response.body}");
       throw Exception('Failed to get Gemini response');
     }
   }
 
-  // ✅ Image + prompt
   static Future<String> sendImageWithPrompt(String imageUrl, String prompt) async {
     final response = await http.post(
       Uri.parse('$endpoint?key=$apiKey'),

@@ -69,17 +69,17 @@ class _SignUpPageState extends State<SignUpPage> {
       // 🌄 Background image
       SizedBox.expand(
       child: Image.asset(
-        'assets/back6.jpg', // 👈 Change path to your actual image
+        'assets/back_images/back6.jpg',
         fit: BoxFit.cover,
       ),
     ),
 
     // 🧼 Optional overlay (for darkening the image)
     Container(
+    // ignore: deprecated_member_use
     color: Colors.black.withOpacity(0.2),
     ),
 
-    // ✅ Existing content
     SafeArea(
     child: Padding(
     padding: const EdgeInsets.all(24.0),
@@ -101,7 +101,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
                 SocialButton(
                   label: "Google",
-                  logoPath: "assets/google.png",
+                  logoPath: "assets/back_images/google.png",
                   onPressed: auth.isSigningIn
                       ? null
                       : () {
@@ -112,7 +112,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 const SizedBox(height: 12),
                 SocialButton(
                   label: "Apple",
-                  logoPath: "assets/apple.png",
+                  logoPath: "assets/back_images/apple.png",
                   onPressed: () {
                     debugPrint("Apple Sign In pressed");
                   },

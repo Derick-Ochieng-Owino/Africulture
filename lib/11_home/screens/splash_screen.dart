@@ -1,6 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:africulture/10_authenticication/login_page.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,15 +13,21 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _navigateToLogin();
+    _checkLoginStatus();
   }
 
-  Future<void> _navigateToLogin() async {
+  Future<void> _checkLoginStatus() async {
     await Future.delayed(const Duration(seconds: 4));
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginPage()),
-    );
+
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (!mounted) return;
+
+    if (user != null) {
+      Navigator.pushReplacementNamed(context, '/home');
+    }else{
+      Navigator.pushReplacementNamed(context, '/login');
+    }
   }
 
   @override

@@ -9,12 +9,12 @@ class ProductApprovalCard extends StatelessWidget {
   final void Function(String productId, bool selected)? onSelectionChanged;
 
   const ProductApprovalCard({
-    Key? key,
+    super.key,
     required this.productId,
     required this.productData,
     this.isSelected = false,
     this.onSelectionChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

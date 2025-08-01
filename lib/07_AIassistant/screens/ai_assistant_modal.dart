@@ -126,7 +126,7 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
   void _listen() async {
     if (!_isListening) {
       bool available = await _speech.initialize(
-        onStatus: (status) => print('Speech status: $status'),
+        onStatus: (status) => debugPrint('Speech status: $status'),
         onError: (error) => debugPrint('Speech error: $error'),
       );
 

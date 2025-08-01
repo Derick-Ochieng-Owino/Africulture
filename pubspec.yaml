@@ -63,7 +63,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/
+    - assets/back_images/
     - .env
     - assets/animations/typing.json
     - assets/animations/plant_grow.json
@@ -71,16 +71,9 @@ flutter:
     - assets/vehicles/pickup_truck.jpg
     - assets/vehicles/refrigerated_van.jpg
     - assets/vehicles/tractor_trailer.jpg
-    - assets/weather_background.jpg
+    - assets/back_images/weather_background.jpg
     - assets/locale/
-    - assets/products/default.jpg
-    - assets/products/seeds/
-    - assets/products/equipment/
-    - assets/products/irrigation/
-    - assets/products/pesticides/
-    - assets/products/tools/
-    - assets/products/fertilizers/
-    - assets/products/equipment/plough.jpg
+    - assets/icon_s/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
