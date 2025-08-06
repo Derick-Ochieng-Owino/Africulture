@@ -169,3 +169,50 @@ exports.healthCheck = onRequest(async (req, res) => {
     res.status(500).json({ error: "Service unavailable" });
   }
 });
+
+const functions = require("firebase-functions");
+const fetch = require("node-fetch");
+
+const ALLOWED_HOSTNAMES = [
+  "i.pinimg.com",
+  "images.unsplash.com",
+  "cdn.pixabay.com"
+];
+
+exports.imageProxy = functions.https.onRequest(async (req, res) => {
+if (req.method === 'OPTIONS') {
+    res.set('Access-Control-Allow-Origin', 'https://africulture.vercel.app');
+    res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.set('Access-Control-Allow-Headers', 'Content-Type');
+    return res.status(204).send('');
+  }
+
+  const { url } = req.query;
+  if (!url) return res.status(400).send("Missing 'url' parameter.");
+
+  try {
+    const decodedUrl = decodeURIComponent(url);
+    const targetUrl = new URL(decodedUrl);
+
+
+    if (!ALLOWED_HOSTNAMES.includes(targetUrl.hostname)) {
+      return res.status(403).send("This domain is not allowed.");
+    }
+
+    const response = await fetch(targetUrl.href);
+    if (!response.ok) {
+      return res.status(response.status).send("Image fetch failed.");
+    }
+
+    const contentType = response.headers.get("content-type");
+    res.setHeader("Content-Type", contentType || "application/octet-stream");
+
+    res.set('Access-Control-Allow-Origin', 'https://africulture.vercel.app');
+
+    const buffer = await response.arrayBuffer();
+    res.send(Buffer.from(buffer));
+  } catch (err) {
+    console.error("Proxy error:", err.message);
+    res.status(500).send("Proxy failed: " + err.message);
+  }
+});

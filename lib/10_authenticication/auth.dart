@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:path/path.dart' as imageUrls;
 
 class AuthMethods with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -58,6 +59,8 @@ class AuthMethods with ChangeNotifier {
       }
 
       debugPrint("✅ Signed in as: ${user.email}");
+      debugPrint(imageUrls.join('\n'));
+      debugPrint(imageUrls.join('\n'));
       Navigator.of(context).pushReplacementNamed('/home');
     } catch (e) {
       debugPrint("🚫 Google Sign-In Failed: $e");

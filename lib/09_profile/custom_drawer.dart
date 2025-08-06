@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 
 class CustomDrawer extends StatelessWidget {
@@ -23,11 +21,10 @@ class CustomDrawer extends StatelessWidget {
       width: MediaQuery.of(context).size.width * 0.75,
       child: Column(
         children: [
-          // Enhanced User Header
           Container(
             height: 180,
             decoration: BoxDecoration(
-              color: isDarkMode ? Colors.blue : Colors.blueAccent,
+              color: isDarkMode ? Colors.blue : Colors.brown,
               borderRadius: const BorderRadius.only(
                 bottomRight: Radius.circular(20),
               ),
@@ -95,7 +92,6 @@ class CustomDrawer extends StatelessWidget {
             ),
           ),
 
-          // Menu Items
           Expanded(
             child: ListView(
               padding: EdgeInsets.zero,
@@ -153,7 +149,6 @@ class CustomDrawer extends StatelessWidget {
             ),
           ),
 
-          // Footer with Logout
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -165,7 +160,6 @@ class CustomDrawer extends StatelessWidget {
                   title: 'Logout',
                   color: Colors.red,
                   onTap: () {
-                    // Call your auth sign out method here
                     Navigator.pushNamedAndRemoveUntil(
                         context, '/login', (route) => false);
                   },
@@ -196,7 +190,7 @@ class CustomDrawer extends StatelessWidget {
       }) {
     final theme = Theme.of(context);
     return ListTile(
-      leading: Icon(icon, color: color ?? Colors.blueAccent),
+      leading: Icon(icon, color: color ?? Colors.blueGrey),
       title: Text(
         title,
         style: TextStyle(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/device_card.dart';
+import '../widgets/sensor_chart.dart';
 import '/02_iot/services/iot_service.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -38,7 +39,7 @@ class _DashboardPageState extends State<DashboardPage> {
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.green[700]!, Colors.green[400]!],
+              colors: [Colors.orangeAccent!, Colors.green[400]!],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -58,9 +59,9 @@ class _DashboardPageState extends State<DashboardPage> {
       bottomNavigationBar: _buildBottomNavBar(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Add new device functionality
+
         },
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.blue,
         child: const Icon(Icons.add, color: Colors.white),
       ),
     );
@@ -91,7 +92,7 @@ class _DashboardPageState extends State<DashboardPage> {
             'Quick Actions',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.bold,
-              color: Colors.green[800],
+              color: Colors.black87,
             ),
           ),
           const SizedBox(height: 10),
@@ -101,7 +102,7 @@ class _DashboardPageState extends State<DashboardPage> {
             'Device Summary',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.bold,
-              color: Colors.green[800],
+              color: Colors.black87,
             ),
           ),
           const SizedBox(height: 10),
@@ -119,7 +120,7 @@ class _DashboardPageState extends State<DashboardPage> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.green[600]!, Colors.green[400]!],
+            colors: [Colors.deepPurple!, Colors.green[400]!],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -199,6 +200,7 @@ class _DashboardPageState extends State<DashboardPage> {
         _buildActionButton('Ventilation', Icons.air, Colors.teal),
         _buildActionButton('Lighting', Icons.lightbulb, Colors.amber),
         _buildActionButton('Security', Icons.security, Colors.red),
+        _buildActionButton('Drone', Icons.airplanemode_on, Colors.pinkAccent),
       ],
     );
   }
@@ -213,7 +215,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
         },
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(10),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -287,22 +289,9 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildAnalyticsView() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.analytics, size: 64, color: Colors.green),
-          const SizedBox(height: 16),
-          Text(
-            'Farm Analytics',
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 8),
-          Text('Coming soon...', style: Theme.of(context).textTheme.bodyLarge),
-        ],
-      ),
-    );
+    return const FarmAnalyticsView();
   }
+
 
   Widget _buildBottomNavBar() {
     return BottomNavigationBar(

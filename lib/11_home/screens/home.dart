@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'dart:ui';
+import 'package:africulture/01_bank/bank_home.dart';
 import 'package:africulture/02_iot/screens/dashboard.dart';
 import 'package:africulture/08_community/forum_page.dart';
 import 'package:africulture/05_hire/screens/hire_page.dart';
@@ -151,7 +152,7 @@ class _MyHomePageState extends State<MyHomePage> {
         userEmail: userEmail,
         profileImageUrl: profileImageurl,
       )
-          : null, // or show a loading drawer or empty
+          : null,
 
       appBar: AppBar(
         elevation: 0,
@@ -196,10 +197,10 @@ class _MyHomePageState extends State<MyHomePage> {
         onPageChanged: (index) => setState(() => myIndex = index),
         children: [
           HomePageContent(scrollController: _scrollController, userName: username,),
+          const NewsPage(),
           FirebaseAuth.instance.currentUser != null
               ? ProfilePage(user: FirebaseAuth.instance.currentUser!)
               : const Center(child: Text("Not logged in")),
-          const NewsPage(),
         ],
       ),
       bottomNavigationBar: AnimatedSlide(
@@ -216,8 +217,8 @@ class _MyHomePageState extends State<MyHomePage> {
             onTap: onTabTapped,
             items: const [
               BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-              BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
               BottomNavigationBarItem(icon: Icon(Icons.newspaper), label: 'News'),
+              BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
             ],
           ),
         ),
@@ -291,7 +292,7 @@ class _HomePageContentState extends State<HomePageContent> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Welcome Container with improved styling
+
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   padding: const EdgeInsets.all(16),
@@ -330,7 +331,77 @@ class _HomePageContentState extends State<HomePageContent> {
                 ),
 
                 const SizedBox(height: 20),
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 6,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Left: Text section
+                      Expanded(
+                        child: Text(
+                          'Get advice from learned consultants with the tap of a button.',
+                          style: TextStyle(
+                            color: Colors.blue.shade800,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16), // Transparent spacer
 
+                      // Right: Button column
+                      Column(
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              // Handle Consultant tap
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue.withOpacity(0.9),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: const Text('Consultant'),
+                          ),
+                          const SizedBox(height: 8),
+                          ElevatedButton(
+                            onPressed: () {
+                              // Handle Learn More tap
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue.withOpacity(0.3),
+                              foregroundColor: Colors.blue.shade800,
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: const Text('Learn More'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 20),
                 // Auto-scrolling gallery
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -342,7 +413,8 @@ class _HomePageContentState extends State<HomePageContent> {
                       'https://i.pinimg.com/736x/c2/41/41/c24141162ee2853351e012cd0689bb93.jpg',
                       'https://i.pinimg.com/1200x/ca/b3/18/cab318dcb2aa78393cde56dc5986ee7f.jpg',
                       'https://i.pinimg.com/736x/eb/24/b9/eb24b91c97f40e4ab8c180ee9f4cab9c.jpg',
-                    ].map((url) => 'https://africulture.vercel.app/api/proxy?url=${Uri.encodeComponent(url)}').toList(),
+                    ].map((url) => 'https://imageproxy-ggs6evtqha-uc.a.run.app?url=${Uri.encodeComponent(url)}').toList(),
+
                     captions: const [
                       "Real time weather",
                       "Modern irrigation systems",
@@ -423,13 +495,8 @@ class _HomePageContentState extends State<HomePageContent> {
                     ),
                     FeatureCard(
                       imagePath: 'assets/icon_s/wallet.jpg',
-                      title: "Pest Alert",
-                      destination: ForumPage(),
-                    ),
-                    FeatureCard(
-                      imagePath: 'assets/icon_s/wallet.jpg',
                       title: "Farm Wallet",
-                      destination: ForumPage(),
+                      destination: BankScreen(),
                     ),
                   ],
                 ),

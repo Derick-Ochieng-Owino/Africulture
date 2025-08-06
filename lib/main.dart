@@ -33,9 +33,11 @@ import 'package:africulture/06_market/services/product_service.dart';
 import 'package:africulture/06_market/widgets/error_boundary.dart';
 
 Future<void> main() async {
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.dumpErrorToConsole(details);
+  };
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
-
   try {
     // Initialize Firebase with fallback values
     await Firebase.initializeApp(

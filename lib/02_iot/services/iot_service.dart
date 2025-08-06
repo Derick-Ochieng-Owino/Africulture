@@ -85,10 +85,22 @@ class IoTService {
     client.subscribe(topic, MqttQos.atLeastOnce);
 
     return client.updates!.map((events) {
-      final recMsg = events[0].payload as MqttPublishMessage;
-      final msg = MqttPublishPayload.bytesToStringAsString(recMsg.payload.message);
-      debugPrint('📩 Message received: $msg');
-      return jsonDecode(msg);
+      try {
+        if (events.isEmpty || events[0].payload is! MqttPublishMessage) {
+          debugPrint('⚠️ Invalid MQTT message format');
+          return <String, dynamic>{};
+        }
+
+        final recMsg = events[0].payload as MqttPublishMessage;
+        final msg = MqttPublishPayload.bytesToStringAsString(recMsg.payload.message);
+        debugPrint('📩 Message received: $msg');
+
+        return jsonDecode(msg);
+      } catch (e) {
+        debugPrint('🚨 Error parsing MQTT message: $e');
+        return <String, dynamic>{};
+      }
     });
   }
+
 }
