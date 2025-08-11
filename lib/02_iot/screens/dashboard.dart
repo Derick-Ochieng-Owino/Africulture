@@ -39,7 +39,7 @@ class _DashboardPageState extends State<DashboardPage> {
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.orangeAccent!, Colors.green[400]!],
+              colors: [Colors.orangeAccent, Colors.green[400]!],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -120,7 +120,7 @@ class _DashboardPageState extends State<DashboardPage> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.deepPurple!, Colors.green[400]!],
+            colors: [Colors.deepPurple, Colors.green[400]!],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),

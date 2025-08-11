@@ -45,7 +45,7 @@ class _ErrorWidgetBuilderState extends State<ErrorWidgetBuilder> {
     return widget.child;
   }
 
-  static void resetError() {
-    _ErrorWidgetBuilderState().setState(() {});
-  }
+  // static void resetError() {
+  //   _ErrorWidgetBuilderState().setState(() {});
+  // }
 }

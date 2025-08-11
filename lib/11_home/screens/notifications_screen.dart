@@ -4,7 +4,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:geolocator/geolocator.dart';
 
-// 1. PUSH NOTIFICATION SETUP
 final FlutterLocalNotificationsPlugin notificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
@@ -282,8 +281,8 @@ class _NotificationPageState extends State<NotificationPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _sendCommunityNotification,
-        child: const Icon(Icons.add_alert),
         tooltip: 'Create community alert',
+        child: const Icon(Icons.add_alert),
       ),
     );
   }
@@ -293,13 +292,15 @@ class _NotificationPageState extends State<NotificationPage> {
       if (_showCommunityOnly && !notification['community']) return false;
 
       // 2. Type filter
-      if (_selectedFilter != 'all' && notification['type'] != _selectedFilter)
+      if (_selectedFilter != 'all' && notification['type'] != _selectedFilter) {
         return false;
+      }
 
       // 3. Preference filter
       if (_selectedPreferences.isNotEmpty &&
-          !_selectedPreferences.contains(notification['type']))
+          !_selectedPreferences.contains(notification['type'])) {
         return false;
+      }
 
       // 4. Location filter
       if (_selectedFilter == 'location' &&

@@ -271,12 +271,14 @@ class _ForumPageState extends State<ForumPage> {
             children: [
               Icon(Icons.help_outline, color: Colors.green[800]),
               const SizedBox(width: 8),
-              Text(
-                translate('forum.problem_banner.title'),
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green[800],
+              Flexible(
+                child: Text(
+                  translate('forum.problem_banner.title'),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green[800],
+                  ),
                 ),
               ),
             ],

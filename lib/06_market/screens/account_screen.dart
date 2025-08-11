@@ -10,7 +10,7 @@ class AccountScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
-    final authService = Provider.of<AuthService>(context);
+    //final authService = Provider.of<AuthService>(context);
 
     return Scaffold(
       appBar: AppBar(

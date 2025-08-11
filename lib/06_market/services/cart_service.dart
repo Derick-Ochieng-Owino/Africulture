@@ -31,7 +31,7 @@ class CartService with ChangeNotifier {
 
       _items.clear();
       for (var doc in snapshot.docs) {
-        final product = Product.fromFirestore(doc);
+        final product = MarketProduct.fromFirestore(doc);
         _items.add(CartItem(
           product: product,
           quantity: doc.data()['quantity'] ?? 1,
@@ -47,7 +47,7 @@ class CartService with ChangeNotifier {
     }
   }
 
-  Future<void> addToCart(Product product, {int quantity = 1}) async {
+  Future<void> addToCart(MarketProduct product, {int quantity = 1}) async {
     if (_auth.currentUser == null) {
       _error = 'You must be logged in to add to cart';
       notifyListeners();
@@ -89,7 +89,7 @@ class CartService with ChangeNotifier {
     }
   }
 
-  Future<void> removeFromCart(Product product, {bool completely = false}) async {
+  Future<void> removeFromCart(MarketProduct product, {bool completely = false}) async {
     if (_auth.currentUser == null) return;
 
     try {

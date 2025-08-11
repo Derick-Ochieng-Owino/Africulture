@@ -1,8 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:provider/provider.dart';
-import '/11_home/widgets/social_button.dart';
-import 'auth.dart';
+import 'package:lottie/lottie.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -14,33 +13,55 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage> {
   final _formKey = GlobalKey<FormState>();
   bool _obscureText = true;
+  bool isLoading = false; // Loader flag
 
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
+  final List<String> userTypes = ['User', 'Admin', 'Farmer', 'Retailer'];
+  String selectedUserType = 'User';
+
   Future<void> registerUser() async {
-    debugPrint("Attempting to register user...");
-    debugPrint("Email: ${emailController.text.trim()}");
-    debugPrint("Password Length: ${passwordController.text.trim().length}");
+    setState(() => isLoading = true);
 
     try {
+      UserCredential userCredential =
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
 
-      debugPrint("Registration successful");
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("Registered Successfully"),
-        backgroundColor: Colors.green,
-      ));
+      String uid = userCredential.user!.uid;
 
-      Navigator.pushReplacementNamed(context, '/login');
+      await FirebaseFirestore.instance.collection('users').doc(uid).set({
+        'firstName': firstNameController.text.trim(),
+        'lastName': lastNameController.text.trim(),
+        'email': emailController.text.trim(),
+        'userType': selectedUserType,
+        'createdAt': Timestamp.now(),
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Registered Successfully"),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // Redirect based on user type immediately after signup
+      if (selectedUserType == 'Admin') {
+        Navigator.pushReplacementNamed(context, '/adminDashboard');
+      } else if (selectedUserType == 'Farmer') {
+        Navigator.pushReplacementNamed(context, '/home');
+      } else if (selectedUserType == 'Retailer') {
+        Navigator.pushReplacementNamed(context, '/retailerDashboard');
+      } else {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
     } on FirebaseAuthException catch (e) {
       String errorMessage = "Registration failed";
-      debugPrint("FirebaseAuthException: ${e.code}");
 
       if (e.code == 'weak-password') {
         errorMessage = "Password is too weak.";
@@ -50,197 +71,193 @@ class _SignUpPageState extends State<SignUpPage> {
         errorMessage = e.message ?? errorMessage;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(errorMessage),
-        backgroundColor: Colors.red,
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+      );
     } catch (e) {
       debugPrint("Unknown registration error: $e");
+    } finally {
+      if (mounted) setState(() => isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final auth = Provider.of<AuthMethods>(context);
-
     return Scaffold(
       body: Stack(
         children: [
-      // 🌄 Background image
-      SizedBox.expand(
-      child: Image.asset(
-        'assets/back_images/back6.jpg',
-        fit: BoxFit.cover,
-      ),
-    ),
-
-    // 🧼 Optional overlay (for darkening the image)
-    Container(
-    // ignore: deprecated_member_use
-    color: Colors.black.withOpacity(0.2),
-    ),
-
-    SafeArea(
-    child: Padding(
-    padding: const EdgeInsets.all(24.0),
-    child: Form(
-            key: _formKey,
-            child: ListView(
-              children: [
-                const SizedBox(height: 20),
-                Center(
-                  child: const Text("Sign Up Account",
-                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
-                ),
-                const SizedBox(height: 8),
-                Center(
-                  child: const Text("Enter your personal data to create your account.",
-                      style: TextStyle(fontSize: 16, color: Colors.black54)),
-                ),
-                const SizedBox(height: 24),
-
-                SocialButton(
-                  label: "Google",
-                  logoPath: "assets/back_images/google.png",
-                  onPressed: auth.isSigningIn
-                      ? null
-                      : () {
-                    debugPrint("Pressed Google Sign In");
-                    auth.signInWithGoogle(context);
-                  },
-                ),
-                const SizedBox(height: 12),
-                SocialButton(
-                  label: "Apple",
-                  logoPath: "assets/back_images/apple.png",
-                  onPressed: () {
-                    debugPrint("Apple Sign In pressed");
-                  },
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: const [
-                    Expanded(child: Divider()),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Text("OR"),
-                    ),
-                    Expanded(child: Divider()),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: firstNameController,
-                        decoration: const InputDecoration(
-                          labelText: "First Name",
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (value) {
-                          debugPrint("First name input: $value");
-                          return value!.isEmpty ? "Enter first name" : null;
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextFormField(
-                        controller: lastNameController,
-                        decoration: const InputDecoration(
-                          labelText: "Last Name",
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (value) {
-                          debugPrint("Last name input: $value");
-                          return value!.isEmpty ? "Enter last name" : null;
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                TextFormField(
-                  controller: emailController,
-                  decoration: const InputDecoration(
-                    labelText: "Email Address",
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    debugPrint("Email input: $value");
-                    return value!.isEmpty ? "Please enter email" : null;
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                TextFormField(
-                  controller: passwordController,
-                  obscureText: _obscureText,
-                  decoration: InputDecoration(
-                    labelText: "Password",
-                    border: const OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                          _obscureText ? Icons.visibility_off : Icons.visibility),
-                      onPressed: () {
-                        debugPrint("Toggled password visibility");
-                        setState(() {
-                          _obscureText = !_obscureText;
-                        });
-                      },
-                    ),
-                  ),
-                  validator: (value) {
-                    debugPrint("Password input: $value");
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter password';
-                    } else if (value.length < 6) {
-                      return 'Must contain at least 6 characters.';
-                    }
-                    return null;
-                  },
-                ),
-
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: () {
-                    debugPrint("Sign Up button pressed");
-                    if (_formKey.currentState!.validate()) {
-                      registerUser();
-                    } else {
-                      debugPrint("Form validation failed");
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                  ),
-                  child: const Text("Sign Up", style: TextStyle(fontSize: 18, color: Colors.white)),
-                ),
-                const SizedBox(height: 20),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text("Already have an Account?"),
-                    TextButton(
-                      onPressed: () {
-                        debugPrint("Navigate to login page");
-                        Navigator.pushReplacementNamed(context, "/login");
-                      },
-                      child: const Text("Sign In"),
-                    )
-                  ],
-                ),
-              ],
+          SizedBox.expand(
+            child: Image.asset(
+              'assets/back_images/back6.jpg',
+              fit: BoxFit.cover,
             ),
           ),
-        ),
-      ),
-    ]
+          Container(color: Colors.black.withOpacity(0.2)),
+
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Form(
+                key: _formKey,
+                child: ListView(
+                  children: [
+                    const SizedBox(height: 20),
+                    const Center(
+                      child: Text(
+                        "Sign Up Account",
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Center(
+                      child: Text(
+                        "Enter your personal data to create your account.",
+                        style: TextStyle(fontSize: 16, color: Colors.black54),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: firstNameController,
+                            decoration: const InputDecoration(
+                              labelText: "First Name",
+                              border: OutlineInputBorder(),
+                            ),
+                            validator: (value) =>
+                            value!.isEmpty ? "Enter first name" : null,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextFormField(
+                            controller: lastNameController,
+                            decoration: const InputDecoration(
+                              labelText: "Last Name",
+                              border: OutlineInputBorder(),
+                            ),
+                            validator: (value) =>
+                            value!.isEmpty ? "Enter last name" : null,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: selectedUserType,
+                      items: userTypes.map((type) {
+                        return DropdownMenuItem<String>(
+                          value: type,
+                          child: Text(type),
+                        );
+                      }).toList(),
+                      decoration: const InputDecoration(
+                        labelText: 'Account Type',
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedUserType = value!;
+                        });
+                      },
+                      validator: (value) =>
+                      value == null || value.isEmpty
+                          ? 'Select account type'
+                          : null,
+                    ),
+                    const SizedBox(height: 24),
+                    TextFormField(
+                      controller: emailController,
+                      decoration: const InputDecoration(
+                        labelText: "Email Address",
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) =>
+                      value!.isEmpty ? "Please enter email" : null,
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: passwordController,
+                      obscureText: _obscureText,
+                      decoration: InputDecoration(
+                        labelText: "Password",
+                        border: const OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureText
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscureText = !_obscureText;
+                            });
+                          },
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter password';
+                        } else if (value.length < 6) {
+                          return 'Must contain at least 6 characters.';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: isLoading
+                          ? null
+                          : () {
+                        if (_formKey.currentState!.validate()) {
+                          registerUser();
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: const Text(
+                        "Sign Up",
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text("Already have an Account?"),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pushReplacementNamed(context, "/login");
+                          },
+                          child: const Text("Sign In"),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // Loader overlay
+          if (isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.5),
+              child: Center(
+                child: Lottie.asset(
+                  'assets/animations/plant_grow.json',
+                  width: 150,
+                  height: 150,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

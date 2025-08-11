@@ -73,7 +73,6 @@ class _UserProfileModalState extends State<UserProfileModal> {
     },
   };
 
-
   File? _image;
 
   @override
@@ -149,8 +148,6 @@ class _UserProfileModalState extends State<UserProfileModal> {
   }
 
   Future<void> _saveProfile() async {
-    print(FirebaseAuth.instance.currentUser?.uid);
-
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
@@ -184,49 +181,114 @@ class _UserProfileModalState extends State<UserProfileModal> {
     final percent = _calculateCompleteness();
 
     return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      elevation: 4,
       insetPadding: const EdgeInsets.all(20),
       backgroundColor: Colors.white,
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            CircularPercentIndicator(
-              radius: 50.0,
-              lineWidth: 8.0,
-              percent: percent,
-              center: Text("${(percent * 100).toStringAsFixed(0)}%"),
-              progressColor: Colors.green,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Edit Profile',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
             ),
             const SizedBox(height: 16),
-            GestureDetector(
-              onTap: _pickImage,
-              child: CircleAvatar(
-                radius: 40,
-                backgroundImage: _image != null ? FileImage(_image!) : null,
-                child: _image == null ? const Icon(Icons.add_a_photo) : null,
+            Center(
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  CircularPercentIndicator(
+                    radius: 50.0,
+                    lineWidth: 8.0,
+                    percent: percent,
+                    center: Text(
+                      "${(percent * 100).toStringAsFixed(0)}%",
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    progressColor: Colors.green,
+                    backgroundColor: Colors.green.shade100,
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 16),
+            Center(
+              child: GestureDetector(
+                onTap: _pickImage,
+                child: CircleAvatar(
+                  radius: 50,
+                  backgroundColor: Colors.grey.shade200,
+                  backgroundImage: _image != null ? FileImage(_image!) : null,
+                  child: _image == null
+                      ? const Icon(Icons.camera_alt, size: 30, color: Colors.grey)
+                      : null,
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
             Form(
               key: _formKey,
               child: Column(
                 children: [
                   TextFormField(
                     controller: _nameController,
-                    decoration: const InputDecoration(labelText: 'Full Name'),
+                    decoration: InputDecoration(
+                      labelText: 'Full Name',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey.shade50,
+                    ),
                     validator: (val) => val == null || val.isEmpty ? 'Required' : null,
                   ),
+                  const SizedBox(height: 16),
                   TextFormField(
                     controller: _phoneController,
-                    decoration: const InputDecoration(labelText: 'Phone Number'),
+                    decoration: InputDecoration(
+                      labelText: 'Phone Number',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey.shade50,
+                    ),
                     keyboardType: TextInputType.phone,
                     validator: (val) => val == null || val.isEmpty ? 'Required' : null,
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
                     value: _selectedCounty,
-                    decoration: const InputDecoration(labelText: 'County'),
+                    decoration: InputDecoration(
+                      labelText: 'County',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey.shade50,
+                    ),
                     items: _kenyaLocations.keys.map((String county) {
                       return DropdownMenuItem<String>(
                         value: county,
@@ -245,7 +307,14 @@ class _UserProfileModalState extends State<UserProfileModal> {
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
                     value: _selectedSubCounty,
-                    decoration: const InputDecoration(labelText: 'Sub-County'),
+                    decoration: InputDecoration(
+                      labelText: 'Sub-County',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey.shade50,
+                    ),
                     items: _selectedCounty != null
                         ? _kenyaLocations[_selectedCounty]!.keys.map((String subCounty) {
                       return DropdownMenuItem<String>(
@@ -266,7 +335,14 @@ class _UserProfileModalState extends State<UserProfileModal> {
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
                     value: _selectedVillage,
-                    decoration: const InputDecoration(labelText: 'Village'),
+                    decoration: InputDecoration(
+                      labelText: 'Village',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey.shade50,
+                    ),
                     items: _selectedCounty != null && _selectedSubCounty != null
                         ? _kenyaLocations[_selectedCounty]![_selectedSubCounty]!
                         .map((String village) {
@@ -286,18 +362,39 @@ class _UserProfileModalState extends State<UserProfileModal> {
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _farmingTypeController,
-                    decoration: const InputDecoration(labelText: 'Type of Farming'),
+                    decoration: InputDecoration(
+                      labelText: 'Type of Farming',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey.shade50,
+                    ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
             _isLoading
-                ? const CircularProgressIndicator()
+                ? const Center(child: CircularProgressIndicator())
                 : ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
               onPressed: _saveProfile,
-              child: const Text("Save Profile"),
+              child: const Text(
+                "Save",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
+            const SizedBox(height: 8),
           ],
         ),
       ),

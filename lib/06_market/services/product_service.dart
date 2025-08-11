@@ -3,8 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/product.dart';
 
 class ProductService with ChangeNotifier {
-  final List<Product> _products = [];
-  final List<Product> _searchResults = [];
+  final List<MarketProduct> _products = [];
+  final List<MarketProduct> _searchResults = [];
 
   bool _isLoading = true;
   String? _error;
@@ -13,8 +13,8 @@ class ProductService with ChangeNotifier {
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  List<Product> get products => _products;
-  List<Product> get searchResults => _searchResults;
+  List<MarketProduct> get products => _products;
+  List<MarketProduct> get searchResults => _searchResults;
   bool get isLoading => _isLoading;
   String? get error => _error;
   bool get hasMore => _hasMore;
@@ -50,7 +50,7 @@ class ProductService with ChangeNotifier {
       } else {
         _lastDocument = snapshot.docs.last;
         _products.addAll(
-          snapshot.docs.map((doc) => Product.fromFirestore(doc)),
+          snapshot.docs.map((doc) => MarketProduct.fromFirestore(doc)),
         );
       }
     } catch (e) {
@@ -66,7 +66,7 @@ class ProductService with ChangeNotifier {
     await loadProducts(refresh: true);
   }
 
-  List<Product> getProductsByCategory(String category) {
+  List<MarketProduct> getProductsByCategory(String category) {
     return _products.where((p) => p.category == category).toList();
   }
 
@@ -89,7 +89,7 @@ class ProductService with ChangeNotifier {
 
       _searchResults.clear();
       _searchResults.addAll(
-        snapshot.docs.map((doc) => Product.fromFirestore(doc)),
+        snapshot.docs.map((doc) => MarketProduct.fromFirestore(doc)),
       );
       _error = null;
     } catch (e) {

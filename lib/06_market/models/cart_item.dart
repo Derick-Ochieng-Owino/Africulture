@@ -1,7 +1,7 @@
 import 'package:africulture/06_market/models/product.dart';
 
 class CartItem {
-  final Product product;
+  final MarketProduct product;
   int quantity;
 
   CartItem({

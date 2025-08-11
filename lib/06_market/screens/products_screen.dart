@@ -13,7 +13,7 @@ class ProductsScreen extends StatelessWidget {
     final routeArgs = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     final categoryFilter = routeArgs?['category'] as String?;
 
-    List<Product> products = categoryFilter != null
+    List<MarketProduct> products = categoryFilter != null
         ? productService.getProductsByCategory(categoryFilter)
         : productService.products;
 

@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/product.dart';
@@ -11,7 +9,7 @@ class ProductDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final product = ModalRoute.of(context)!.settings.arguments as Product;
+    final product = ModalRoute.of(context)!.settings.arguments as MarketProduct;
     final cartService = Provider.of<CartService>(context);
 
     return Scaffold(
@@ -146,7 +144,7 @@ class ProductDetailScreen extends StatelessWidget {
   }
 
   Widget _buildBottomBar(
-      BuildContext context, Product product, CartService cartService) {
+      BuildContext context, MarketProduct product, CartService cartService) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -210,7 +208,7 @@ class ProductDetailScreen extends StatelessWidget {
     );
   }
 
-  void _shareProduct(Product product) {
+  void _shareProduct(MarketProduct product) {
     // Implement share functionality
   }
 }

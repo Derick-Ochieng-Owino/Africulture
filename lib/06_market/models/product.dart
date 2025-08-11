@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
-class Product {
+class MarketProduct {
   final String id;
   final String name;
   final String description;
@@ -15,7 +15,7 @@ class Product {
   final double? rating;
   final int? reviewCount;
 
-  Product({
+  MarketProduct({
     required this.id,
     required this.name,
     required this.description,
@@ -30,10 +30,10 @@ class Product {
     this.reviewCount,
   });
 
-  factory Product.fromFirestore(DocumentSnapshot doc) {
+  factory MarketProduct.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
 
-    return Product(
+    return MarketProduct(
       id: doc.id,
       name: data['name'] ?? 'Unnamed Product',
       description: data['description'] ?? '',

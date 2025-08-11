@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:lottie/lottie.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -17,15 +18,30 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _checkLoginStatus() async {
-    await Future.delayed(const Duration(seconds: 4));
+    await Future.delayed(const Duration(seconds: 3));
 
     final user = FirebaseAuth.instance.currentUser;
 
     if (!mounted) return;
 
     if (user != null) {
-      Navigator.pushReplacementNamed(context, '/home');
-    }else{
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      final userType = doc.data()?['userType'] ?? 'User';
+
+      if (userType == 'Admin') {
+        Navigator.pushReplacementNamed(context, '/adminDashboard');
+      } else if (userType == 'Farmer') {
+        Navigator.pushReplacementNamed(context, '/home');
+      } else if (userType == 'Retailer') {
+        Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+    } else {
       Navigator.pushReplacementNamed(context, '/login');
     }
   }
@@ -38,7 +54,6 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Play Lottie animation
             Lottie.asset(
               'assets/animations/plant_grow.json',
               height: 200,

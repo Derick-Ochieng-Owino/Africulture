@@ -138,7 +138,7 @@ class BankScreen extends HookConsumerWidget {
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: 5,
-                    separatorBuilder: (_, __) => Divider(
+                    separatorBuilder: (_, _) => Divider(
                       color: Colors.grey.shade300,
                       height: 24,
                       thickness: 1,
