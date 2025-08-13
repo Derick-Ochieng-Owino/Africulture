@@ -3,41 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:geolocator/geolocator.dart';
-
-final FlutterLocalNotificationsPlugin notificationsPlugin =
-    FlutterLocalNotificationsPlugin();
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // Notification channel setup
-  const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('@mipmap/ic_launcher');
-
-  final InitializationSettings initializationSettings = InitializationSettings(
-    android: initializationSettingsAndroid,
-  );
-
-  await notificationsPlugin.initialize(initializationSettings);
-
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'FarmConnect',
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: const NotificationPage(),
-    );
-  }
-}
+import '../main.dart';
+import 'notification_model.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -47,7 +14,7 @@ class NotificationPage extends StatefulWidget {
 }
 
 class _NotificationPageState extends State<NotificationPage> {
-  List<Map<String, dynamic>> _notifications = [];
+  List<NotificationItem> _notifications = [];
   bool _showCommunityOnly = false;
   String _selectedFilter = 'all';
   Position? _currentPosition;
@@ -59,29 +26,9 @@ class _NotificationPageState extends State<NotificationPage> {
     _loadNotifications();
     _loadPreferences();
     _getCurrentLocation();
-    _configurePushNotifications();
   }
 
-  // 1. PUSH NOTIFICATION INTEGRATION
-  void _configurePushNotifications() async {
-    await notificationsPlugin
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >()
-        ?.createNotificationChannel(
-          const AndroidNotificationChannel(
-            'farm_alerts',
-            'Farm Alerts',
-            importance: Importance.high,
-          ),
-        );
-
-    // Simulate incoming push notification
-    Future.delayed(const Duration(seconds: 3), () {
-      _showDemoNotification();
-    });
-  }
-
+  // Demo notification (optional, for testing)
   void _showDemoNotification() {
     notificationsPlugin.show(
       0,
@@ -98,7 +45,7 @@ class _NotificationPageState extends State<NotificationPage> {
     );
   }
 
-  // 2. NOTIFICATION PREFERENCES SCREEN
+  // Notification Preferences
   Future<void> _openPreferences() async {
     final List<String> allCategories = [
       'weather',
@@ -136,7 +83,7 @@ class _NotificationPageState extends State<NotificationPage> {
     });
   }
 
-  // 3. LOCATION-BASED FILTERING
+  // Location filtering
   Future<void> _getCurrentLocation() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) return;
@@ -149,67 +96,50 @@ class _NotificationPageState extends State<NotificationPage> {
 
     final position = await Geolocator.getCurrentPosition();
     setState(() => _currentPosition = position);
-    _filterByLocation(position);
   }
 
-  void _filterByLocation(Position position) {
-    // In real app, compare with notification's geo-fence
-    debugPrint(
-      'Filtering for location: ${position.latitude},${position.longitude}',
-    );
-  }
-
-  // NOTIFICATION DATA MANAGEMENT
+  // Load simulated notifications
   Future<void> _loadNotifications() async {
-    // Simulated data - replace with API call
     await Future.delayed(const Duration(milliseconds: 500));
 
     setState(() {
       _notifications = [
-        {
-          'id': '1',
-          'title': 'Heavy Rainfall Alert',
-          'body': '50mm rain expected tomorrow in Nairobi County',
-          'type': 'weather',
-          'priority': 'high',
-          'time': DateTime.now().subtract(const Duration(minutes: 30)),
-          'read': false,
-          'community': true,
-          'location': {'lat': -1.286389, 'lng': 36.817223, 'radius': 50},
-        },
-        {
-          'id': '2',
-          'title': 'Maize Price Surge',
-          'body': 'Prices up 15% at Eldoret market this week',
-          'type': 'market',
-          'priority': 'medium',
-          'time': DateTime.now().subtract(const Duration(hours: 2)),
-          'read': true,
-          'community': false,
-          'location': null,
-        },
-        {
-          'id': '3',
-          'title': 'New Forum Discussion',
-          'body': '10 farmers discussing drought-resistant crops',
-          'type': 'community',
-          'priority': 'low',
-          'time': DateTime.now().subtract(const Duration(days: 1)),
-          'read': true,
-          'community': true,
-          'location': null,
-        },
-        {
-          'id': '4',
-          'title': 'Equipment Rental Available',
-          'body': 'Tractors available in Kiambu at \$50/day',
-          'type': 'equipment',
-          'priority': 'medium',
-          'time': DateTime.now().subtract(const Duration(days: 2)),
-          'read': false,
-          'community': true,
-          'location': {'lat': -1.1667, 'lng': 36.8333, 'radius': 30},
-        },
+        NotificationItem(
+          id: '1',
+          title: 'Heavy Rainfall Alert',
+          body: '50mm rain expected tomorrow in Nairobi County',
+          type: 'weather',
+          time: DateTime.now().subtract(const Duration(minutes: 30)),
+          read: false,
+          community: true,
+        ),
+        NotificationItem(
+          id: '2',
+          title: 'Maize Price Surge',
+          body: 'Prices up 15% at Eldoret market this week',
+          type: 'market',
+          time: DateTime.now().subtract(const Duration(hours: 2)),
+          read: true,
+          community: false,
+        ),
+        NotificationItem(
+          id: '3',
+          title: 'New Forum Discussion',
+          body: '10 farmers discussing drought-resistant crops',
+          type: 'community',
+          time: DateTime.now().subtract(const Duration(days: 1)),
+          read: true,
+          community: true,
+        ),
+        NotificationItem(
+          id: '4',
+          title: 'Equipment Rental Available',
+          body: 'Tractors available in Kiambu at \$50/day',
+          type: 'equipment',
+          time: DateTime.now().subtract(const Duration(days: 2)),
+          read: false,
+          community: true,
+        ),
       ];
     });
   }
@@ -255,26 +185,22 @@ class _NotificationPageState extends State<NotificationPage> {
               ],
             ),
           ),
-          // Notifications List
           Expanded(
             child: RefreshIndicator(
               onRefresh: _loadNotifications,
               child: filteredNotifications.isEmpty
-                ? const Center(
-                  child: Text(
-                    'No matching notifications',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                )
-                : ListView.builder(
-                  itemCount: filteredNotifications.length,
-                  itemBuilder: (context, index) {
-                    return _buildNotificationCard(
-                      filteredNotifications[index],
-                      context,
-                    );
-                  },
+                  ? const Center(
+                child: Text(
+                  'No matching notifications',
+                  style: TextStyle(fontSize: 16),
                 ),
+              )
+                  : ListView.builder(
+                itemCount: filteredNotifications.length,
+                itemBuilder: (context, index) {
+                  return buildNotificationCard(filteredNotifications[index]);
+                },
+              ),
             ),
           ),
         ],
@@ -287,43 +213,15 @@ class _NotificationPageState extends State<NotificationPage> {
     );
   }
 
-  List<Map<String, dynamic>> _applyAllFilters() {
+  List<NotificationItem> _applyAllFilters() {
     return _notifications.where((notification) {
-      if (_showCommunityOnly && !notification['community']) return false;
-
-      // 2. Type filter
-      if (_selectedFilter != 'all' && notification['type'] != _selectedFilter) {
+      if (_showCommunityOnly && !notification.community) return false;
+      if (_selectedFilter != 'all' && notification.type != _selectedFilter)
         return false;
-      }
-
-      // 3. Preference filter
       if (_selectedPreferences.isNotEmpty &&
-          !_selectedPreferences.contains(notification['type'])) {
-        return false;
-      }
-
-      // 4. Location filter
-      if (_selectedFilter == 'location' &&
-          _currentPosition != null &&
-          notification['location'] != null) {
-        return _isInRange(notification['location'], _currentPosition!);
-      }
-
+          !_selectedPreferences.contains(notification.type)) return false;
       return true;
     }).toList();
-  }
-
-  bool _isInRange(Map<String, dynamic>? location, Position userPosition) {
-    if (location == null) return false;
-
-    final distance = Geolocator.distanceBetween(
-      userPosition.latitude,
-      userPosition.longitude,
-      location['lat'],
-      location['lng'],
-    );
-
-    return distance <= location['radius'] * 1000;
   }
 
   Widget _buildFilterChip(String label, String value) {
@@ -340,104 +238,73 @@ class _NotificationPageState extends State<NotificationPage> {
     );
   }
 
-  Widget _buildNotificationCard(
-    Map<String, dynamic> notification,
-    BuildContext context,
-  ) {
-    return Dismissible(
-      key: Key(notification['id']),
-      background: Container(color: Colors.red),
-      direction: DismissDirection.endToStart,
-      onDismissed: (_) => _deleteNotification(notification),
-      child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        color: notification['read']
-            ? Theme.of(context).colorScheme.surface
-            : Theme.of(context).colorScheme.surfaceVariant,
-        child: InkWell(
-          onTap: () => _markAsRead(notification),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    _getNotificationIcon(notification['type']),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        notification['title'],
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: notification['read']
-                              ? Colors.grey
-                              : Colors.green.shade800,
-                        ),
-                      ),
+  Widget buildNotificationCard(NotificationItem item) {
+    Color cardColor;
+    Icon icon;
+
+    switch (item.type) {
+      case 'community':
+        cardColor = Colors.orange.shade50;
+        icon = const Icon(Icons.people, color: Colors.orange);
+        break;
+      case 'weather':
+        cardColor = Colors.blue.shade50;
+        icon = const Icon(Icons.cloud, color: Colors.blue);
+        break;
+      case 'market':
+        cardColor = Colors.green.shade50;
+        icon = const Icon(Icons.attach_money, color: Colors.green);
+        break;
+      case 'equipment':
+        cardColor = Colors.brown.shade50;
+        icon = const Icon(Icons.agriculture, color: Colors.brown);
+        break;
+      case 'pests':
+        cardColor = Colors.red.shade50;
+        icon = const Icon(Icons.bug_report, color: Colors.red);
+        break;
+      default:
+        cardColor = Colors.grey.shade200;
+        icon = const Icon(Icons.notifications, color: Colors.grey);
+    }
+
+    return Card(
+      color: cardColor,
+      margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+      child: InkWell(
+        onTap: () {},
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  icon,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      item.title,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    if (notification['priority'] == 'high')
-                      const Icon(Icons.warning, color: Colors.red, size: 20),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(notification['body']),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    if (notification['community'])
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.green.shade50,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: const Text(
-                          'Community',
-                          style: TextStyle(fontSize: 12),
-                        ),
-                      ),
-                    const Spacer(),
-                    Text(
-                      DateFormat('MMM d, h:mm a').format(notification['time']),
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                  ],
-                ),
+                  ),
+                  Text(
+                    DateFormat('MMM d, h:mm a').format(item.time),
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(item.body),
+              if (item.imageUrl != null) ...[
+                const SizedBox(height: 6),
+                Image.network(item.imageUrl!),
               ],
-            ),
+            ],
           ),
         ),
       ),
     );
-  }
-
-  Icon _getNotificationIcon(String type) {
-    switch (type) {
-      case 'weather':
-        return const Icon(Icons.cloud, color: Colors.blue);
-      case 'market':
-        return const Icon(Icons.attach_money, color: Colors.green);
-      case 'community':
-        return const Icon(Icons.people, color: Colors.orange);
-      case 'equipment':
-        return const Icon(Icons.agriculture, color: Colors.brown);
-      case 'pests':
-        return const Icon(Icons.bug_report, color: Colors.red);
-      default:
-        return const Icon(Icons.notifications, color: Colors.grey);
-    }
-  }
-
-  void _markAsRead(Map<String, dynamic> notification) {
-    setState(() => notification['read'] = true);
-  }
-
-  void _deleteNotification(Map<String, dynamic> notification) {
-    setState(() => _notifications.remove(notification));
   }
 
   void _sendCommunityNotification() {
@@ -473,7 +340,6 @@ class _NotificationPageState extends State<NotificationPage> {
           ),
           ElevatedButton(
             onPressed: () {
-              // In real app, send to backend
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Alert shared with community')),
               );
@@ -487,7 +353,7 @@ class _NotificationPageState extends State<NotificationPage> {
   }
 }
 
-// 2. NOTIFICATION PREFERENCES SCREEN
+// Notification Preferences Screen stays the same
 class NotificationPreferencesScreen extends StatefulWidget {
   final List<String> initialSelection;
   final List<String> allCategories;

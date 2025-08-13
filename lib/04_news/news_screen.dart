@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:africulture/04_news/services/news_service.dart';
-import 'package:africulture/04_news/models/news_model.dart';
+import 'package:africulture/04_news/news_service.dart';
+import 'package:africulture/04_news/news_model.dart';
+import 'package:lottie/lottie.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
 
 class NewsPage extends StatefulWidget {
-  const NewsPage({super.key});
+  final bool showAppBar;
+
+  const NewsPage({
+
+    super.key,
+    this.showAppBar = true,
+  });
 
   @override
   State<NewsPage> createState() => _NewsPageState();
@@ -40,13 +47,16 @@ class _NewsPageState extends State<NewsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: widget.showAppBar
+        ?AppBar(
         title: const Text('Agriculture News'),
-      ),
+        backgroundColor: Colors.teal,
+      )
+      :null,
       body: RefreshIndicator(
         onRefresh: _fetchNews,
         child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? Center(child: Lottie.asset('assets/animations/plant_grow.json', width: 120, height: 120))
             : ListView.builder(
           itemCount: _articles.length,
           itemBuilder: (context, index) {

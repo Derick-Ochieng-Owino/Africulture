@@ -1,6 +1,12 @@
+import 'package:africulture/03_weather/weather_page.dart';
+import 'package:africulture/05_hire/hire_page.dart';
+import 'package:africulture/06_market/screens/agricommerce.dart';
+import 'package:africulture/08_community/forum_page.dart';
+import 'package:africulture/09_profile/subscription_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:lottie/lottie.dart';
 
 class CustomDrawer extends StatefulWidget {
   final String userName;
@@ -33,14 +39,26 @@ class _CustomDrawerState extends State<CustomDrawer> {
   Future<void> _fetchUserType() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      final doc = await FirebaseFirestore.instance
+      final cacheDoc = await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
-          .get();
+          .get(const GetOptions(source: Source.cache));
 
-      if (doc.exists) {
+      if (cacheDoc.exists) {
         setState(() {
-          userType = doc['userType'] ?? 'User';
+          userType = cacheDoc['userType'] ?? 'User';
+          isLoading = false;
+        });
+      }
+
+      final serverDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get(const GetOptions(source: Source.server));
+
+      if (serverDoc.exists) {
+        setState(() {
+          userType = serverDoc['userType'] ?? 'User';
           isLoading = false;
         });
       } else {
@@ -99,7 +117,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
           // Menu Items
           Expanded(
             child: isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? Center(child: Lottie.asset('assets/animations/plant_grow.json', width: 120, height: 120))
                 : ListView(
                     padding: EdgeInsets.zero,
                     children: [
@@ -112,21 +130,51 @@ class _CustomDrawerState extends State<CustomDrawer> {
                       ),
                       _buildDrawerItem(
                         context,
+                        icon: Icons.subscriptions_outlined,
+                        title: 'Subscriptions',
+                        color: primaryColor.withOpacity(0.8),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => SubscriptionPage()),
+                          );
+                        },
+                      ),
+                      _buildDrawerItem(
+                        context,
                         icon: Icons.store,
                         title: 'Marketplace',
                         color: Colors.green.withOpacity(0.7),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => AgriCommerceApp()),
+                          );
+                        },
                       ),
                       _buildDrawerItem(
                         context,
                         icon: Icons.cloud,
                         title: 'Weather',
                         color: Colors.blue.withOpacity(0.7),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => WeatherPage()),
+                          );
+                        },
                       ),
                       _buildDrawerItem(
                         context,
                         icon: Icons.forum,
                         title: 'Community',
                         color: Colors.purple.withOpacity(0.7),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => ForumPage()),
+                          );
+                        },
                       ),
                       _buildDrawerItem(
                         context,
@@ -139,6 +187,12 @@ class _CustomDrawerState extends State<CustomDrawer> {
                         icon: Icons.local_shipping,
                         title: 'Transport',
                         color: Colors.orange.withOpacity(0.7),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => TransportHirePage()),
+                          );
+                        },
                       ),
 
                       // ✅ Show only if Admin
@@ -195,7 +249,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'App Version 1.2.0',
+                  'App Version 1.0.0',
                   style: TextStyle(
                     color: theme.textTheme.bodySmall?.color?.withOpacity(0.6),
                     fontSize: 12,

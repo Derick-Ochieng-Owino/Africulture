@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:africulture/07_AIassistant/screens/ai_assistant_modal.dart';
+import 'package:africulture/07_AIassistant/ai_assistant_modal.dart';
 
 class AIAssistantPopup extends StatelessWidget {
   const AIAssistantPopup({super.key});

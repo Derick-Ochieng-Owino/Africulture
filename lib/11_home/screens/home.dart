@@ -1,80 +1,24 @@
 import 'package:africulture/01_bank/bank_home.dart';
 import 'package:africulture/02_iot/screens/dashboard.dart';
 import 'package:africulture/08_community/forum_page.dart';
-import 'package:africulture/05_hire/screens/hire_page.dart';
-import 'package:africulture/04_news/screens/news_screen.dart';
+import 'package:africulture/05_hire/hire_page.dart';
+import 'package:africulture/04_news/news_screen.dart';
 import 'package:africulture/09_profile/user_profile_modal.dart';
+import 'package:africulture/11_home/widgets/weather_card.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:africulture/03_weather/screens/weather_page.dart';
+import 'package:africulture/03_weather/weather_page.dart';
 import 'package:flutter/rendering.dart';
 import '../../06_market/screens/agricommerce.dart';
 import '../widgets/gallery_widget.dart';
-import '/03_weather/services/weather_service.dart';
+import '../../03_weather/weather_service.dart';
 import '../service/location_service.dart';
 import 'package:africulture/09_profile/profile.dart';
-import '/07_AIassistant/widgets/ai_assistant_popup.dart';
-import '/11_home/screens/notifications_screen.dart';
+import '../../07_AIassistant/ai_assistant_popup.dart';
+import '../../13_Notifications/notifications_screen.dart';
 import 'package:africulture/09_profile/custom_drawer.dart';
-import 'package:weather_icons/weather_icons.dart';
-import 'package:intl/intl.dart';
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Africulture',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        fontFamily: 'Poppins',
-        primarySwatch: createMaterialColor(const Color(0xFF2E7D32)),
-        scaffoldBackgroundColor: const Color(0xFFF9F9F9).withOpacity(0.4),
-        cardTheme: CardThemeData(
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          margin: const EdgeInsets.all(8),
-        ),
-        textTheme: const TextTheme(
-          headlineSmall: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-          bodyMedium: TextStyle(fontSize: 14, color: Colors.black87),
-        ),
-      ),
-      home: const MyHomePage(),
-    );
-  }
-}
-
-MaterialColor createMaterialColor(Color color) {
-  List strengths = <double>[.05];
-  Map<int, Color> swatch = {};
-  final int r = color.red, g = color.green, b = color.blue;
-
-  for (int i = 1; i < 10; i++) {
-    strengths.add(0.1 * i);
-  }
-  for (var strength in strengths) {
-    final double ds = 0.5 - strength;
-    swatch[(strength * 1000).round()] = Color.fromRGBO(
-      r + ((ds < 0 ? r : (255 - r)) * ds).round(),
-      g + ((ds < 0 ? g : (255 - g)) * ds).round(),
-      b + ((ds < 0 ? b : (255 - b)) * ds).round(),
-      1,
-    );
-  }
-  return MaterialColor(color.value, swatch);
-}
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -101,16 +45,35 @@ Future<void> checkProfileAndShowModal(BuildContext context, String uid) async {
 }
 
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
+  final GlobalKey homeKey = GlobalKey();
+  final GlobalKey appBarKey = GlobalKey();
+  final GlobalKey aiAssistantKey = GlobalKey();
+  final List<GlobalKey> bottomNavKeys = List.generate(3, (_) => GlobalKey());
+  final List<GlobalKey> quickActionKeys = List.generate(8, (_) => GlobalKey());
+  final GlobalKey appBarNotificationKey = GlobalKey();
+  final GlobalKey appBarSearchKey = GlobalKey();
+  late TutorialCoachMark tutorialCoachMark;
   int myIndex = 0;
   late PageController _pageController;
   late ScrollController _scrollController;
-  bool _isBottomBarVisible = true;
+  bool _isBottomBarVisible = false;
   late AnimationController _fabAnimationController;
 
   String username = '';
   String userEmail = '';
   String profileImageUrl = '';
   String userLocation = 'Loading...';
+
+  final List<String> quickActionDescriptions = [
+    "Check For Weather Updates",
+    "Visit Farmers Market From Here.",
+    "Read Latest Agricultural News",
+    "Post In Community With Many Other Farmers.",
+    "Hire A Drive To Transport Your Feed",
+    "Manage IoT Devices",
+    "Banking Solution For You",
+    "Get Help From Experts",
+  ];
 
   Future<void> getUserInfo(String uid) async {
     final doc = await FirebaseFirestore.instance
@@ -123,7 +86,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         username = data['name'] ?? '';
         userEmail = data['email'] ?? '';
         profileImageUrl = data['photoUrl'] ?? '';
-        userLocation = data['location'] ?? 'Unknown location';
+        userLocation = data['village'] ?? 'Unknown location';
       });
     }
   }
@@ -142,12 +105,48 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser != null) {
       getUserInfo(currentUser.uid);
+
       WidgetsBinding.instance.addPostFrameCallback((_) {
         checkProfileAndShowModal(context, currentUser.uid);
       });
     }
 
     _fabAnimationController.forward();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _pageController.jumpToPage(0);
+      safeShowTutorial();
+    });
+  }
+
+  void scrollToQuickAction(int index) {
+    if (_scrollController.hasClients) {
+      RenderBox? box =
+          quickActionKeys[index].currentContext?.findRenderObject()
+              as RenderBox?;
+      if (box != null) {
+        double y = box.localToGlobal(Offset.zero).dy + _scrollController.offset;
+        _scrollController.animateTo(
+          y - 100, // offset to position nicely
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+        );
+      }
+    }
+  }
+
+  void safeShowTutorial() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      scrollToQuickAction(0);
+
+      tutorialCoachMark = TutorialCoachMark(
+        targets: _createTargets(),
+        colorShadow: Colors.black.withOpacity(0.7),
+        paddingFocus: 10,
+        opacityShadow: 0.7,
+      );
+      tutorialCoachMark.show(context: context);
+    });
   }
 
   void _scrollListener() {
@@ -181,21 +180,107 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     });
   }
 
+  List<TargetFocus> _createTargets() {
+    return [
+      TargetFocus(
+        identify: "Africulture",
+        keyTarget: homeKey,
+        contents: [
+          TargetContent(
+            align: ContentAlign.bottom,
+            child: const Text(
+              "This is your Home Dashboard with quick access to features.",
+              style: TextStyle(color: Colors.white, fontSize: 16),
+            ),
+          ),
+        ],
+      ),
+      TargetFocus(
+        identify: "ai",
+        keyTarget: aiAssistantKey,
+        contents: [
+          TargetContent(
+            align: ContentAlign.bottom,
+            child: const Text(
+              "Use the AI Assistant for instant help. You can upload crop images for diagnosis.",
+              style: TextStyle(color: Colors.white, fontSize: 16),
+            ),
+          ),
+        ],
+      ),
+      // Quick action icons
+      for (int i = 0; i < quickActionKeys.length; i++)
+        TargetFocus(
+          identify: "quick_action_$i",
+          keyTarget: quickActionKeys[i],
+          contents: [
+            TargetContent(
+              align: ContentAlign.top,
+              child: Text(
+                quickActionDescriptions[i],
+                style: const TextStyle(color: Colors.white, fontSize: 20),
+              ),
+            ),
+          ],
+        ),
+      // Bottom Navigation
+      for (int i = 0; i < bottomNavKeys.length; i++)
+        TargetFocus(
+          identify: "bottom_nav_$i",
+          keyTarget: bottomNavKeys[i],
+          contents: [
+            TargetContent(
+              align: ContentAlign.top,
+              child: Text(
+                "Bottom Navigation ${i + 1}",
+                style: const TextStyle(color: Colors.white, fontSize: 16),
+              ),
+            ),
+          ],
+        ),
+      // App bar notifications
+      TargetFocus(
+        identify: "notifications",
+        keyTarget: appBarNotificationKey,
+        contents: [
+          TargetContent(
+            align: ContentAlign.bottom,
+            child: const Text(
+              "Check notifications here.",
+              style: TextStyle(color: Colors.white, fontSize: 16),
+            ),
+          ),
+        ],
+      ),
+      TargetFocus(
+        identify: "search",
+        keyTarget: appBarSearchKey,
+        contents: [
+          TargetContent(
+            align: ContentAlign.bottom,
+            child: const Text(
+              "Search posts and products here.",
+              style: TextStyle(color: Colors.white, fontSize: 16),
+            ),
+          ),
+        ],
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F9F3),
-      drawer: username.isNotEmpty
-          ? CustomDrawer(
-              userName: username,
-              userEmail: userEmail,
-              profileImageUrl: profileImageUrl,
-              location: userLocation,
-            )
-          : null,
+      drawer: CustomDrawer(
+        userName: username,
+        userEmail: userEmail,
+        profileImageUrl: profileImageUrl,
+        location: userLocation,
+      ),
       appBar: AppBar(
-        backgroundColor: Color(0xFF2E7D32),
-        iconTheme: IconThemeData(color: Colors.white),
+        key: appBarKey,
+        backgroundColor: Colors.teal,
+        iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
         leading: Builder(
           builder: (context) => IconButton(
@@ -206,11 +291,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              'assets/app_logo.png',
-              height: 30,
-              color: Colors.white,
-            ),
+            Image.asset('assets/app_logo.png', height: 30, color: Colors.white),
             const SizedBox(width: 10),
             const Text(
               'Africulture',
@@ -220,6 +301,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         ),
         actions: [
           IconButton(
+            key: appBarNotificationKey,
             icon: const Icon(Icons.notifications_none),
             onPressed: () => Navigator.push(
               context,
@@ -227,6 +309,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             ),
           ),
           IconButton(
+            key: appBarSearchKey,
             icon: const Icon(Icons.search),
             onPressed: () {
               // Implement search functionality
@@ -234,58 +317,65 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           ),
         ],
       ),
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: (index) => setState(() => myIndex = index),
-        children: [
-          HomePageContent(
-            scrollController: _scrollController,
-            userName: username,
-            location: userLocation,
-          ),
-          const NewsPage(),
-          FirebaseAuth.instance.currentUser != null
-              ? ProfilePage(user: FirebaseAuth.instance.currentUser!)
-              : const Center(child: Text("Please login to view profile")),
-        ],
+      body: Builder(
+        builder: (context) {
+          return PageView(
+            key: homeKey,
+            controller: _pageController,
+            onPageChanged: (index) => safeSetState(() => myIndex = index),
+            children: [
+              KeyedSubtree(
+                child: HomePageContent(
+                  scrollController: _scrollController,
+                  userName: username,
+                  location: userLocation,
+                  quickActionKeys: quickActionKeys,
+                ),
+              ),
+              const NewsPage(showAppBar: false),
+              FirebaseAuth.instance.currentUser != null
+                  ? ProfilePage(
+                      user: FirebaseAuth.instance.currentUser!,
+                      showAppBar: false,
+                    )
+                  : const Center(child: Text("Please login to view profile")),
+            ],
+          );
+        },
       ),
-      bottomNavigationBar: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        height: _isBottomBarVisible ? 70 : 0,
-        child: Wrap(
-          children: [
-            BottomNavigationBar(
-              backgroundColor: Colors.white,
-              currentIndex: myIndex,
-              selectedItemColor: const Color(0xFF2E7D32),
-              unselectedItemColor: Colors.grey.shade600,
-              selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500),
-              type: BottomNavigationBarType.fixed,
-              onTap: onTabTapped,
-              items: [
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.home_outlined),
-                  activeIcon: const Icon(Icons.home),
-                  label: 'Home',
-                ),
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.article_outlined),
-                  activeIcon: const Icon(Icons.article),
-                  label: 'News',
-                ),
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.person_outline),
-                  activeIcon: const Icon(Icons.person),
-                  label: 'Profile',
-                ),
-              ],
-            ),
-          ],
-        ),
+      bottomNavigationBar: Builder(
+        builder: (context) {
+          return BottomNavigationBar(
+            backgroundColor: Colors.white,
+            currentIndex: myIndex,
+            selectedItemColor: Colors.teal,
+            unselectedItemColor: Colors.grey.shade600,
+            selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500),
+            onTap: onTabTapped,
+            items: [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home_outlined, key: bottomNavKeys[0]),
+                activeIcon: Icon(Icons.home, key: bottomNavKeys[0]),
+                label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.article_outlined, key: bottomNavKeys[1]),
+                activeIcon: const Icon(Icons.article),
+                label: 'News',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person_outline, key: bottomNavKeys[2]),
+                activeIcon: const Icon(Icons.person),
+                label: 'Profile',
+              ),
+            ],
+          );
+        },
       ),
       floatingActionButton: ScaleTransition(
         scale: _fabAnimationController,
         child: FloatingActionButton(
+          key: aiAssistantKey,
           backgroundColor: const Color(0xFF4CAF50),
           onPressed: () => showDialog(
             context: context,
@@ -303,12 +393,14 @@ class HomePageContent extends StatefulWidget {
   final ScrollController scrollController;
   final String userName;
   final String location;
+  final List<GlobalKey> quickActionKeys;
 
   const HomePageContent({
     super.key,
     required this.scrollController,
     required this.userName,
     required this.location,
+    required this.quickActionKeys,
   });
 
   @override
@@ -322,32 +414,6 @@ class _HomePageContentState extends State<HomePageContent> {
   bool showPopupBubble = true;
   DateTime? _lastPopupTime;
 
-  @override
-  void initState() {
-    super.initState();
-    _fetchWeather();
-    _lastPopupTime = DateTime.now();
-  }
-
-  Future<void> _fetchWeather() async {
-    try {
-      final position = await LocationService.getCurrentLocation();
-      final data = await WeatherService.fetchWeatherByCoords(
-        position.latitude,
-        position.longitude,
-      );
-      setState(() {
-        _weatherData = data;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _error = 'Failed to load weather: $e';
-        _isLoading = false;
-      });
-    }
-  }
-
   void _showGreeting() {
     final now = DateTime.now();
     if (_lastPopupTime == null ||
@@ -360,12 +426,42 @@ class _HomePageContentState extends State<HomePageContent> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _fetchWeather();
+  }
+
+  Future<void> _fetchWeather() async {
+    setState(() {
+      _isLoading = true;
+      _error = '';
+    });
+
+    try {
+      final position = await LocationService.getCurrentLocation();
+      final data = await WeatherService.fetchWeatherByCoords(
+        position.latitude,
+        position.longitude,
+      );
+
+      setState(() {
+        _weatherData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = 'Failed to load weather: $e';
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final timeNow = DateTime.now();
     final hour = timeNow.hour;
     String greeting = 'Good day';
-
     if (hour < 12) {
       greeting = 'Good morning';
     } else if (hour < 17) {
@@ -386,7 +482,11 @@ class _HomePageContentState extends State<HomePageContent> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildWelcomeCard(theme, greeting),
-              _buildWeatherCard(theme),
+              WeatherCard(
+                weatherData: _weatherData,
+                isLoading: _isLoading,
+                error: _error,
+              ),
               _buildQuickActionsGrid(),
               _buildRecommendationsSection(theme),
               _buildGallerySection(theme),
@@ -411,7 +511,7 @@ class _HomePageContentState extends State<HomePageContent> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.green.withOpacity(0.2),
+            color: Colors.teal.withOpacity(0.2),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -467,149 +567,6 @@ class _HomePageContentState extends State<HomePageContent> {
     );
   }
 
-  Widget _buildWeatherCard(ThemeData theme) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      child: Card(
-        elevation: 3,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const WeatherPage()),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Weather Today',
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        color: theme.primaryColor,
-                      ),
-                    ),
-                    Text(
-                      DateFormat('EEEE, MMM d').format(DateTime.now()),
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                _isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : _error.isNotEmpty
-                    ? Text(_error)
-                    : _buildWeatherContent(theme),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildWeatherContent(ThemeData theme) {
-    final temp = _weatherData!['main']['temp'].toStringAsFixed(1);
-    final condition = _weatherData!['weather'][0]['main'];
-    final humidity = _weatherData!['main']['humidity'];
-    final windSpeed = _weatherData!['wind']['speed'];
-
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                BoxedIcon(
-                  getWeatherIcon(condition),
-                  color: theme.primaryColor,
-                  size: 48,
-                ),
-                const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '$temp°C',
-                      style: const TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      condition,
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  _weatherData!['name'],
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Divider(color: Colors.grey.shade300),
-        const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildWeatherStat('Humidity', '$humidity%', Icons.opacity),
-            _buildWeatherStat(
-              'Wind',
-              '${windSpeed}km/h',
-              WeatherIcons.strong_wind,
-            ),
-            _buildWeatherStat(
-              'Pressure',
-              '${_weatherData!['main']['pressure']}hPa',
-              WeatherIcons.barometer,
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildWeatherStat(String label, String value, IconData icon) {
-    return Column(
-      children: [
-        Icon(icon, color: Colors.grey.shade600, size: 24),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-        ),
-        Text(
-          label,
-          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-        ),
-      ],
-    );
-  }
-
   Widget _buildQuickActionsGrid() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -632,6 +589,7 @@ class _HomePageContentState extends State<HomePageContent> {
           mainAxisSpacing: 8,
           children: [
             _buildQuickAction(
+              key: widget.quickActionKeys[0],
               icon: Icons.cloud,
               label: 'Weather',
               color: Colors.lightBlue,
@@ -641,6 +599,7 @@ class _HomePageContentState extends State<HomePageContent> {
               ),
             ),
             _buildQuickAction(
+              key: widget.quickActionKeys[1],
               icon: Icons.shopping_cart,
               label: 'Market',
               color: Colors.green,
@@ -650,6 +609,7 @@ class _HomePageContentState extends State<HomePageContent> {
               ),
             ),
             _buildQuickAction(
+              key: widget.quickActionKeys[2],
               icon: Icons.newspaper,
               label: 'News',
               color: Colors.deepOrange,
@@ -659,6 +619,7 @@ class _HomePageContentState extends State<HomePageContent> {
               ),
             ),
             _buildQuickAction(
+              key: widget.quickActionKeys[3],
               icon: Icons.people,
               label: 'Community',
               color: Colors.purple,
@@ -668,6 +629,7 @@ class _HomePageContentState extends State<HomePageContent> {
               ),
             ),
             _buildQuickAction(
+              key: widget.quickActionKeys[4],
               icon: Icons.local_shipping,
               label: 'Transport',
               color: Colors.teal,
@@ -677,15 +639,19 @@ class _HomePageContentState extends State<HomePageContent> {
               ),
             ),
             _buildQuickAction(
+              key: widget.quickActionKeys[5],
               icon: Icons.devices,
               label: 'IoT',
               color: Colors.indigo,
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const DashboardPage()),
+                MaterialPageRoute(
+                  builder: (context) => const IOTDashboardPage(),
+                ),
               ),
             ),
             _buildQuickAction(
+              key: widget.quickActionKeys[6],
               icon: Icons.account_balance_wallet,
               label: 'Wallet',
               color: Colors.amber,
@@ -695,6 +661,7 @@ class _HomePageContentState extends State<HomePageContent> {
               ),
             ),
             _buildQuickAction(
+              key: widget.quickActionKeys[7],
               icon: Icons.help,
               label: 'Help',
               color: Colors.redAccent,
@@ -714,8 +681,10 @@ class _HomePageContentState extends State<HomePageContent> {
     required String label,
     required VoidCallback onTap,
     required Color color,
+    Key? key,
   }) {
     return InkWell(
+      key: key,
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Column(
@@ -963,84 +932,5 @@ class _HomePageContentState extends State<HomePageContent> {
         ],
       ),
     );
-  }
-}
-
-class FeatureCard extends StatelessWidget {
-  final String imagePath;
-  final String title;
-  final Widget destination;
-
-  const FeatureCard({
-    super.key,
-    required this.imagePath,
-    required this.title,
-    required this.destination,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      elevation: 2,
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => destination),
-        ),
-        borderRadius: BorderRadius.circular(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(12),
-              ),
-              child: Image.asset(imagePath, height: 120, fit: BoxFit.cover),
-            ),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: const BorderRadius.vertical(
-                  bottom: Radius.circular(12),
-                ),
-              ),
-              child: Text(
-                title,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-IconData getWeatherIcon(String condition) {
-  switch (condition.toLowerCase()) {
-    case 'clear':
-      return WeatherIcons.day_sunny;
-    case 'clouds':
-      return WeatherIcons.cloud;
-    case 'rain':
-      return WeatherIcons.rain;
-    case 'drizzle':
-      return WeatherIcons.showers;
-    case 'thunderstorm':
-      return WeatherIcons.thunderstorm;
-    case 'snow':
-      return WeatherIcons.snow;
-    case 'mist':
-    case 'fog':
-    case 'haze':
-      return WeatherIcons.fog;
-    default:
-      return WeatherIcons.day_sunny_overcast;
   }
 }

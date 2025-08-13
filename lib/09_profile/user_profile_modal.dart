@@ -153,11 +153,11 @@ class _UserProfileModalState extends State<UserProfileModal> {
     setState(() => _isLoading = true);
 
     String? imageUrl;
-
     if (_image != null) {
-      File? compressedImage = (await compressImage(_image!)) as io.File?;
-      if (compressedImage != null) {
-        imageUrl = await _uploadImage(compressedImage);
+      XFile? compressedXFile = await compressImage(File(_image!.path));
+      if (compressedXFile != null) {
+        File compressedFile = File(compressedXFile.path);
+        imageUrl = await _uploadImage(compressedFile);
       }
     }
 

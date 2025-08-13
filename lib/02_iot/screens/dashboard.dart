@@ -3,14 +3,14 @@ import '../widgets/device_card.dart';
 import '../widgets/sensor_chart.dart';
 import '/02_iot/services/iot_service.dart';
 
-class DashboardPage extends StatefulWidget {
-  const DashboardPage({super.key});
+class IOTDashboardPage extends StatefulWidget {
+  const IOTDashboardPage({super.key});
 
   @override
-  State<DashboardPage> createState() => _DashboardPageState();
+  State<IOTDashboardPage> createState() => _IOTDashboardPageState();
 }
 
-class _DashboardPageState extends State<DashboardPage> {
+class _IOTDashboardPageState extends State<IOTDashboardPage> {
   final iot = IoTService();
   int _currentIndex = 0;
   bool _isConnected = false;

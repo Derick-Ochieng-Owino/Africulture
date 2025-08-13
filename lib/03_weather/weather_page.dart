@@ -5,6 +5,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class WeatherPage extends StatefulWidget {
   const WeatherPage({super.key});
@@ -44,9 +46,9 @@ class _WeatherPageState extends State<WeatherPage> with SingleTickerProviderStat
     );
 
     _determinePosition().then((position) {
-      _fetchWeatherByCoords(position.latitude, position.longitude);
+      _loadWeatherWithCache(position.latitude, position.longitude);
       _refreshTimer = Timer.periodic(const Duration(minutes: 5), (_) {
-        _fetchWeatherByCoords(position.latitude, position.longitude);
+        _fetchWeatherByCoords(position.latitude, position.longitude, forceRefresh: true);
       });
     }).catchError((e) {
       setState(() {
@@ -64,9 +66,18 @@ class _WeatherPageState extends State<WeatherPage> with SingleTickerProviderStat
     super.dispose();
   }
 
-  Future<void> _fetchWeatherByCoords(double lat, double lon) async {
+  Future<void> _loadWeatherWithCache(double lat, double lon) async {
+    final cached = await _loadCache();
+    if (cached != null) {
+      _updateUI(cached['weather'], cached['forecast']);
+    } else {
+      _fetchWeatherByCoords(lat, lon);
+    }
+  }
+
+  Future<void> _fetchWeatherByCoords(double lat, double lon, {bool forceRefresh = false}) async {
     setState(() {
-      isLoading = true;
+      isLoading = !forceRefresh;
       errorMessage = null;
     });
 
@@ -81,33 +92,8 @@ class _WeatherPageState extends State<WeatherPage> with SingleTickerProviderStat
         final weatherData = json.decode(weatherResponse.body);
         final forecastData = json.decode(forecastResponse.body);
 
-        setState(() {
-          temperature = weatherData['main']['temp'].toDouble();
-          description = weatherData['weather'][0]['description'];
-          cityName = weatherData['name'];
-          iconCode = weatherData['weather'][0]['icon'];
-
-          currentWeatherDetails = {
-            'wind': weatherData['wind']['speed'],
-            'humidity': weatherData['main']['humidity'],
-            'pressure': weatherData['main']['pressure'],
-            'visibility': weatherData['visibility'] / 1000,
-          };
-
-          forecast = (forecastData['list'] as List).map((item) {
-            return {
-              'dateTime': DateTime.parse(item['dt_txt']),
-              'temp': item['main']['temp'].toDouble(),
-              'icon': item['weather'][0]['icon'],
-              'description': item['weather'][0]['description'],
-            };
-          }).toList();
-
-          isLoading = false;
-          errorMessage = null;
-        });
-
-        _animationController.forward(from: 0);
+        _updateUI(weatherData, forecastData);
+        _saveCache(weatherData, forecastData);
       } else {
         setState(() {
           isLoading = false;
@@ -124,7 +110,6 @@ class _WeatherPageState extends State<WeatherPage> with SingleTickerProviderStat
 
   Future<void> _fetchWeatherByCity(String city) async {
     if (city.trim().isEmpty) return;
-
     setState(() {
       isLoading = true;
       errorMessage = null;
@@ -141,33 +126,8 @@ class _WeatherPageState extends State<WeatherPage> with SingleTickerProviderStat
         final weatherData = json.decode(weatherResponse.body);
         final forecastData = json.decode(forecastResponse.body);
 
-        setState(() {
-          temperature = weatherData['main']['temp'].toDouble();
-          description = weatherData['weather'][0]['description'];
-          cityName = weatherData['name'];
-          iconCode = weatherData['weather'][0]['icon'];
-
-          currentWeatherDetails = {
-            'wind': weatherData['wind']['speed'],
-            'humidity': weatherData['main']['humidity'],
-            'pressure': weatherData['main']['pressure'],
-            'visibility': weatherData['visibility'] / 1000,
-          };
-
-          forecast = (forecastData['list'] as List).map((item) {
-            return {
-              'dateTime': DateTime.parse(item['dt_txt']),
-              'temp': item['main']['temp'].toDouble(),
-              'icon': item['weather'][0]['icon'],
-              'description': item['weather'][0]['description'],
-            };
-          }).toList();
-
-          isLoading = false;
-          errorMessage = null;
-        });
-
-        _animationController.forward(from: 0);
+        _updateUI(weatherData, forecastData);
+        _saveCache(weatherData, forecastData);
       } else {
         setState(() {
           isLoading = false;
@@ -180,6 +140,56 @@ class _WeatherPageState extends State<WeatherPage> with SingleTickerProviderStat
         errorMessage = 'Error fetching weather: $e';
       });
     }
+  }
+
+  void _updateUI(Map<String, dynamic> weatherData, Map<String, dynamic> forecastData) {
+    setState(() {
+      temperature = weatherData['main']['temp'].toDouble();
+      description = weatherData['weather'][0]['description'];
+      cityName = weatherData['name'];
+      iconCode = weatherData['weather'][0]['icon'];
+
+      currentWeatherDetails = {
+        'wind': weatherData['wind']['speed'],
+        'humidity': weatherData['main']['humidity'],
+        'pressure': weatherData['main']['pressure'],
+        'visibility': weatherData['visibility'] / 1000,
+      };
+
+      forecast = (forecastData['list'] as List).map((item) {
+        return {
+          'dateTime': DateTime.parse(item['dt_txt']),
+          'temp': item['main']['temp'].toDouble(),
+          'icon': item['weather'][0]['icon'],
+          'description': item['weather'][0]['description'],
+        };
+      }).toList();
+
+      isLoading = false;
+      errorMessage = null;
+    });
+    _animationController.forward(from: 0);
+  }
+
+  /// Caching
+  Future<void> _saveCache(Map<String, dynamic> weather, Map<String, dynamic> forecast) async {
+    final prefs = await SharedPreferences.getInstance();
+    final cacheData = json.encode({'weather': weather, 'forecast': forecast, 'timestamp': DateTime.now().millisecondsSinceEpoch});
+    await prefs.setString('weather_cache', cacheData);
+  }
+
+  Future<Map<String, dynamic>?> _loadCache({int maxAgeMinutes = 10}) async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString('weather_cache');
+    if (jsonString != null) {
+      final data = json.decode(jsonString);
+      final timestamp = data['timestamp'] ?? 0;
+      final age = DateTime.now().millisecondsSinceEpoch - timestamp;
+      if (age <= maxAgeMinutes * 60 * 1000) {
+        return data;
+      }
+    }
+    return null;
   }
 
   Future<Position> _determinePosition() async {
@@ -205,6 +215,7 @@ class _WeatherPageState extends State<WeatherPage> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
+    // keep your UI code exactly the same
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
@@ -226,7 +237,6 @@ class _WeatherPageState extends State<WeatherPage> with SingleTickerProviderStat
         ),
         child: Column(
           children: [
-            // Search Bar
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Material(
@@ -261,7 +271,7 @@ class _WeatherPageState extends State<WeatherPage> with SingleTickerProviderStat
             // Main Weather Display
             Expanded(
               child: isLoading
-                  ? const Center(child: CircularProgressIndicator(color: Colors.green))
+                  ? Center(child: Lottie.asset('assets/animations/plant_grow.json', width: 120, height: 120))
                   : errorMessage != null
                   ? _buildErrorWidget()
                   : FadeTransition(

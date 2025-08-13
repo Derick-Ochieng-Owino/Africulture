@@ -3,9 +3,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
-import '../services/gemini_service.dart';
-import '../services/image_upload_service.dart';
-import '../widgets/chat_message.dart';
+import 'gemini_service.dart';
+import 'image_upload_service.dart';
+import 'chat_message.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class AIAssistantScreen extends StatefulWidget {

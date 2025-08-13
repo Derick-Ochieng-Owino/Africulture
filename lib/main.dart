@@ -8,16 +8,18 @@ import 'package:africulture/12_Admin/screens/admin_approval_page.dart';
 import 'package:africulture/11_home/screens/splash_screen.dart';
 import 'package:africulture/11_home/screens/home.dart';
 import 'package:africulture/10_authenticication/auth.dart';
-import 'package:africulture/03_weather/screens/weather_page.dart';
+import 'package:africulture/03_weather/weather_page.dart';
 import 'package:africulture/12_Admin/screens/analytics_screen.dart';
 import 'package:africulture/12_Admin/screens/content_screen.dart';
 import 'package:africulture/12_Admin/screens/dashboard_screen.dart';
 import 'package:africulture/12_Admin/screens/settings_screen.dart';
 import 'package:africulture/12_Admin/screens/users_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:africulture/10_authenticication/phone_signin.dart';
@@ -45,16 +47,36 @@ import '12_Admin/screens/notifications_screen.dart';
 import '12_Admin/screens/profile_screen.dart';
 
 late final LocalizationDelegate localizationDelegate;
+final FlutterLocalNotificationsPlugin notificationsPlugin = FlutterLocalNotificationsPlugin();
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.dumpErrorToConsole(details);
   };
 
-  WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: '.env');
+  const AndroidInitializationSettings initializationSettingsAndroid =
+  AndroidInitializationSettings('@mipmap/ic_launcher');
+
+  final InitializationSettings initializationSettings = InitializationSettings(
+    android: initializationSettingsAndroid,
+  );
+
+  await notificationsPlugin.initialize(initializationSettings);
+  await notificationsPlugin
+      .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(
+    const AndroidNotificationChannel(
+      'farm_alerts',        // Channel ID
+      'Farm Alerts',        // Channel name
+      importance: Importance.high,
+    ),
+  );
 
   try {
+    await dotenv.load(fileName: '.env');
+
     await Firebase.initializeApp(
       options: FirebaseOptions(
         apiKey: dotenv.get('FIREBASE_API_KEY', fallback: ''),
@@ -66,6 +88,18 @@ Future<void> main() async {
       ),
     );
 
+    // Enable Firestore persistence
+    try {
+      if (kIsWeb) {
+        await FirebaseFirestore.instance.enablePersistence();
+      } else {
+        FirebaseFirestore.instance.settings = const Settings(persistenceEnabled: true);
+      }
+    } catch (e) {
+      debugPrint("[DEBUG] Firestore persistence error: $e");
+    }
+
+    // Firebase App Check (skip for web debug)
     if (!kIsWeb) {
       await FirebaseAppCheck.instance.activate(
         webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),
@@ -74,14 +108,16 @@ Future<void> main() async {
       );
     }
 
+    // Localization
     localizationDelegate = await LocalizationDelegate.create(
       fallbackLocale: 'en',
       supportedLocales: ['en', 'sw'],
       basePath: 'assets/locale/',
     );
 
+    // Run the app
     runApp(const MyRoot());
-  } catch (e) {
+  } catch (e, stack) {
     runApp(const MaterialApp(
       home: Scaffold(
         body: Center(child: Text('Application initialization failed')),
@@ -129,6 +165,7 @@ class MyApp extends StatelessWidget {
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        primaryColor: Colors.teal,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
         useMaterial3: true,
       ),
@@ -164,9 +201,7 @@ class MyApp extends StatelessWidget {
         '/account': (context) => const AccountScreen(),
         '/edit_profile': (context) {
           final user = FirebaseAuth.instance.currentUser;
-          return user == null
-              ? const LoginPage()
-              : EditProfilePage(uid: user.uid);
+          return user == null ? const LoginPage() : EditProfilePage(uid: user.uid);
         },
         '/adminDashboard': (context) => const DashboardScreen(),
         '/users': (context) => const UsersScreen(),
