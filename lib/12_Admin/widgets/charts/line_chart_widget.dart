@@ -20,9 +20,9 @@ class LineChartWidget extends StatelessWidget {
     }
 
     // Calculate maxY safely
-    final maxY = data.isNotEmpty
-        ? data.map((e) => e.amount).reduce((a, b) => a > b ? a : b) * 1.1
-        : 10; // Default value when empty
+    // final maxY = data.isNotEmpty
+    //     ? data.map((e) => e.amount).reduce((a, b) => a > b ? a : b) * 1.1
+    //     : 10; // Default value when empty
 
     return LineChart(
       LineChartData(

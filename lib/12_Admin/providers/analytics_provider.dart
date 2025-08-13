@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../models/analytics_model.dart';
-import '../services/firebase_service.dart';
 
 class AnalyticsProvider with ChangeNotifier {
   List<UserGrowth> _userGrowth = [];

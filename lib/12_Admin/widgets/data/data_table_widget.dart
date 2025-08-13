@@ -43,10 +43,6 @@ class DataTableWidget extends StatelessWidget {
           ))
               .toList(),
           rows: rows.map((row) {
-            final isOnlineRaw = row['isOnline'];
-
-            final isOnline = isOnlineRaw == true;
-
             return DataRow(
               cells: columns.map((col) {
                 if (col == 'Online') {

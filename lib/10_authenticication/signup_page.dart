@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:lottie/lottie.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../11_home/screens/get_started.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -13,7 +15,7 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage> {
   final _formKey = GlobalKey<FormState>();
   bool _obscureText = true;
-  bool isLoading = false; // Loader flag
+  bool isLoading = false;
 
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
@@ -22,6 +24,25 @@ class _SignUpPageState extends State<SignUpPage> {
 
   final List<String> userTypes = ['User', 'Admin', 'Farmer', 'Retailer'];
   String selectedUserType = 'User';
+
+  @override
+  void initState() {
+    super.initState();
+    _checkOnboardingStatus();
+  }
+
+  Future<void> _checkOnboardingStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final seen = prefs.getBool('seenOnboarding') ?? false;
+
+    if (!seen) {
+      await prefs.setBool('seenOnboarding', true);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const GetStartedSlider()),
+      );
+    }
+  }
 
   Future<void> registerUser() async {
     setState(() => isLoading = true);
@@ -50,7 +71,7 @@ class _SignUpPageState extends State<SignUpPage> {
         ),
       );
 
-      // Redirect based on user type immediately after signup
+      // Navigate after signup
       if (selectedUserType == 'Admin') {
         Navigator.pushReplacementNamed(context, '/adminDashboard');
       } else if (selectedUserType == 'Farmer') {
@@ -61,21 +82,10 @@ class _SignUpPageState extends State<SignUpPage> {
         Navigator.pushReplacementNamed(context, '/home');
       }
     } on FirebaseAuthException catch (e) {
-      String errorMessage = "Registration failed";
-
-      if (e.code == 'weak-password') {
-        errorMessage = "Password is too weak.";
-      } else if (e.code == 'email-already-in-use') {
-        errorMessage = "Email is already in use.";
-      } else {
-        errorMessage = e.message ?? errorMessage;
-      }
-
+      String errorMessage = e.message ?? "Registration failed";
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
       );
-    } catch (e) {
-      debugPrint("Unknown registration error: $e");
     } finally {
       if (mounted) setState(() => isLoading = false);
     }

@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../providers/analytics_provider.dart';
-import '../models/analytics_model.dart';
 import '../widgets/charts/bar_chart_widget.dart';
 import '../widgets/charts/line_chart_widget.dart';
 import '../widgets/charts/pie_chart_widget.dart';
@@ -52,8 +51,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final analyticsProvider = Provider.of<AnalyticsProvider>(context);
-    final analyticsData = analyticsProvider.analyticsData;
-    final topProducts = analyticsProvider.topProducts;
+    // final analyticsData = analyticsProvider.analyticsData;
+    // final topProducts = analyticsProvider.topProducts;
 
     return Scaffold(
       appBar: AdminAppBar(title: 'AdminDashBoard'),

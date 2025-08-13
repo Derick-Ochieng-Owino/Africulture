@@ -39,6 +39,7 @@ import 'package:africulture/06_market/services/auth_service.dart';
 import 'package:africulture/06_market/services/cart_service.dart';
 import 'package:africulture/06_market/services/product_service.dart';
 import 'package:africulture/06_market/widgets/error_boundary.dart';
+import '11_home/screens/get_started.dart';
 import '12_Admin/providers/admin_provider.dart';
 import '12_Admin/providers/analytics_provider.dart';
 import '12_Admin/providers/theme_provider.dart';
@@ -212,6 +213,7 @@ class MyApp extends StatelessWidget {
         '/admin_Notifications': (context) => const AdminNotificationsScreen(),
         '/adminproducts': (context) => const ProductsScreen(),
         '/product_approval': (context) => const AdminApprovalPage(),
+        '/get_started': (context) => const GetStartedSlider(),
       },
     );
   }

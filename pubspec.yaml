@@ -81,6 +81,9 @@ flutter:
     - assets/back_images/weather_background.jpg
     - assets/locale/
     - assets/app_logo.png
+    - assets/slider/slider1.jpg
+    - assets/slider/slider2.jpg
+    - assets/slider/slider3.jpg
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
