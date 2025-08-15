@@ -220,7 +220,7 @@ class _WeatherPageState extends State<WeatherPage> with SingleTickerProviderStat
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: const Text('Weather Forecast', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.teal,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -230,7 +230,7 @@ class _WeatherPageState extends State<WeatherPage> with SingleTickerProviderStat
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Colors.green[800]!.withOpacity(0.2),
+              Colors.teal[800]!.withOpacity(0.2),
               Colors.grey[50]!,
             ],
           ),
@@ -248,14 +248,14 @@ class _WeatherPageState extends State<WeatherPage> with SingleTickerProviderStat
                     filled: true,
                     fillColor: Colors.white,
                     hintText: 'Search city...',
-                    prefixIcon: const Icon(Icons.search, color: Colors.green),
+                    prefixIcon: const Icon(Icons.search, color: Colors.teal),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30),
                       borderSide: BorderSide.none,
                     ),
                     contentPadding: const EdgeInsets.symmetric(vertical: 0),
                     suffixIcon: IconButton(
-                      icon: const Icon(Icons.my_location, color: Colors.green),
+                      icon: const Icon(Icons.my_location, color: Colors.teal),
                       onPressed: () {
                         _determinePosition().then((position) {
                           _fetchWeatherByCoords(position.latitude, position.longitude);
@@ -296,7 +296,7 @@ class _WeatherPageState extends State<WeatherPage> with SingleTickerProviderStat
                                 end: Alignment.bottomRight,
                                 colors: [
                                   Colors.blueAccent.withOpacity(0.8),
-                                  Colors.green[500]!.withOpacity(0.9),
+                                  Colors.teal[500]!.withOpacity(0.9),
                                 ],
                               ),
                             ),
@@ -491,7 +491,7 @@ class _WeatherPageState extends State<WeatherPage> with SingleTickerProviderStat
               });
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green[800],
+              backgroundColor: Colors.teal[800],
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
@@ -515,7 +515,7 @@ class _WeatherPageState extends State<WeatherPage> with SingleTickerProviderStat
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 30, color: Colors.green[800]),
+            Icon(icon, size: 30, color: Colors.teal[800]),
             const SizedBox(height: 8),
             Text(
               title,

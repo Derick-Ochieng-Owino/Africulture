@@ -1,4 +1,3 @@
-// lib/widgets/bottom_nav_bar.dart
 import 'package:flutter/material.dart';
 
 class BottomNavBar extends StatelessWidget {
@@ -14,7 +13,7 @@ class BottomNavBar extends StatelessWidget {
     return BottomNavigationBar(
       currentIndex: selectedIndex,
       type: BottomNavigationBarType.fixed,
-      selectedItemColor: Colors.green,
+      selectedItemColor: Colors.teal,
       unselectedItemColor: Colors.grey,
       showSelectedLabels: true,
       showUnselectedLabels: true,

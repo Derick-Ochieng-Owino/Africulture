@@ -33,25 +33,28 @@ class _AgriCommerceAppState extends State<AgriCommerceApp>{
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
+            color: Colors.white,
             onPressed: () {
               Navigator.pushNamed(context, '/search');
             },
           ),
           IconButton(
             icon: const Icon(Icons.shopping_cart),
+            color: Colors.white,
             onPressed: () {
               Navigator.pushNamed(context, '/cart');
             },
           ),
           IconButton(
             icon: const Icon(Icons.add),
+            color: Colors.white,
             onPressed: () {
               Navigator.pushNamed(context, '/add-product');
             },
           ),
         ],
       ),
-
+      backgroundColor: Colors.teal[100],
       drawer: const AppDrawer(),
       body: productService.isLoading
           ? const Center(child: CircularProgressIndicator())

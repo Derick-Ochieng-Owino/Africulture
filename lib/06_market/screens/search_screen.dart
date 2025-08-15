@@ -57,6 +57,7 @@ class _SearchScreenState extends State<SearchScreen> {
           },
         ),
       ),
+      backgroundColor: Colors.teal[100],
       body: Builder(
         builder: (context) {
           if (productService.isLoading) {

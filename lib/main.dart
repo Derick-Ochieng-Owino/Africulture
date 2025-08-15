@@ -1,4 +1,5 @@
 import 'package:africulture/06_market/screens/add_product_page.dart';
+import 'package:africulture/06_market/screens/order_history.dart';
 import 'package:africulture/10_authenticication/forgot_password.dart';
 import 'package:africulture/10_authenticication/login_page.dart';
 import 'package:africulture/10_authenticication/signup_page.dart';
@@ -12,6 +13,7 @@ import 'package:africulture/03_weather/weather_page.dart';
 import 'package:africulture/12_Admin/screens/analytics_screen.dart';
 import 'package:africulture/12_Admin/screens/content_screen.dart';
 import 'package:africulture/12_Admin/screens/dashboard_screen.dart';
+import 'package:africulture/12_Admin/screens/orders_screen.dart';
 import 'package:africulture/12_Admin/screens/settings_screen.dart';
 import 'package:africulture/12_Admin/screens/users_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -40,6 +42,7 @@ import 'package:africulture/06_market/services/cart_service.dart';
 import 'package:africulture/06_market/services/product_service.dart';
 import 'package:africulture/06_market/widgets/error_boundary.dart';
 import '11_home/screens/get_started.dart';
+import '11_home/screens/support_screen.dart';
 import '12_Admin/providers/admin_provider.dart';
 import '12_Admin/providers/analytics_provider.dart';
 import '12_Admin/providers/theme_provider.dart';
@@ -167,7 +170,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primaryColor: Colors.teal,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
         useMaterial3: true,
       ),
       localizationsDelegates: [
@@ -197,7 +200,7 @@ class MyApp extends StatelessWidget {
         '/products': (context) => const ProductsScreen(),
         '/product_detail': (context) => ProductDetailScreen(),
         '/add-product': (context) => ProductAddPage(),
-        '/cart': (context) => const CartScreen(),
+        '/cart': (context) => CartScreen(),
         '/search': (context) => const SearchScreen(),
         '/account': (context) => const AccountScreen(),
         '/edit_profile': (context) {
@@ -214,6 +217,9 @@ class MyApp extends StatelessWidget {
         '/adminproducts': (context) => const ProductsScreen(),
         '/product_approval': (context) => const AdminApprovalPage(),
         '/get_started': (context) => const GetStartedSlider(),
+        '/help': (context) => const HelpPage(),
+        '/my_orders': (context) => const OrdersScreen(),
+        //'/order_history': (context) => OrderHistoryPage(uid: user.uid),
       },
     );
   }

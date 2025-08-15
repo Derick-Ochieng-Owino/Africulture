@@ -1,4 +1,3 @@
-// lib/widgets/app_drawer.dart
 import 'package:flutter/material.dart';
 
 class AppDrawer extends StatelessWidget {
@@ -64,7 +63,14 @@ class AppDrawer extends StatelessWidget {
             leading: const Icon(Icons.shopping_bag),
             title: const Text('My Orders'),
             onTap: () {
-              // Navigate to orders screen
+              Navigator.pushReplacementNamed(context, '/my_orders');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.shopping_bag),
+            title: const Text('My Orders'),
+            onTap: () {
+              Navigator.pushReplacementNamed(context, '/orders_history');
             },
           ),
           ListTile(

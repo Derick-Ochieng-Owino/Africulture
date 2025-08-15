@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:lottie/lottie.dart';
 
 class CreatePostDialog extends StatefulWidget {
   final String initialText;
@@ -29,7 +29,7 @@ class _CreatePostDialogState extends State<CreatePostDialog> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
   String? _imagePath;
-  bool _isUploading = false;
+  bool _isPosting = false;
   Uint8List? _webImageData;
 
   @override
@@ -97,9 +97,23 @@ class _CreatePostDialogState extends State<CreatePostDialog> {
               ),
               const SizedBox(width: 8),
               ElevatedButton(
-                onPressed: _isUploading ? null : _submitPost,
-                child: _isUploading
-                    ? const CircularProgressIndicator()
+                onPressed: _isPosting ? null : _submitPost,
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: _isPosting
+                    ? SizedBox(
+                        height: 40,
+                        width: 40,
+                        child: Lottie.asset(
+                          'assets/animations/plant_grow.json',
+                          fit: BoxFit.cover,
+                          repeat: true,
+                        ),
+                      )
                     : Text(translate('forum.post')),
               ),
             ],
@@ -110,7 +124,9 @@ class _CreatePostDialogState extends State<CreatePostDialog> {
   }
 
   Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
     if (pickedFile != null) {
       setState(() {
         _imagePath = pickedFile.path;
@@ -122,34 +138,30 @@ class _CreatePostDialogState extends State<CreatePostDialog> {
     }
   }
 
-
   Future<void> _submitPost() async {
-    final content = _contentController.text.trim();
-    debugPrint("Submit post called. Content: $content");
-
-    if (content.isEmpty) {
-      debugPrint("Post content is empty, aborting.");
-      return;
-    }
-
-    setState(() => _isUploading = true);
-
     final user = _auth.currentUser;
-    if (user == null) {
-      debugPrint("User is null, aborting.");
-      return;
-    }
+    if (user == null) return;
+
+    final content = _contentController.text.trim();
+    if (content.isEmpty) return;
+
+    setState(() => _isPosting = true);
 
     try {
+      final userDoc = await _firestore.collection('users').doc(user.uid).get();
+      final firstName = userDoc.data()?['firstName'] ?? '';
+      final lastName = userDoc.data()?['lastName'] ?? '';
+      final authorName = (firstName + ' ' + lastName).trim().isEmpty
+          ? 'Anonymous Farmer'
+          : (firstName + ' ' + lastName).trim();
+
       String? imageUrl;
       if (_imagePath != null) {
-        debugPrint("Uploading image...");
         final ref = _storage.ref().child(
           'post_images/${DateTime.now().millisecondsSinceEpoch}',
         );
 
         UploadTask uploadTask;
-
         if (kIsWeb) {
           if (_webImageData == null) throw Exception('Web image data is null');
           uploadTask = ref.putData(_webImageData!);
@@ -159,33 +171,28 @@ class _CreatePostDialogState extends State<CreatePostDialog> {
 
         final snapshot = await uploadTask;
         imageUrl = await snapshot.ref.getDownloadURL();
-        debugPrint("Image uploaded: $imageUrl");
       }
 
-      debugPrint("Creating post in Firestore...");
       await FirebaseFirestore.instance.collection('posts').add({
-        'content': content, // ← use trimmed content
+        'content': content,
         'imageUrl': imageUrl,
         'authorId': user.uid,
-        'authorName': user.displayName ?? 'Anonymous Farmer',
+        'authorName': authorName,
         'timestamp': Timestamp.now(),
         'likes': [],
         'commentsCount': 0,
         'language': widget.selectedLanguage,
       });
 
-      debugPrint("Post successfully created");
       Navigator.pop(context, {'success': true});
     } catch (e) {
-      debugPrint("Post creation failed: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error creating post: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error creating post: $e')));
     } finally {
-      setState(() => _isUploading = false);
+      setState(() => _isPosting = false);
     }
   }
-
 
   @override
   void dispose() {
@@ -214,12 +221,47 @@ class _PostDetailsDialogState extends State<PostDetailsDialog> {
     super.dispose();
   }
 
+  Future<void> _deleteComment(String commentId) async {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) return;
+
+    final commentRef = _firestore
+        .collection('posts')
+        .doc(widget.post.id)
+        .collection('comments')
+        .doc(commentId);
+
+    try {
+      final commentSnap = await commentRef.get();
+
+      if (!commentSnap.exists) return;
+
+      if (commentSnap['authorId'] != userId) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("You can't delete this comment.")),
+        );
+        return;
+      }
+
+      await commentRef.delete();
+
+      await _firestore.collection('posts').doc(widget.post.id).update({
+        'commentsCount': FieldValue.increment(-1),
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Comment deleted successfully.")),
+      );
+    } catch (e) {
+      debugPrint('Error deleting comment: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Failed to delete comment.")),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final timestamp = (widget.post['timestamp'] as Timestamp).toDate();
-    final formattedDate = DateFormat('MMM d, y • h:mm a').format(timestamp);
-    final likesCount = (widget.post['likes'] as List? ?? []).length;
-
     return Container(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -227,47 +269,6 @@ class _PostDetailsDialogState extends State<PostDetailsDialog> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Post Header
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 20,
-                  backgroundColor: Colors.green[100],
-                  child: Text(
-                    widget.post['authorName']?.substring(0, 1) ?? 'A',
-                    style: const TextStyle(color: Colors.green),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.post['authorName'] ?? 'Anonymous',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      Text(
-                        formattedDate,
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                      ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.share),
-                  onPressed: () => _sharePost(widget.post),
-                ),
-              ],
-            ),
-          ),
-
-          // Post Content
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
@@ -294,33 +295,6 @@ class _PostDetailsDialogState extends State<PostDetailsDialog> {
             const SizedBox(height: 16),
           ],
 
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.favorite,
-                    color:
-                        (widget.post['likes'] ?? []).contains(
-                          _auth.currentUser?.uid,
-                        )
-                        ? Colors.red
-                        : Colors.grey[600],
-                  ),
-                  onPressed: () => _likePost(widget.post.id),
-                ),
-                Text(likesCount.toString()),
-                const SizedBox(width: 16),
-                const Icon(Icons.comment, color: Colors.grey),
-                const SizedBox(width: 8),
-                Text((widget.post['commentsCount'] ?? 0).toString()),
-              ],
-            ),
-          ),
-          const Divider(),
-
-          // Comments Section
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: _firestore
@@ -350,7 +324,6 @@ class _PostDetailsDialogState extends State<PostDetailsDialog> {
             ),
           ),
 
-          // Add Comment
           Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
@@ -381,6 +354,7 @@ class _PostDetailsDialogState extends State<PostDetailsDialog> {
   Widget _buildCommentItem(QueryDocumentSnapshot comment) {
     final timestamp = (comment['timestamp'] as Timestamp).toDate();
     final formattedDate = DateFormat('MMM d, h:mm a').format(timestamp);
+    final currentUserId = _auth.currentUser?.uid;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -415,15 +389,13 @@ class _PostDetailsDialogState extends State<PostDetailsDialog> {
               ],
             ),
           ),
+          if (comment['authorId'] == currentUserId)
+            IconButton(
+              icon: const Icon(Icons.delete, color: Colors.red, size: 20),
+              onPressed: () => _deleteComment(comment.id),
+            ),
         ],
       ),
-    );
-  }
-
-  Future<void> _sharePost(QueryDocumentSnapshot post) async {
-    await Share.share(
-      '${post['title']}\n\n${post['content']}\n\nShared from Africulture App',
-      subject: 'Check out this farming post',
     );
   }
 
@@ -434,8 +406,14 @@ class _PostDetailsDialogState extends State<PostDetailsDialog> {
     final user = _auth.currentUser;
     if (user == null) return;
 
+    final userDoc = await _firestore.collection('users').doc(user.uid).get();
+    final firstName = userDoc.data()?['firstName'] ?? '';
+    final lastName = userDoc.data()?['lastName'] ?? '';
+    final authorName = (firstName + ' ' + lastName).trim().isEmpty
+        ? 'Anonymous Farmer'
+        : (firstName + ' ' + lastName).trim();
+
     try {
-      // Add comment
       await _firestore
           .collection('posts')
           .doc(widget.post.id)
@@ -443,41 +421,21 @@ class _PostDetailsDialogState extends State<PostDetailsDialog> {
           .add({
             'content': content,
             'authorId': user.uid,
-            'authorName': user.displayName ?? 'Anonymous',
+            'authorName': authorName,
             'timestamp': Timestamp.now(),
           });
 
-      // Update comments count
       await _firestore.collection('posts').doc(widget.post.id).update({
         'commentsCount': FieldValue.increment(1),
       });
 
       _commentController.clear();
     } catch (e) {
+      debugPrint('Commenting error is: $e');
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(translate('forum.comment_error'))));
     }
-  }
-
-  Future<void> _likePost(String postId) async {
-    final userId = _auth.currentUser?.uid;
-    if (userId == null) return;
-
-    final postRef = _firestore.collection('posts').doc(postId);
-    await _firestore.runTransaction((transaction) async {
-      final post = await transaction.get(postRef);
-      if (!post.exists) return;
-
-      final likes = List<String>.from(post['likes'] ?? []);
-      if (likes.contains(userId)) {
-        likes.remove(userId);
-      } else {
-        likes.add(userId);
-      }
-
-      transaction.update(postRef, {'likes': likes});
-    });
   }
 }
 
@@ -502,8 +460,10 @@ class PostOptionsDialog extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.delete, color: Colors.red),
-            title: Text(translate('forum.delete_post'),
-              style: const TextStyle(color: Colors.red),),
+            title: Text(
+              translate('forum.delete_post'),
+              style: const TextStyle(color: Colors.red),
+            ),
             onTap: () {
               Navigator.pop(context);
               _showDeleteConfirmation(context, post.id);
@@ -604,7 +564,6 @@ class PostOptionsDialog extends StatelessWidget {
             onPressed: () {
               _deletePost(postId);
               Navigator.pop(context);
-              Navigator.pop(context); // Close the options dialog too
             },
             child: Text(
               translate('delete'),
@@ -618,10 +577,8 @@ class PostOptionsDialog extends StatelessWidget {
 
   Future<void> _deletePost(String postId) async {
     try {
-      // Delete the post
       await FirebaseFirestore.instance.collection('posts').doc(postId).delete();
 
-      // Optionally: Delete all comments associated with this post
       final comments = await FirebaseFirestore.instance
           .collection('posts')
           .doc(postId)

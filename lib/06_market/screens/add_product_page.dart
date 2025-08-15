@@ -22,6 +22,7 @@ class _ProductAddPageState extends State<ProductAddPage> {
   final _stockController = TextEditingController();
 
   String _category = 'Seeds';
+  Uint8List? _imageBytes;
   File? _imageFile;
   bool _isLoading = false;
   String? _error;
@@ -60,8 +61,21 @@ class _ProductAddPageState extends State<ProductAddPage> {
           return;
         }
 
+        // Read bytes BEFORE setState
+        Uint8List? webBytes;
+        File? mobileFile;
+        if (kIsWeb) {
+          webBytes = await pickedFile.readAsBytes();
+        } else {
+          mobileFile = File(pickedFile.path);
+        }
+
         setState(() {
-          _imageFile = File(pickedFile.path);
+          if (kIsWeb) {
+            _imageBytes = webBytes;
+          } else {
+            _imageFile = mobileFile;
+          }
           _error = null;
         });
       }
@@ -72,21 +86,22 @@ class _ProductAddPageState extends State<ProductAddPage> {
     }
   }
 
+
   Future<String?> _uploadImage() async {
-    if (_imageFile == null) return null;
+    if (!kIsWeb && _imageFile == null) return null;
+    if (kIsWeb && _imageBytes == null) return null;
 
     try {
       final userId = FirebaseAuth.instance.currentUser!.uid;
-      final fileName = basename(_imageFile!.path);
+      final fileName = DateTime.now().millisecondsSinceEpoch.toString();
       final ref = FirebaseStorage.instance
           .ref()
-          .child('product_images/$userId/${DateTime.now().millisecondsSinceEpoch}_$fileName');
+          .child('product_images/$userId/$fileName.jpg');
 
       UploadTask uploadTask;
       if (kIsWeb) {
-        final bytes = await _imageFile!.readAsBytes();
         uploadTask = ref.putData(
-          bytes,
+          _imageBytes!,
           SettableMetadata(contentType: 'image/jpeg'),
         );
       } else {
@@ -111,6 +126,7 @@ class _ProductAddPageState extends State<ProductAddPage> {
       return null;
     }
   }
+
 
   Future<void> _submitProduct() async {
     if (!_formKey.currentState!.validate()) return;
@@ -193,6 +209,7 @@ class _ProductAddPageState extends State<ProductAddPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Add New Product'),
+        backgroundColor: Colors.orange,
         actions: [
           if (_isLoading)
             Padding(
@@ -210,6 +227,7 @@ class _ProductAddPageState extends State<ProductAddPage> {
             ),
         ],
       ),
+      backgroundColor: Colors.teal[100],
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -235,11 +253,10 @@ class _ProductAddPageState extends State<ProductAddPage> {
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: Colors.grey),
           ),
-          child: _imageFile != null
-              ? ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.file(_imageFile!, fit: BoxFit.cover),
-          )
+          child: kIsWeb && _imageBytes != null
+              ? Image.memory(_imageBytes!, fit: BoxFit.cover)
+              : _imageFile != null
+              ? Image.file(_imageFile!, fit: BoxFit.cover)
               : Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: const [
@@ -248,6 +265,7 @@ class _ProductAddPageState extends State<ProductAddPage> {
               Text('Tap to add product image'),
             ],
           ),
+
         ),
       ),
       const SizedBox(height: 20),

@@ -6,6 +6,8 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:geocoding/geocoding.dart';
 
 class TransportHirePage extends StatefulWidget {
+  const TransportHirePage({super.key});
+
   @override
   _TransportHirePageState createState() => _TransportHirePageState();
 }
@@ -15,7 +17,7 @@ class _TransportHirePageState extends State<TransportHirePage> {
   final TextEditingController _destinationController = TextEditingController();
   final TextEditingController _cargoController = TextEditingController();
 
-  stt.SpeechToText _speech = stt.SpeechToText();
+  final stt.SpeechToText _speech = stt.SpeechToText();
   bool _isListening = false;
 
   DateTime? _pickupTime;

@@ -15,13 +15,16 @@ class ProductDetailScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(product.name),
+        backgroundColor: Colors.orange,
         actions: [
           IconButton(
             icon: const Icon(Icons.share),
+            color: Colors.white,
             onPressed: () => _shareProduct(product),
           ),
         ],
       ),
+      backgroundColor: Colors.teal[100],
       body: CustomScrollView(
         slivers: [
           SliverAppBar(

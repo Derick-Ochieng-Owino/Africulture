@@ -9,7 +9,7 @@ class BankScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scrollController = useScrollController();
-    final currentBalance = 12548.00; // Mock data
+    final currentBalance = 12548.00;
 
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
@@ -30,7 +30,7 @@ class BankScreen extends HookConsumerWidget {
                   fontSize: 20,
                 ),
               ),
-              background: Container(color: Colors.blueGrey),
+              background: Container(color: Colors.teal),
             ),
             actions: [
               IconButton(

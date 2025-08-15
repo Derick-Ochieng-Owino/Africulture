@@ -169,7 +169,7 @@ class _UserProfileModalState extends State<UserProfileModal> {
       'village': _selectedVillage,
       'farmingType': _farmingTypeController.text.trim(),
       'profileComplete': _calculateCompleteness() == 1.0,
-      if (imageUrl != null) 'photoUrl': imageUrl,
+      if (imageUrl != null) 'imageUrl': imageUrl,
     }, SetOptions(merge: true));
 
     setState(() => _isLoading = false);

@@ -15,13 +15,15 @@ class AccountScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Account'),
+        backgroundColor: Colors.orange,
       ),
+      backgroundColor: Colors.teal[100],
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           CircleAvatar(
             radius: 50,
-            backgroundColor: Colors.green,
+            backgroundColor: Colors.teal,
             child: user?.photoURL != null
                 ? ClipOval(
               child: Image.network(

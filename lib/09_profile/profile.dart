@@ -71,7 +71,6 @@ class ProfilePage extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-                // Profile Image + Completion Bar
                 Column(
                   children: [
                     CircleAvatar(
@@ -142,7 +141,6 @@ class ProfilePage extends StatelessWidget {
 
                 const SizedBox(height: 20),
 
-                // Complete Profile Button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(

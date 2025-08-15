@@ -25,26 +25,28 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!mounted) return;
 
     if (user != null) {
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
+      final docRef = FirebaseFirestore.instance.collection('users').doc(user.uid);
+      final doc = await docRef.get();
+
+      if (!doc.exists || doc.data()?['userType'] == null) {
+        Navigator.pushReplacementNamed(context, '/get_started');
+        return;
+      }
 
       final userType = doc.data()?['userType'] ?? 'User';
 
       if (userType == 'Admin') {
         Navigator.pushReplacementNamed(context, '/adminDashboard');
-      } else if (userType == 'Farmer') {
-        Navigator.pushReplacementNamed(context, '/home');
-      } else if (userType == 'Retailer') {
+      } else if (userType == 'Farmer' || userType == 'Retailer' || userType == 'User') {
         Navigator.pushReplacementNamed(context, '/home');
       } else {
-        Navigator.pushReplacementNamed(context, '/home');
+        Navigator.pushReplacementNamed(context, '/get_started');
       }
     } else {
       Navigator.pushReplacementNamed(context, '/get_started');
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

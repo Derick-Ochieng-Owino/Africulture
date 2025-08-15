@@ -22,15 +22,18 @@ class ProductsScreen extends StatelessWidget {
         title: categoryFilter != null
             ? Text(categoryFilter)
             : const Text('All Products'),
+        backgroundColor: Colors.orange,
         actions: [
           IconButton(
             icon: const Icon(Icons.filter_alt),
+            color: Colors.white,
             onPressed: () {
               _showFilterDialog(context, productService, categoryFilter);
             },
           ),
         ],
       ),
+      backgroundColor: Colors.teal[100],
       body: products.isEmpty
           ? const Center(
         child: Text('No products found'),

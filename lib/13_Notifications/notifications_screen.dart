@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:geolocator/geolocator.dart';
 import '../main.dart';
 import 'notification_model.dart';
+import 'notification_service.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -19,21 +20,34 @@ class _NotificationPageState extends State<NotificationPage> {
   String _selectedFilter = 'all';
   Position? _currentPosition;
   List<String> _selectedPreferences = [];
+  final _notificationService = NotificationService();
 
   @override
   void initState() {
     super.initState();
-    _loadNotifications();
     _loadPreferences();
     _getCurrentLocation();
+
+    _notificationService.getNotificationsStream().listen((data) {
+      for (var notification in data) {
+        if (!_notifications.any((n) => n.id == notification.id)) {
+          if (notification.type == 'likes' || notification.type == 'comments' || notification.type == 'personal') {
+            _showLocalNotification(notification);
+          }
+        }
+      }
+
+      setState(() {
+        _notifications = data;
+      });
+    });
   }
 
-  // Demo notification (optional, for testing)
-  void _showDemoNotification() {
+  void _showLocalNotification(NotificationItem item) {
     notificationsPlugin.show(
-      0,
-      'New Pest Alert!',
-      'Fall armyworm detected in your region',
+      item.id.hashCode,
+      item.title,
+      item.body,
       const NotificationDetails(
         android: AndroidNotificationDetails(
           'farm_alerts',
@@ -45,16 +59,14 @@ class _NotificationPageState extends State<NotificationPage> {
     );
   }
 
-  // Notification Preferences
+  // Preferences
   Future<void> _openPreferences() async {
     final List<String> allCategories = [
-      'weather',
-      'market',
-      'pests',
-      'equipment',
       'community',
+      'likes',
+      'comments',
+      'admin',
     ];
-
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -83,70 +95,20 @@ class _NotificationPageState extends State<NotificationPage> {
     });
   }
 
-  // Location filtering
   Future<void> _getCurrentLocation() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) return;
-
+    if (!await Geolocator.isLocationServiceEnabled()) return;
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) return;
     }
-
     final position = await Geolocator.getCurrentPosition();
     setState(() => _currentPosition = position);
   }
 
-  // Load simulated notifications
-  Future<void> _loadNotifications() async {
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    setState(() {
-      _notifications = [
-        NotificationItem(
-          id: '1',
-          title: 'Heavy Rainfall Alert',
-          body: '50mm rain expected tomorrow in Nairobi County',
-          type: 'weather',
-          time: DateTime.now().subtract(const Duration(minutes: 30)),
-          read: false,
-          community: true,
-        ),
-        NotificationItem(
-          id: '2',
-          title: 'Maize Price Surge',
-          body: 'Prices up 15% at Eldoret market this week',
-          type: 'market',
-          time: DateTime.now().subtract(const Duration(hours: 2)),
-          read: true,
-          community: false,
-        ),
-        NotificationItem(
-          id: '3',
-          title: 'New Forum Discussion',
-          body: '10 farmers discussing drought-resistant crops',
-          type: 'community',
-          time: DateTime.now().subtract(const Duration(days: 1)),
-          read: true,
-          community: true,
-        ),
-        NotificationItem(
-          id: '4',
-          title: 'Equipment Rental Available',
-          body: 'Tractors available in Kiambu at \$50/day',
-          type: 'equipment',
-          time: DateTime.now().subtract(const Duration(days: 2)),
-          read: false,
-          community: true,
-        ),
-      ];
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    final filteredNotifications = _applyAllFilters();
+    final filteredNotifications = _applyFilters();
 
     return Scaffold(
       appBar: AppBar(
@@ -176,10 +138,10 @@ class _NotificationPageState extends State<NotificationPage> {
               padding: const EdgeInsets.symmetric(horizontal: 8),
               children: [
                 _buildFilterChip('All', 'all'),
-                _buildFilterChip('Weather', 'weather'),
-                _buildFilterChip('Market', 'market'),
-                _buildFilterChip('Pests', 'pests'),
-                _buildFilterChip('Equipment', 'equipment'),
+                _buildFilterChip('Community', 'community'),
+                _buildFilterChip('Likes', 'likes'),
+                _buildFilterChip('Comments', 'comments'),
+                _buildFilterChip('Admin', 'admin'),
                 if (_currentPosition != null)
                   _buildFilterChip('Near Me', 'location'),
               ],
@@ -187,39 +149,38 @@ class _NotificationPageState extends State<NotificationPage> {
           ),
           Expanded(
             child: RefreshIndicator(
-              onRefresh: _loadNotifications,
+              onRefresh: () async {
+                final data = await _notificationService
+                    .getNotificationsStream()
+                    .first;
+                setState(() => _notifications = data);
+              },
               child: filteredNotifications.isEmpty
                   ? const Center(
-                child: Text(
-                  'No matching notifications',
-                  style: TextStyle(fontSize: 16),
-                ),
-              )
+                      child: Text(
+                        'No matching notifications',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    )
                   : ListView.builder(
-                itemCount: filteredNotifications.length,
-                itemBuilder: (context, index) {
-                  return buildNotificationCard(filteredNotifications[index]);
-                },
-              ),
+                      itemCount: filteredNotifications.length,
+                      itemBuilder: (context, index) =>
+                          _buildNotificationCard(filteredNotifications[index]),
+                    ),
             ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _sendCommunityNotification,
-        tooltip: 'Create community alert',
-        child: const Icon(Icons.add_alert),
-      ),
     );
   }
 
-  List<NotificationItem> _applyAllFilters() {
-    return _notifications.where((notification) {
-      if (_showCommunityOnly && !notification.community) return false;
-      if (_selectedFilter != 'all' && notification.type != _selectedFilter)
-        return false;
+  List<NotificationItem> _applyFilters() {
+    return _notifications.where((n) {
+      if (_showCommunityOnly && !n.community) return false;
+      if (_selectedFilter != 'all' && n.type != _selectedFilter) return false;
       if (_selectedPreferences.isNotEmpty &&
-          !_selectedPreferences.contains(notification.type)) return false;
+          !_selectedPreferences.contains(n.type))
+        return false;
       return true;
     }).toList();
   }
@@ -238,7 +199,7 @@ class _NotificationPageState extends State<NotificationPage> {
     );
   }
 
-  Widget buildNotificationCard(NotificationItem item) {
+  Widget _buildNotificationCard(NotificationItem item) {
     Color cardColor;
     Icon icon;
 
@@ -247,21 +208,21 @@ class _NotificationPageState extends State<NotificationPage> {
         cardColor = Colors.orange.shade50;
         icon = const Icon(Icons.people, color: Colors.orange);
         break;
-      case 'weather':
+      case 'likes':
+        cardColor = Colors.pink.shade50;
+        icon = const Icon(Icons.favorite, color: Colors.pink);
+        break;
+      case 'comments':
         cardColor = Colors.blue.shade50;
-        icon = const Icon(Icons.cloud, color: Colors.blue);
+        icon = const Icon(Icons.comment, color: Colors.blue);
         break;
-      case 'market':
-        cardColor = Colors.green.shade50;
-        icon = const Icon(Icons.attach_money, color: Colors.green);
-        break;
-      case 'equipment':
-        cardColor = Colors.brown.shade50;
-        icon = const Icon(Icons.agriculture, color: Colors.brown);
-        break;
-      case 'pests':
+      case 'admin':
         cardColor = Colors.red.shade50;
-        icon = const Icon(Icons.bug_report, color: Colors.red);
+        icon = const Icon(Icons.campaign, color: Colors.red);
+        break;
+      case 'personal':
+        cardColor = Colors.green.shade50;
+        icon = const Icon(Icons.notifications_active, color: Colors.green);
         break;
       default:
         cardColor = Colors.grey.shade200;
@@ -306,54 +267,9 @@ class _NotificationPageState extends State<NotificationPage> {
       ),
     );
   }
-
-  void _sendCommunityNotification() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Create Community Alert'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              decoration: const InputDecoration(labelText: 'Alert Title'),
-            ),
-            TextField(
-              decoration: const InputDecoration(labelText: 'Message'),
-              maxLines: 3,
-            ),
-            DropdownButtonFormField<String>(
-              items: const [
-                DropdownMenuItem(value: 'weather', child: Text('Weather')),
-                DropdownMenuItem(value: 'pests', child: Text('Pest Alert')),
-                DropdownMenuItem(value: 'market', child: Text('Market Tip')),
-              ],
-              onChanged: (_) {},
-              decoration: const InputDecoration(labelText: 'Category'),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Alert shared with community')),
-              );
-              Navigator.pop(context);
-            },
-            child: const Text('Send'),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
-// Notification Preferences Screen stays the same
+// Notification Preferences Screen
 class NotificationPreferencesScreen extends StatefulWidget {
   final List<String> initialSelection;
   final List<String> allCategories;
@@ -422,16 +338,16 @@ class _NotificationPreferencesScreenState
 
   String _getCategoryName(String category) {
     switch (category) {
-      case 'weather':
-        return 'Weather Alerts';
-      case 'market':
-        return 'Market Updates';
-      case 'pests':
-        return 'Pest/Disease Warnings';
-      case 'equipment':
-        return 'Equipment Rentals';
       case 'community':
         return 'Community Posts';
+      case 'likes':
+        return 'Post Likes';
+      case 'comments':
+        return 'Post Comments';
+      case 'admin':
+        return 'Admin Messages';
+      case 'personal':
+        return 'Welcome / Personal';
       default:
         return category;
     }

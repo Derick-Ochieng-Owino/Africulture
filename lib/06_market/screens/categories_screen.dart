@@ -35,6 +35,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('All Categories'),
+        backgroundColor: Colors.orange,
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
@@ -42,6 +43,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           ),
         ],
       ),
+      backgroundColor: Colors.teal[100],
       body: productService.isLoading
           ? const Center(child: CircularProgressIndicator())
           : categories.isEmpty

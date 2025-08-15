@@ -4,6 +4,7 @@
     "problem_banner": {
       "title": "Hujambo! Tuambie shida yako ya kilimo"
     },
+
     "speak": "Sema",
     "type": "Chapa",
     "listening": "Inasikiliza...",
@@ -15,7 +16,13 @@
     "content_required": "Tafadhali ingiza maudhui ya chapisho",
     "post": "TUM",
     "comments": "Maoni",
-    "add_comment": "Ongeza maoni..."
+    "add_comment": "Ongeza maoni...",
+    "no_posts": "No posts available",
+    "create_first_post": "Be the first to post!",
+    "search": "Search",
+    "search_hint": "Enter keywords to search posts",
+    "cancel": "Cancel"
+
   },
   "language": {
     "english": "Kiingereza",

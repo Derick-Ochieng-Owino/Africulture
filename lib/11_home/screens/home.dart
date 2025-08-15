@@ -4,6 +4,7 @@ import 'package:africulture/08_community/forum_page.dart';
 import 'package:africulture/05_hire/hire_page.dart';
 import 'package:africulture/04_news/news_screen.dart';
 import 'package:africulture/09_profile/user_profile_modal.dart';
+import 'package:africulture/11_home/screens/support_screen.dart';
 import 'package:africulture/11_home/widgets/weather_card.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:africulture/03_weather/weather_page.dart';
 import 'package:flutter/rendering.dart';
 import '../../06_market/screens/agricommerce.dart';
+import '../../13_Notifications/notification_service.dart';
 import '../widgets/gallery_widget.dart';
 import '../../03_weather/weather_service.dart';
 import '../service/location_service.dart';
@@ -85,7 +87,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       setState(() {
         username = data['name'] ?? '';
         userEmail = data['email'] ?? '';
-        profileImageUrl = data['photoUrl'] ?? '';
+        profileImageUrl = data['imageUrl'] ?? '';
         userLocation = data['village'] ?? 'Unknown location';
       });
     }
@@ -107,15 +109,55 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       getUserInfo(currentUser.uid);
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        _pageController.jumpToPage(0);
         checkProfileAndShowModal(context, currentUser.uid);
+        checkOnboardingAndShowTutorial(context, currentUser.uid);
       });
     }
 
     _fabAnimationController.forward();
+  }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _pageController.jumpToPage(0);
-      safeShowTutorial();
+  Future<void> checkOnboardingAndShowTutorial(
+    BuildContext context,
+    String uid,
+  ) async {
+    final doc = await FirebaseFirestore.instance
+        .collection('farmers')
+        .doc(uid)
+        .get();
+
+    final data = doc.data();
+    final onboardingCompleted =
+        data != null && (data['onboardingCompleted'] == true);
+
+    if (!onboardingCompleted) {
+      safeShowTutorial(uid);
+    }
+  }
+
+  void safeShowTutorial(String uid) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      scrollToQuickAction(0);
+
+      tutorialCoachMark = TutorialCoachMark(
+        targets: _createTargets(),
+        colorShadow: Colors.black.withOpacity(0.7),
+        paddingFocus: 10,
+        opacityShadow: 0.8,
+        onFinish: () => completeOnboarding(uid),
+        onSkip: () {
+          completeOnboarding(uid);
+          return true;
+        },
+      );
+      tutorialCoachMark.show(context: context);
+    });
+  }
+
+  void completeOnboarding(String uid) {
+    FirebaseFirestore.instance.collection('farmers').doc(uid).update({
+      'onboardingCompleted': true,
     });
   }
 
@@ -133,20 +175,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         );
       }
     }
-  }
-
-  void safeShowTutorial() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      scrollToQuickAction(0);
-
-      tutorialCoachMark = TutorialCoachMark(
-        targets: _createTargets(),
-        colorShadow: Colors.black.withOpacity(0.7),
-        paddingFocus: 10,
-        opacityShadow: 0.7,
-      );
-      tutorialCoachMark.show(context: context);
-    });
   }
 
   void _scrollListener() {
@@ -303,10 +331,15 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           IconButton(
             key: appBarNotificationKey,
             icon: const Icon(Icons.notifications_none),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const NotificationPage()),
-            ),
+            onPressed: () async {
+              await NotificationService().markNotificationsAsRead();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NotificationPage(),
+                ),
+              );
+            },
           ),
           IconButton(
             key: appBarSearchKey,
@@ -553,12 +586,15 @@ class _HomePageContentState extends State<HomePageContent> {
                   Icons.notifications_active,
                   color: Colors.white,
                 ),
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const NotificationPage(),
-                  ),
-                ),
+                onPressed: () async {
+                  await NotificationService().markNotificationsAsRead();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const NotificationPage(),
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -667,7 +703,7 @@ class _HomePageContentState extends State<HomePageContent> {
               color: Colors.redAccent,
               onTap: () => showDialog(
                 context: context,
-                builder: (context) => const AIAssistantPopup(),
+                builder: (context) => const HelpPage(),
               ),
             ),
           ],

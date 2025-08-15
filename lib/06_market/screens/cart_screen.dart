@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/cart_service.dart';
+import '../services/payment_service.dart';
 import '../widgets/bottom_navbar.dart';
 import '../widgets/cart_item_widget.dart';
 
@@ -12,27 +13,20 @@ class CartScreen extends StatelessWidget {
     final cartService = Provider.of<CartService>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Your Cart'),
-      ),
+      appBar: AppBar(title: const Text('Your Cart'),backgroundColor: Colors.orange,),
+      backgroundColor: Colors.teal[100],
       body: Column(
         children: [
           Expanded(
             child: cartService.items.isEmpty
-                ? const Center(
-              child: Text('Your cart is empty'),
-            )
+                ? const Center(child: Text('Your cart is empty'))
                 : ListView.builder(
               itemCount: cartService.items.length,
-              itemBuilder: (context, index) {
-                final item = cartService.items[index];
-                return CartItemWidget(
-                  item: item,
-                  onRemove: () {
-                    cartService.removeFromCart(item.product);
-                  },
-                );
-              },
+              itemBuilder: (_, index) => CartItemWidget(
+                item: cartService.items[index],
+                onRemove: () => cartService.removeFromCart(
+                    cartService.items[index].product),
+              ),
             ),
           ),
           if (cartService.items.isNotEmpty)
@@ -40,7 +34,8 @@ class CartScreen extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.green[50],
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                borderRadius:
+                const BorderRadius.vertical(top: Radius.circular(12)),
               ),
               child: Column(
                 children: [
@@ -54,9 +49,7 @@ class CartScreen extends StatelessWidget {
                       Text(
                         '\$${cartService.totalPrice.toStringAsFixed(2)}',
                         style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
+                            fontWeight: FontWeight.bold, fontSize: 18),
                       ),
                     ],
                   ),
@@ -69,39 +62,16 @@ class CartScreen extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
                       onPressed: () {
-                        // Checkout functionality
-                        showDialog(
+                        PaymentService.startPayment(
                           context: context,
-                          builder: (context) => AlertDialog(
-                            title: const Text('Checkout'),
-                            content: const Text(
-                                'Proceed with your order?'),
-                            actions: [
-                              TextButton(
-                                onPressed: () =>
-                                    Navigator.pop(context),
-                                child: const Text('Cancel'),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  cartService.clearCart();
-                                  Navigator.pop(context);
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                          'Order placed successfully!'),
-                                    ),
-                                  );
-                                },
-                                child: const Text('Confirm'),
-                              ),
-                            ],
-                          ),
+                          amount: cartService.totalPrice,
+                          onSuccess: () {
+                            cartService.clearCart();
+                          },
                         );
                       },
                       child: const Text(
-                        'Checkout',
+                        'Checkout with M-Pesa / Card',
                         style: TextStyle(color: Colors.white),
                       ),
                     ),

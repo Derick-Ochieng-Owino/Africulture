@@ -17,11 +17,16 @@
     "post": "POST",
     "comments": "Comments",
     "add_comment": "Add a comment...",
-    "forum": {
-      "problem_banner": {
-        "description": "Report any issues you're facing here and let us help you out quickly."
-      }
-    }
+    "no_posts": "No posts available",
+    "no_comments": "No comments available.",
+    "create_first_post": "Be the first to post!",
+    "search": "Search",
+    "search_hint": "Enter keywords to search posts",
+    "cancel": "Cancel",
+    "post_hint": "Type here...",
+    "edit_post": "Edit Post",
+    "delete_post": "Delete Post",
+    "delete_confirmation": "Are you sure you want to delete this post?"
   },
   "language": {
     "english": "English",

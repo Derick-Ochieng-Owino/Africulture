@@ -62,7 +62,19 @@ class _SignUpPageState extends State<SignUpPage> {
         'email': emailController.text.trim(),
         'userType': selectedUserType,
         'createdAt': Timestamp.now(),
+        "onboardingCompleted": true,
       });
+
+      await FirebaseFirestore.instance.collection('personal_notifications').add({
+        'userId': uid,
+        'title': 'Welcome to Africulture!',
+        'body': 'Thanks for joining our farming community.',
+        'type': 'personal',
+        'fromAdmin': true,
+        'time': FieldValue.serverTimestamp(),
+        'read': false,
+      });
+
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
