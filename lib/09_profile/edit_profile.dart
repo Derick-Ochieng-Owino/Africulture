@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'kenya_locations.dart';
 
 class EditProfilePage extends StatefulWidget {
   final String uid;
@@ -26,396 +27,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
   File? _selectedImage;
   String? _existingImageUrl;
   bool _isLoading = false;
-
-  final Map<String, Map<String, List<String>>> _kenyaLocations = {
-    'Baringo': {
-      'Baringo Central': [],
-      'Baringo North': [],
-      'Baringo South': [],
-      'Eldama Ravine': [],
-      'Mogotio': [],
-      'Tiaty': [],
-    },
-    'Bomet': {
-      'Bomet Central': [],
-      'Bomet East': [],
-      'Chepalungu': [],
-      'Konoin': [],
-      'Sotik': [],
-    },
-    'Bungoma': {
-      'Bumula': [],
-      'Kabuchai': [],
-      'Kanduyi': [],
-      'Kimilil': [],
-      'Mt Elgon': [],
-      'Sirisia': [],
-      'Tongaren': [],
-      'Webuye East': [],
-      'Webuye West': [],
-    },
-    'Busia': {
-      'Budalangi': [],
-      'Butula': [],
-      'Funyula': [],
-      'Nambele': [],
-      'Teso North': [],
-      'Teso South': [],
-    },
-    'Elgeyo-Marakwet': {
-      'Keiyo North': [],
-      'Keiyo South': [],
-      'Marakwet East': [],
-      'Marakwet West': [],
-    },
-    'Embu': {
-      'Manyatta': [],
-      'Mbeere North': [],
-      'Mbeere South': [],
-      'Runyenjes': [],
-    },
-    'Garissa': {
-      'Daadab': [],
-      'Fafi': [],
-      'Garissa Township': [],
-      'Hulugho': [],
-      'Ijara': [],
-      'Lagdera': [],
-      'Balambala': [],
-    },
-    'Homa Bay': {
-      'Homabay Town': [],
-      'Kabondo': [],
-      'Karachwonyo': [],
-      'Kasipul': [],
-      'Mbita': [],
-      'Ndhiwa': [],
-      'Rangwe': [],
-      'Suba': [],
-    },
-    'Isiolo': {
-      'Isiolo': [],
-      'Merti': [],
-      'Garbatulla': [],
-    },
-    'Kajiado': {
-      'Isinya': [],
-      'Kajiado Central': [],
-      'Kajiado North': [],
-      'Loitokitok': [],
-      'Mashuuru': [],
-    },
-    'Kakamega': {
-      'Butere': [],
-      'Kakamega Central': [],
-      'Kakamega East': [],
-      'Kakamega North': [],
-      'Kakamega South': [],
-      'Khwisero': [],
-      'Lugari': [],
-      'Lukuyani': [],
-      'Lurambi': [],
-      'Matete': [],
-      'Mumias': [],
-      'Mutungu': [],
-      'Navakholo': [],
-    },
-    'Kericho': {
-      'Ainamoi': [],
-      'Belgut': [],
-      'Bureti': [],
-      'Kipkelion East': [],
-      'Kipkelion West': [],
-      'Soin/Sigowet': [],
-    },
-    'Kiambu': {
-      'Gatundu North': [],
-      'Gatundu South': [],
-      'Githunguri': [],
-      'Juja': [],
-      'Kabete': [],
-      'Kiambaa': [],
-      'Kiambu': [],
-      'Kikuyu': [],
-      'Limuru': [],
-      'Ruiru': [],
-      'Thika Town': [],
-      'Lari': [],
-    },
-    'Kilifi': {
-      'Ganze': [],
-      'Kaloleni': [],
-      'Kilifi North': [],
-      'Kilifi South': [],
-      'Magarini': [],
-      'Malindi': [],
-      'Rabai': [],
-    },
-    'Kirinyaga': {
-      'Kirinyaga Central': [],
-      'Kirinyaga East': [],
-      'Kirinyaga West': [],
-      'Mwea East': [],
-      'Mwea West': [],
-    },
-    'Kisii': {
-      // Constituencies not provided, left empty
-    },
-    'Kisumu': {
-      'Kisumu Central': [],
-      'Kisumu East': [],
-      'Kisumu West': [],
-      'Muhoroni': [],
-      'Nyakach': [],
-      'Nyando': [],
-      'Seme': [],
-    },
-    'Kitui': {
-      'Kitui West': [],
-      'Kitui Central': [],
-      'Kitui Rural': [],
-      'Kitui South': [],
-      'Kitui East': [],
-      'Mwingi North': [],
-      'Mwingi West': [],
-      'Mwingi Central': [],
-    },
-    'Kwale': {
-      'Kinango': [],
-      'Lunga Lunga': [],
-      'Msambweni': [],
-      'Matuga': [],
-    },
-    'Laikipia': {
-      'Laikipia Central': [],
-      'Laikipia East': [],
-      'Laikipia North': [],
-      'Laikipia West': [],
-      'Nyahururu': [],
-    },
-    'Lamu': {
-      'Lamu East': [],
-      'Lamu West': [],
-    },
-    'Machakos': {
-      'Kathiani': [],
-      'Machakos Town': [],
-      'Masinga': [],
-      'Matungulu': [],
-      'Mavoko': [],
-      'Mwala': [],
-      'Yatta': [],
-    },
-    'Makueni': {
-      'Kaiti': [],
-      'Kibwezi West': [],
-      'Kibwezi East': [],
-      'Kilome': [],
-      'Makueni': [],
-      'Mbooni': [],
-    },
-    'Mandera': {
-      'Banissa': [],
-      'Lafey': [],
-      'Mandera East': [],
-      'Mandera North': [],
-      'Mandera South': [],
-      'Mandera West': [],
-    },
-    'Marsabit': {
-      'Laisamis': [],
-      'Moyale': [],
-      'North Hor': [],
-      'Saku': [],
-    },
-    'Meru': {
-      'Buuri': [],
-      'Igembe Central': [],
-      'Igembe North': [],
-      'Igembe South': [],
-      'Imenti Central': [],
-      'Imenti North': [],
-      'Imenti South': [],
-      'Tigania East': [],
-      'Tigania West': [],
-    },
-    'Migori': {
-      'Awendo': [],
-      'Kuria East': [],
-      'Kuria West': [],
-      'Mabera': [],
-      'Ntimaru': [],
-      'Rongo': [],
-      'Suna East': [],
-      'Suna West': [],
-      'Uriri': [],
-    },
-    'Mombasa': {
-      'Changamwe': [],
-      'Jomvu': [],
-      'Kisauni': [],
-      'Likoni': [],
-      'Mvita': [],
-      'Nyali': [],
-    },
-    'Murang’a': {
-      'Gatanga': [],
-      'Kahuro': [],
-      'Kandara': [],
-      'Kangema': [],
-      'Kigumo': [],
-      'Kiharu': [],
-      'Mathioya': [],
-      'Murang’a South': [],
-    },
-    'Nairobi': {
-      'Dagoretti North': [],
-      'Dagoretti South': [],
-      'Embakasi Central': [],
-      'Embakasi East': [],
-      'Embakasi North': [],
-      'Embakasi South': [],
-      'Embakasi West': [],
-      'Kamukunji': [],
-      'Kasarani': [],
-      'Kibra': [],
-      'Lang’ata': [],
-      'Makadara': [],
-      'Mathare': [],
-      'Roysambu': [],
-      'Ruaraka': [],
-      'Starehe': [],
-      'Westlands': [],
-    },
-    'Nakuru': {
-      'Bahati': [],
-      'Gilgil': [],
-      'Kuresoi North': [],
-      'Kuresoi South': [],
-      'Molo': [],
-      'Naivasha': [],
-      'Nakuru Town East': [],
-      'Nakuru Town West': [],
-      'Njoro': [],
-      'Rongai': [],
-      'Subukia': [],
-    },
-    'Nandi': {
-      'Aldai': [],
-      'Chesumei': [],
-      'Emgwen': [],
-      'Mosop': [],
-      'Nandi Hills': [],
-      'Tindiret': [],
-    },
-    'Narok': {
-      'Narok East': [],
-      'Narok North': [],
-      'Narok South': [],
-      'Narok West': [],
-      'Transmara East': [],
-      'Transmara West': [],
-    },
-    'Nyamira': {
-      'Borabu': [],
-      'Manga': [],
-      'Masaba North': [],
-      'Nyamira North': [],
-      'Nyamira South': [],
-    },
-    'Nyandarua': {
-      'Kinangop': [],
-      'Kipipiri': [],
-      'Ndaragwa': [],
-      'Ol-Kalou': [],
-      'Ol Joro Orok': [],
-    },
-    'Nyeri': {
-      'Kieni East': [],
-      'Kieni West': [],
-      'Mathira East': [],
-      'Mathira West': [],
-      'Mukurweini': [],
-      'Nyeri Town': [],
-      'Othaya': [],
-      'Tetu': [],
-    },
-    'Samburu': {
-      'Samburu East': [],
-      'Samburu North': [],
-      'Samburu West': [],
-    },
-    'Siaya': {
-      'Alego Usonga': [],
-      'Bondo': [],
-      'Gem': [],
-      'Rarieda': [],
-      'Ugenya': [],
-      'Unguja': [],
-    },
-    'Taita-Taveta': {
-      'Mwatate': [],
-      'Taveta': [],
-      'Voi': [],
-      'Wundanyi': [],
-    },
-    'Tana River': {
-      'Bura': [],
-      'Galole': [],
-      'Garsen': [],
-    },
-    'Tharaka-Nithi': {
-      'Tharaka North': [],
-      'Tharaka South': [],
-      'Chuka': [],
-      'Igambango’mbe': [],
-      'Maara': [],
-      'Chiakariga and Muthambi': [],
-    },
-    'Trans-Nzoia': {
-      'Cherangany': [],
-      'Endebess': [],
-      'Kiminini': [],
-      'Kwanza': [],
-      'Saboti': [],
-    },
-    'Turkana': {
-      'Loima': [],
-      'Turkana Central': [],
-      'Turkana East': [],
-      'Turkana North': [],
-      'Turkana South': [],
-    },
-    'Uasin Gishu': {
-      'Ainabkoi': [],
-      'Kapseret': [],
-      'Kesses': [],
-      'Moiben': [],
-      'Soy': [],
-      'Turbo': [],
-    },
-    'Vihiga': {
-      'Emuhaya': [],
-      'Hamisi': [],
-      'Luanda': [],
-      'Sabatia': [],
-      'Vihiga': [],
-    },
-    'Wajir': {
-      'Eldas': [],
-      'Tarbaj': [],
-      'Wajir East': [],
-      'Wajir North': [],
-      'Wajir South': [],
-      'Wajir West': [],
-    },
-    'West Pokot': {
-      'Central Pokot': [],
-      'North Pokot': [],
-      'Pokot South': [],
-      'West Pokot': [],
-    },
-  };
 
   @override
   void initState() {
@@ -507,8 +118,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Profile'),
-        backgroundColor: Colors.green,
+        title: const Text('Edit Profile', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.teal,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -537,7 +148,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         child: Container(
                           padding: const EdgeInsets.all(4),
                           decoration: const BoxDecoration(
-                            color: Colors.green,
+                            color: Colors.teal,
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
@@ -568,7 +179,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               DropdownButtonFormField<String>(
                 value: _selectedCounty,
                 decoration: const InputDecoration(labelText: 'County'),
-                items: _kenyaLocations.keys.map((String county) {
+                items: kenyaLocations.keys.map((String county) {
                   return DropdownMenuItem<String>(
                     value: county,
                     child: Text(county),
@@ -588,7 +199,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 value: _selectedSubCounty,
                 decoration: const InputDecoration(labelText: 'Sub-County'),
                 items: _selectedCounty != null
-                    ? _kenyaLocations[_selectedCounty]!.keys.map((String subCounty) {
+                    ? kenyaLocations[_selectedCounty]!.keys.map((String subCounty) {
                   return DropdownMenuItem<String>(
                     value: subCounty,
                     child: Text(subCounty),
@@ -609,7 +220,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 value: _selectedVillage,
                 decoration: const InputDecoration(labelText: 'Village'),
                 items: _selectedCounty != null && _selectedSubCounty != null
-                    ? _kenyaLocations[_selectedCounty]![_selectedSubCounty]!
+                    ? kenyaLocations[_selectedCounty]![_selectedSubCounty]!
                     .map((String village) {
                   return DropdownMenuItem<String>(
                     value: village,
@@ -635,7 +246,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 child: ElevatedButton(
                   onPressed: _saveProfile,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
+                    backgroundColor: Colors.teal,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                   child: const Text(

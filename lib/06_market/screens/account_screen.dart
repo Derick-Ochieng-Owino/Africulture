@@ -17,7 +17,7 @@ class AccountScreen extends StatelessWidget {
         title: const Text('My Account'),
         backgroundColor: Colors.orange,
       ),
-      backgroundColor: Colors.teal[100],
+      backgroundColor: Colors.teal[50],
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -65,7 +65,7 @@ class AccountScreen extends StatelessWidget {
           _buildAccountSection(context),
         ],
       ),
-      bottomNavigationBar: const BottomNavBar(selectedIndex: 3),
+      bottomNavigationBar: const BottomNavBar(selectedIndex: 4),
     );
   }
 
@@ -75,17 +75,17 @@ class AccountScreen extends StatelessWidget {
         _buildAccountTile(
           icon: Icons.person_outline,
           title: 'Personal Information',
-          onTap: () => Navigator.pushNamed(context, '/edit_profile'),
+          onTap: () => Navigator.pushNamed(context, '/profile'),
         ),
         _buildAccountTile(
           icon: Icons.location_on_outlined,
           title: 'Shipping Addresses',
-          onTap: () {}, // Implement address navigation
+          onTap: () {},
         ),
         _buildAccountTile(
           icon: Icons.payment_outlined,
           title: 'Payment Methods',
-          onTap: () {}, // Implement payment navigation
+          onTap: () {},
         ),
         _buildAccountTile(
           icon: Icons.history,

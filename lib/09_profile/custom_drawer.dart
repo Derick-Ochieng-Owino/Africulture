@@ -6,6 +6,7 @@ import 'package:africulture/09_profile/subscription_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_translate/flutter_translate.dart';
 import 'package:lottie/lottie.dart';
 
 class CustomDrawer extends StatefulWidget {
@@ -125,13 +126,13 @@ class _CustomDrawerState extends State<CustomDrawer> {
                       _buildDrawerItem(
                         context,
                         icon: Icons.dashboard,
-                        title: 'Dashboard',
+                        title: translate('drawer.dashboard'),
                         color: primaryColor.withOpacity(0.8),
                       ),
                       _buildDrawerItem(
                         context,
                         icon: Icons.subscriptions_outlined,
-                        title: 'Subscriptions',
+                        title: translate('drawer.subscriptions'),
                         color: primaryColor.withOpacity(0.8),
                         onTap: () {
                           Navigator.push(
@@ -143,7 +144,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                       _buildDrawerItem(
                         context,
                         icon: Icons.store,
-                        title: 'Marketplace',
+                        title: translate('drawer.marketplace'),
                         color: Colors.green.withOpacity(0.7),
                         onTap: () {
                           Navigator.push(
@@ -155,7 +156,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                       _buildDrawerItem(
                         context,
                         icon: Icons.cloud,
-                        title: 'Weather',
+                        title: translate('drawer.weather'),
                         color: Colors.blue.withOpacity(0.7),
                         onTap: () {
                           Navigator.push(
@@ -167,7 +168,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                       _buildDrawerItem(
                         context,
                         icon: Icons.forum,
-                        title: 'Community',
+                        title: translate('drawer.community'),
                         color: Colors.purple.withOpacity(0.7),
                         onTap: () {
                           Navigator.push(
@@ -179,13 +180,13 @@ class _CustomDrawerState extends State<CustomDrawer> {
                       _buildDrawerItem(
                         context,
                         icon: Icons.agriculture,
-                        title: 'My Farm',
+                        title: translate('drawer.myFarm'),
                         color: Colors.brown.withOpacity(0.7),
                       ),
                       _buildDrawerItem(
                         context,
                         icon: Icons.local_shipping,
-                        title: 'Transport',
+                        title: translate('drawer.transport'),
                         color: Colors.orange.withOpacity(0.7),
                         onTap: () {
                           Navigator.push(
@@ -200,7 +201,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                         _buildDrawerItem(
                           context,
                           icon: Icons.admin_panel_settings,
-                          title: 'Admin Dashboard',
+                          title: translate('drawer.adminDashboard'),
                           color: Colors.red.withOpacity(0.8),
                           onTap: () {
                             Navigator.pushReplacementNamed(
@@ -214,13 +215,13 @@ class _CustomDrawerState extends State<CustomDrawer> {
                       _buildDrawerItem(
                         context,
                         icon: Icons.settings,
-                        title: 'Settings',
+                        title: translate('drawer.settings'),
                         color: Colors.grey.withOpacity(0.7),
                       ),
                       _buildDrawerItem(
                         context,
                         icon: Icons.help_outline,
-                        title: 'Help Center',
+                        title: translate('drawer.helpCenter'),
                         color: Colors.teal.withOpacity(0.7),
                       ),
                     ],
@@ -236,7 +237,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 _buildDrawerItem(
                   context,
                   icon: Icons.logout,
-                  title: 'Sign Out',
+                  title: translate('drawer.signOut'),
                   color: Colors.red.withOpacity(0.8),
                   onTap: () {
                     FirebaseAuth.instance.signOut();
@@ -346,7 +347,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
               Icon(Icons.star, size: 16, color: Colors.yellow.withOpacity(0.9)),
               const SizedBox(width: 6),
               Text(
-                'Premium Member',
+                translate('drawer.premiumMember'),
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.9),
                   fontSize: 12,

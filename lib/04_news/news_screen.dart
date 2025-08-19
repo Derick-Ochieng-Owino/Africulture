@@ -32,17 +32,23 @@ class _NewsPageState extends State<NewsPage> {
   Future<void> _fetchNews() async {
     try {
       final articles = await _newsService.fetchAgricultureNews();
+
+      if (!mounted) return; // ensure widget still exists
       setState(() {
         _articles = articles.map((json) => NewsArticle.fromJson(json)).toList();
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return; // prevent calling setState after dispose
       setState(() => _isLoading = false);
+
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error fetching news: $e')),
       );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

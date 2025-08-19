@@ -9,6 +9,7 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
+import 'kenya_locations.dart';
 
 class UserProfileModal extends StatefulWidget {
   final String uid;
@@ -28,50 +29,6 @@ class _UserProfileModalState extends State<UserProfileModal> {
   String? _selectedSubCounty;
   String? _selectedVillage;
   bool _isLoading = false;
-
-  final Map<String, Map<String, List<String>>> _kenyaLocations = {
-    'Nairobi': {
-      'Westlands': ['Lavington', 'Kitisuru', 'Parklands'],
-      'Dagoretti': ['Ngando', 'Riruta', 'Uthiru'],
-      'Embakasi': ['Pipeline', 'Umoja', 'Donholm'],
-      'Kasarani': ['Mwiki', 'Githurai', 'Clay City'],
-    },
-    'Mombasa': {
-      'Nyali': ['Kongowea', 'Mkomani', 'Bamburi'],
-      'Kisauni': ['Mtopanga', 'Mjambere', 'Bamburi'],
-      'Changamwe': ['Port Reitz', 'Changamwe', 'Airport'],
-      'Likoni': ['Shika Adabu', 'Likoni', 'Mtongwe'],
-    },
-    'Kakamega': {
-      'Lurambi': ['Mahiakalo', 'Lurambi', 'Butsotso'],
-      'Malava': ['Malava', 'Chegulo', 'Kabras'],
-      'Mumias West': ['Musanda', 'Shibinga', 'Etenje'],
-      'Butere': ['Bukura', 'Shikunga', 'Marama West'],
-    },
-    'Kiambu': {
-      'Ruiru': ['Gatongora', 'Mugutha', 'Biashara'],
-      'Thika Town': ['Township', 'Kamenu', 'Hospital'],
-      'Kikuyu': ['Kikuyu', 'Sigona', 'Karai'],
-    },
-    'Kisumu': {
-      'Kisumu Central': ['Market Milimani', 'Nyalenda', 'Railways'],
-      'Nyando': ['Ahero', 'Kobura', 'Awasi'],
-      'Seme': ['East Seme', 'West Seme', 'North Seme'],
-    },
-    'Nakuru': {
-      'Naivasha': ['Lake View', 'Mai Mahiu', 'Karagita'],
-      'Nakuru Town East': ['Flamingo', 'Menengai', 'Biashara'],
-      'Rongai': ['Visoi', 'Londiani', 'Soin'],
-    },
-    'Uasin Gishu': {
-      'Eldoret East': ['Kapsoya', 'Chepkoilel', 'Simat'],
-      'Turbo': ['Turbo', 'Kamukunji', 'Huruma'],
-    },
-    'Meru': {
-      'Imenti North': ['Municipality', 'Ntima East', 'Ntima West'],
-      'Tigania West': ['Kianjai', 'Muthara', 'Athwana'],
-    },
-  };
 
   File? _image;
 
@@ -289,7 +246,7 @@ class _UserProfileModalState extends State<UserProfileModal> {
                       filled: true,
                       fillColor: Colors.grey.shade50,
                     ),
-                    items: _kenyaLocations.keys.map((String county) {
+                    items: kenyaLocations.keys.map((String county) {
                       return DropdownMenuItem<String>(
                         value: county,
                         child: Text(county),
@@ -316,7 +273,7 @@ class _UserProfileModalState extends State<UserProfileModal> {
                       fillColor: Colors.grey.shade50,
                     ),
                     items: _selectedCounty != null
-                        ? _kenyaLocations[_selectedCounty]!.keys.map((String subCounty) {
+                        ? kenyaLocations[_selectedCounty]!.keys.map((String subCounty) {
                       return DropdownMenuItem<String>(
                         value: subCounty,
                         child: Text(subCounty),
@@ -344,7 +301,7 @@ class _UserProfileModalState extends State<UserProfileModal> {
                       fillColor: Colors.grey.shade50,
                     ),
                     items: _selectedCounty != null && _selectedSubCounty != null
-                        ? _kenyaLocations[_selectedCounty]![_selectedSubCounty]!
+                        ? kenyaLocations[_selectedCounty]![_selectedSubCounty]!
                         .map((String village) {
                       return DropdownMenuItem<String>(
                         value: village,

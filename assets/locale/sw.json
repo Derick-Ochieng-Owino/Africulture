@@ -24,6 +24,97 @@
     "cancel": "Cancel"
 
   },
+
+  "home" : {
+    "greeting": {
+      "day": "Habari ya siku",
+      "morning": "Habari za asubuhi",
+      "afternoon": "Habari za mchana",
+      "evening": "Habari za jioni"
+    },
+    "welcome": {
+      "ready_to_farm": "Uko tayari kutumia kilimo chako kwa ufanisi leo?"
+    },
+    "quick_actions": {
+      "title": "Vitendo vya Haraka",
+      "weather": "Hali ya Hewa",
+      "market": "Soko",
+      "news": "Habari",
+      "community": "Jumuiya",
+      "transport": "Usafiri",
+      "iot": "Vifaa vya IoT",
+      "wallet": "Pochi",
+      "help": "Msaada"
+    },
+    "recommendations": {
+      "title": "Mapendekezo",
+      "crop_rotation": {
+        "title": "Mzunguko wa Mazao",
+        "desc": "Panda mahindi na maharagwe kwa kubadilishana ili kuboresha rutuba ya udongo"
+      },
+      "market_trends": {
+        "title": "Mwelekeo wa Soko",
+        "desc": "Bei ya mihogo imepanda kwa 15% mwezi huu"
+      },
+      "grants": {
+        "title": "Ruzuku",
+        "desc": "Omba ruzuku za kilimo kinachozingatia mabadiliko ya tabianchi"
+      },
+      "irrigation": {
+        "title": "Umwagiliaji",
+        "desc": "Mwagilia mazao yako asubuhi mapema kwa matokeo bora"
+      }
+    },
+    "gallery": {
+      "featured": "Maudhui Yaliyoangaziwa",
+      "caption": {
+        "weather": "Hali ya hewa kwa wakati halisi",
+        "irrigation": "Mifumo ya kisasa ya umwagiliaji",
+        "market": "Soko la kisasa kwa wakulima",
+        "transport": "Ukodishaji wa magari na usafirishaji",
+        "smart_farming": "Kilimo cha kisasa",
+        "notifications": "Taarifa na arifa kuhusu habari za kilimo"
+      }
+    },
+    "market_trends": {
+      "title": "Mwelekeo wa Soko",
+      "maize": "Mahindi",
+      "beans": "Maharagwe",
+      "rice": "Mchele",
+      "tomatoes": "Nyanya",
+      "view_full": "Angalia Bei Kamili za Soko"
+    }
+  }
+,
+  "drawer": {
+    "dashboard": "Dashibodi",
+    "subscriptions": "Usajili",
+    "marketplace": "Soko",
+    "weather": "Hali ya Hewa",
+    "community": "Jumuiya",
+    "myFarm": "Shamba Langu",
+    "transport": "Usafirishaji",
+    "adminDashboard": "Dashibodi ya Msimamizi",
+    "settings": "Mipangilio",
+    "helpCenter": "Kituo cha Msaada",
+    "signOut": "Ondoka",
+    "premiumMember": "Mwanachama wa Premium"
+  },
+
+  "profile": {
+    "title": "Profaili Yangu",
+    "noData": "Hakuna taarifa za mtumiaji",
+    "completion": "Asilimia {percent} Imekamilika",
+    "personalInfo": "Taarifa Binafsi",
+    "phone": "Simu",
+    "county": "Kaunti",
+    "subcounty": "Kaunti Ndogo",
+    "village": "Kijiji",
+    "farmingType": "Aina ya Kilimo",
+    "completeProfile": "Kamilisha Profaili Yako",
+    "notSpecified": "Haijatajwa"
+  },
+
   "language": {
     "english": "Kiingereza",
     "swahili": "Kiswahili"

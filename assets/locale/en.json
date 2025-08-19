@@ -28,6 +28,97 @@
     "delete_post": "Delete Post",
     "delete_confirmation": "Are you sure you want to delete this post?"
   },
+
+  "home" : {
+    "greeting": {
+      "day": "Good day",
+      "morning": "Good morning",
+      "afternoon": "Good afternoon",
+      "evening": "Good evening"
+    },
+    "welcome": {
+      "ready_to_farm": "Ready to make the most of your farming today?"
+    },
+    "quick_actions": {
+      "title": "Quick Actions",
+      "weather": "Weather",
+      "market": "Market",
+      "news": "News",
+      "community": "Community",
+      "transport": "Transport",
+      "iot": "IoT",
+      "wallet": "Wallet",
+      "help": "Help"
+    },
+    "recommendations": {
+      "title": "Recommendations",
+      "crop_rotation": {
+        "title": "Crop Rotation",
+        "desc": "Rotate maize with beans to improve soil health"
+      },
+      "market_trends": {
+        "title": "Market Trends",
+        "desc": "Cassava prices are up 15% this month"
+      },
+      "grants": {
+        "title": "Grants",
+        "desc": "Apply for climate-smart farming grants"
+      },
+      "irrigation": {
+        "title": "Irrigation",
+        "desc": "Water your crops early morning for best results"
+      }
+    },
+    "gallery": {
+      "featured": "Featured Content",
+      "caption": {
+        "weather": "Real time weather",
+        "irrigation": "Modern irrigation systems",
+        "market": "Modern Market for farmers",
+        "transport": "Vehicle Hire and Delivery",
+        "smart_farming": "Smart Farming",
+        "notifications": "Notifications and Alerts on Farming News"
+      }
+    },
+    "market_trends": {
+      "title": "Market Trends",
+      "maize": "Maize",
+      "beans": "Beans",
+      "rice": "Rice",
+      "tomatoes": "Tomatoes",
+      "view_full": "View Full Market Prices"
+    }
+  }
+,
+  "drawer": {
+    "dashboard": "Dashboard",
+    "subscriptions": "Subscriptions",
+    "marketplace": "Marketplace",
+    "weather": "Weather",
+    "community": "Community",
+    "myFarm": "My Farm",
+    "transport": "Transport",
+    "adminDashboard": "Admin Dashboard",
+    "settings": "Settings",
+    "helpCenter": "Help Center",
+    "signOut": "Sign Out",
+    "premiumMember": "Premium Member"
+  },
+
+  "profile": {
+    "title": "My Profile",
+    "noData": "No user data found",
+    "completion": "{percent}% Complete",
+    "personalInfo": "Personal Information",
+    "phone": "Phone",
+    "county": "County",
+    "subcounty": "Sub-county",
+    "village": "Village",
+    "farmingType": "Farming Type",
+    "completeProfile": "Complete Your Profile",
+    "notSpecified": "Not specified"
+  },
+
   "language": {
     "english": "English",
     "swahili": "Swahili"

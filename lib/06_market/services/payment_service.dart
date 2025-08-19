@@ -5,29 +5,28 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class PaymentService {
+  static final _firestore = FirebaseFirestore.instance;
+  static final _auth = FirebaseAuth.instance;
+
   static Future<Map<String, String>> _getUserDetails() async {
-    final user = FirebaseAuth.instance.currentUser;
+    final user = _auth.currentUser;
 
     if (user == null) {
       throw Exception("No user logged in");
     }
 
-    // Default values
     String name = user.displayName ?? "Africulture User";
     String email = user.email ?? "user@example.com";
     String phone = "";
 
-    // Try to get phone from Firebase Auth directly
+    // Try phone from Auth
     if (user.phoneNumber != null && user.phoneNumber!.isNotEmpty) {
       phone = user.phoneNumber!;
     }
 
-    // If phone not set in Auth, try Firestore profile
+    // If phone not set, try Firestore profile
     if (phone.isEmpty) {
-      final doc = await FirebaseFirestore.instance
-          .collection("users")
-          .doc(user.uid)
-          .get();
+      final doc = await _firestore.collection("users").doc(user.uid).get();
       if (doc.exists && doc.data() != null) {
         phone = doc.data()!["phone"] ?? "";
         name = doc.data()!["name"] ?? name;
@@ -49,6 +48,8 @@ class PaymentService {
   }) async {
     try {
       final userDetails = await _getUserDetails();
+      final user = _auth.currentUser!;
+      final txRef = DateTime.now().millisecondsSinceEpoch.toString();
 
       final customer = Customer(
         name: userDetails["name"]!,
@@ -61,7 +62,7 @@ class PaymentService {
         currency: "KES",
         amount: amount.toString(),
         customer: customer,
-        txRef: DateTime.now().millisecondsSinceEpoch.toString(),
+        txRef: txRef,
         paymentOptions: "card, mobilemoney, ussd",
         customization: Customization(title: "Africulture Checkout"),
         redirectUrl: "https://your-redirect-url.com",
@@ -70,18 +71,44 @@ class PaymentService {
 
       final ChargeResponse? response = await flutterwave.charge(context);
 
+      final paymentData = {
+        "txRef": txRef,
+        "userId": user.uid,
+        "amount": amount,
+        "currency": "KES",
+        "status": response?.status ?? "failed",
+        "success": response?.success ?? false,
+        "userName": userDetails["name"],
+        "email": userDetails["email"],
+        "phone": userDetails["phone"],
+        "createdAt": FieldValue.serverTimestamp(),
+      };
+
+      // Save in user’s collection
+      await _firestore
+          .collection("users")
+          .doc(user.uid)
+          .collection("payments")
+          .doc(txRef)
+          .set(paymentData);
+
+      // Save in global payments collection for Admin
+      await _firestore.collection("payments").doc(txRef).set(paymentData);
+
       if (response != null && response.success == true) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Payment successful!")),
+          const SnackBar(content: Text("✅ Payment successful!")),
         );
         if (onSuccess != null) onSuccess();
       } else {
+        debugPrint('❌ Payment cancelled or failed.');
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Payment cancelled or failed.")),
+          const SnackBar(content: Text("❌ Payment cancelled or failed.")),
         );
         if (onFailure != null) onFailure();
       }
     } catch (e) {
+      debugPrint("Payment error: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error: ${e.toString()}")),
       );

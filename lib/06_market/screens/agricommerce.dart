@@ -54,7 +54,7 @@ class _AgriCommerceAppState extends State<AgriCommerceApp>{
           ),
         ],
       ),
-      backgroundColor: Colors.teal[100],
+      backgroundColor: Colors.teal[50],
       drawer: const AppDrawer(),
       body: productService.isLoading
           ? const Center(child: CircularProgressIndicator())

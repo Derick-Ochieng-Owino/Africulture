@@ -43,7 +43,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           ),
         ],
       ),
-      backgroundColor: Colors.teal[100],
+      backgroundColor: Colors.teal[50],
       body: productService.isLoading
           ? const Center(child: CircularProgressIndicator())
           : categories.isEmpty

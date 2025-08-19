@@ -6,7 +6,8 @@ const { setGlobalOptions } = require("firebase-functions");
 const { onRequest, onCall, HttpsError } = require("firebase-functions/v2/https");
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const logger = require("firebase-functions/logger");
-const admin = require("firebase-admin");
+const admin = require("firebase-admin"); // ← Only declare this once
+const fetch = require("node-fetch"); // ← Add fetch here
 
 // Initialize with enhanced error handling
 try {
@@ -170,21 +171,36 @@ exports.healthCheck = onRequest(async (req, res) => {
   }
 });
 
-const functions = require("firebase-functions");
-const fetch = require("node-fetch");
+// ✅ Define ALLOWED_ORIGINS array
+const ALLOWED_ORIGINS = [
+  "http://localhost",           // Local development
+  "http://127.0.0.1",          // Local development
+  "http://localhost:5000",     // Firebase emulator
+  "http://127.0.0.1:5000",     // Firebase emulator
+  "https://your-app-domain.com", // Your production domain
+  "https://africulture-app.web.app", // Firebase Hosting
+  "https://africulture-app.firebaseapp.com" // Firebase Auth domain
+];
 
 const ALLOWED_HOSTNAMES = [
   "i.pinimg.com",
   "images.unsplash.com",
-  "cdn.pixabay.com"
+  "cdn.pixabay.com",
+  "firebasestorage.googleapis.com",
+  "africulture-auth.firebasestorage.app"
 ];
 
-exports.imageProxy = functions.https.onRequest(async (req, res) => {
-if (req.method === 'OPTIONS') {
-    res.set('Access-Control-Allow-Origin', 'https://africulture.vercel.app');
-    res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
-    res.set('Access-Control-Allow-Headers', 'Content-Type');
-    return res.status(204).send('');
+exports.imageProxy = onRequest(async (req, res) => {
+  // Handle preflight CORS
+  if (req.method === "OPTIONS") {
+    const origin = req.headers.origin;
+    if (ALLOWED_ORIGINS.includes(origin)) {
+      res.set("Access-Control-Allow-Origin", origin);
+    }
+    res.set("Cache-Control", "public, max-age=86400"); // cache 1 day
+    res.set("Access-Control-Allow-Methods", "GET, OPTIONS");
+    res.set("Access-Control-Allow-Headers", "Content-Type");
+    return res.status(204).send("");
   }
 
   const { url } = req.query;
@@ -194,11 +210,12 @@ if (req.method === 'OPTIONS') {
     const decodedUrl = decodeURIComponent(url);
     const targetUrl = new URL(decodedUrl);
 
-
+    // ✅ Only allow safe domains
     if (!ALLOWED_HOSTNAMES.includes(targetUrl.hostname)) {
       return res.status(403).send("This domain is not allowed.");
     }
 
+    // Fetch the image
     const response = await fetch(targetUrl.href);
     if (!response.ok) {
       return res.status(response.status).send("Image fetch failed.");
@@ -207,7 +224,11 @@ if (req.method === 'OPTIONS') {
     const contentType = response.headers.get("content-type");
     res.setHeader("Content-Type", contentType || "application/octet-stream");
 
-    res.set('Access-Control-Allow-Origin', 'https://africulture.vercel.app');
+    // ✅ CORS allow for your app
+    const origin = req.headers.origin;
+    if (ALLOWED_ORIGINS.includes(origin)) {
+      res.set("Access-Control-Allow-Origin", origin);
+    }
 
     const buffer = await response.arrayBuffer();
     res.send(Buffer.from(buffer));

@@ -11,7 +11,7 @@ class AppDrawer extends StatelessWidget {
         children: [
           DrawerHeader(
             decoration: BoxDecoration(
-              color: Colors.green[700],
+              color: Colors.teal[700],
             ),
             child: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -23,7 +23,7 @@ class AppDrawer extends StatelessWidget {
                   child: Icon(
                     Icons.person,
                     size: 40,
-                    color: Colors.green,
+                    color: Colors.teal,
                   ),
                 ),
                 SizedBox(height: 10),
@@ -38,8 +38,15 @@ class AppDrawer extends StatelessWidget {
             ),
           ),
           ListTile(
-            leading: const Icon(Icons.home),
-            title: const Text('Home'),
+            leading: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.teal.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.home, color: Colors.teal),
+            ),
+            title: const Text('Back To Home'),
             onTap: () {
               Navigator.pushNamedAndRemoveUntil(
                   context,
@@ -49,7 +56,14 @@ class AppDrawer extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.category),
+            leading: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.category, color: Colors.orange),
+            ),
             title: const Text('Categories'),
             onTap: () {
               Navigator.pushNamedAndRemoveUntil(
@@ -60,21 +74,31 @@ class AppDrawer extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.shopping_bag),
+            leading: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.purple.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.shopping_bag, color: Colors.purple),
+            ),
             title: const Text('My Orders'),
             onTap: () {
-              Navigator.pushReplacementNamed(context, '/my_orders');
+              Navigator.pushNamed(
+                context,
+                '/orders_history',
+              );
             },
           ),
           ListTile(
-            leading: const Icon(Icons.shopping_bag),
-            title: const Text('My Orders'),
-            onTap: () {
-              Navigator.pushReplacementNamed(context, '/orders_history');
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.favorite),
+            leading: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.favorite, color: Colors.red),
+            ),
             title: const Text('Wishlist'),
             onTap: () {
               // Navigate to wishlist screen
@@ -82,22 +106,46 @@ class AppDrawer extends StatelessWidget {
           ),
           const Divider(),
           ListTile(
-            leading: const Icon(Icons.settings),
+            leading: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.blueGrey.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.settings, color: Colors.blueGrey),
+            ),
             title: const Text('Settings'),
             onTap: () {
               // Navigate to settings screen
             },
           ),
           ListTile(
-            leading: const Icon(Icons.help),
+            leading: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.blue.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.help, color: Colors.blue),
+            ),
             title: const Text('Help & Support'),
             onTap: () {
-              // Navigate to help screen
+              Navigator.pushNamed(
+                context,
+                '/help',
+              );
             },
           ),
           const Divider(),
           ListTile(
-            leading: const Icon(Icons.logout),
+            leading: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.grey.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.logout, color: Colors.red),
+            ),
             title: const Text('Sign Out'),
             onTap: () {
               // Handle sign out

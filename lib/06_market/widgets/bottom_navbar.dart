@@ -43,6 +43,13 @@ class BottomNavBar extends StatelessWidget {
           case 3:
             Navigator.pushNamedAndRemoveUntil(
                 context,
+                '/orders_history',
+                    (route) => false
+            );
+            break;
+          case 4:
+            Navigator.pushNamedAndRemoveUntil(
+                context,
                 '/account',
                     (route) => false
             );
@@ -64,6 +71,11 @@ class BottomNavBar extends StatelessWidget {
           icon: Icon(Icons.shopping_cart_outlined),
           activeIcon: Icon(Icons.shopping_cart),
           label: 'Cart',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.shopping_bag),
+          activeIcon: Icon(Icons.shopping_bag),
+          label: 'Orders',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person_outlined),

@@ -24,7 +24,7 @@ class PlantGrowLoading extends StatelessWidget {
               SizedBox(
                 width: 150,
                 height: 150,
-                child: Lottie.asset('assets/lottie/plant_grow.json'),
+                child: Lottie.asset('assets/animations/plant_grow.json'),
               ),
               if (message != null) ...[
                 const SizedBox(height: 16),

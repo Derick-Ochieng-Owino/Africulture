@@ -11,6 +11,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:africulture/03_weather/weather_page.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_translate/flutter_translate.dart';
 import '../../06_market/screens/agricommerce.dart';
 import '../../13_Notifications/notification_service.dart';
 import '../widgets/gallery_widget.dart';
@@ -38,7 +39,7 @@ Future<void> checkProfileAndShowModal(BuildContext context, String uid) async {
   final isComplete = data != null && (data['profileComplete'] == true);
 
   if (!isComplete) {
-    showDialog(
+    await showDialog(
       context: context,
       barrierDismissible: false,
       builder: (_) => UserProfileModal(uid: uid),
@@ -84,6 +85,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         .get();
     final data = doc.data();
     if (data != null) {
+      if (!mounted) return;
       setState(() {
         username = data['name'] ?? '';
         userEmail = data['email'] ?? '';
@@ -110,12 +112,17 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _pageController.jumpToPage(0);
-        checkProfileAndShowModal(context, currentUser.uid);
-        checkOnboardingAndShowTutorial(context, currentUser.uid);
+        _showModalThenTutorial(currentUser.uid);
       });
     }
-
     _fabAnimationController.forward();
+  }
+
+  Future<void> _showModalThenTutorial(String uid) async {
+    if (!mounted) return;
+    await checkProfileAndShowModal(context, uid);
+    if (!mounted) return;
+    await checkOnboardingAndShowTutorial(context, uid);
   }
 
   Future<void> checkOnboardingAndShowTutorial(
@@ -319,15 +326,25 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/app_logo.png', height: 30, color: Colors.white),
-            const SizedBox(width: 10),
             const Text(
               'Africulture',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Colors.white),
             ),
           ],
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.translate),
+            onPressed: () async {
+              final currentLocale = LocalizedApp.of(context).delegate.currentLocale.languageCode;
+
+              if (currentLocale == 'en') {
+                await changeLocale(context, 'sw'); // switch to Swahili
+              } else {
+                await changeLocale(context, 'en'); // switch back to English
+              }
+            },
+          ),
           IconButton(
             key: appBarNotificationKey,
             icon: const Icon(Icons.notifications_none),
@@ -409,7 +426,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         scale: _fabAnimationController,
         child: FloatingActionButton(
           key: aiAssistantKey,
-          backgroundColor: const Color(0xFF4CAF50),
+          backgroundColor: Colors.teal,
           onPressed: () => showDialog(
             context: context,
             barrierDismissible: true,
@@ -461,10 +478,27 @@ class _HomePageContentState extends State<HomePageContent> {
   @override
   void initState() {
     super.initState();
-    _fetchWeather();
+
+    final restoredData = PageStorage.of(context).readState(context) as Map<String, dynamic>?;
+
+    if (restoredData != null) {
+      _weatherData = restoredData;
+      _isLoading = false;
+    } else {
+      _fetchWeather();
+    }
   }
 
+  DateTime? _lastFetchTime;
+
   Future<void> _fetchWeather() async {
+    if (_lastFetchTime != null &&
+        DateTime.now().difference(_lastFetchTime!) < Duration(minutes: 10) &&
+        _weatherData != null) {
+      return; // Don't fetch again
+    }
+
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
       _error = '';
@@ -477,11 +511,15 @@ class _HomePageContentState extends State<HomePageContent> {
         position.longitude,
       );
 
+      if (!mounted) return;
       setState(() {
         _weatherData = data;
         _isLoading = false;
+        _lastFetchTime = DateTime.now();
       });
+      PageStorage.of(context).writeState(context, data);
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _error = 'Failed to load weather: $e';
         _isLoading = false;
@@ -489,18 +527,19 @@ class _HomePageContentState extends State<HomePageContent> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final timeNow = DateTime.now();
     final hour = timeNow.hour;
-    String greeting = 'Good day';
+    String greeting = translate('home.greeting.day');
     if (hour < 12) {
-      greeting = 'Good morning';
+      greeting = translate('home.greeting.morning');
     } else if (hour < 17) {
-      greeting = 'Good afternoon';
+      greeting = translate('home.greeting.afternoon');
     } else {
-      greeting = 'Good evening';
+      greeting = translate('home.greeting.evening');
     }
 
     return SafeArea(
@@ -574,7 +613,7 @@ class _HomePageContentState extends State<HomePageContent> {
             children: [
               Expanded(
                 child: Text(
-                  'Ready to make the most of your farming today?',
+                  translate('home.welcome.ready_to_farm'),
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.white.withOpacity(0.9),
@@ -610,7 +649,7 @@ class _HomePageContentState extends State<HomePageContent> {
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
           child: Text(
-            'Quick Actions',
+          translate('home.quick_actions.title'),
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               color: Theme.of(context).primaryColor,
             ),
@@ -627,7 +666,7 @@ class _HomePageContentState extends State<HomePageContent> {
             _buildQuickAction(
               key: widget.quickActionKeys[0],
               icon: Icons.cloud,
-              label: 'Weather',
+              label: translate('home.quick_actions.weather'),
               color: Colors.lightBlue,
               onTap: () => Navigator.push(
                 context,
@@ -637,7 +676,7 @@ class _HomePageContentState extends State<HomePageContent> {
             _buildQuickAction(
               key: widget.quickActionKeys[1],
               icon: Icons.shopping_cart,
-              label: 'Market',
+              label: translate('home.quick_actions.market'),
               color: Colors.green,
               onTap: () => Navigator.push(
                 context,
@@ -647,7 +686,7 @@ class _HomePageContentState extends State<HomePageContent> {
             _buildQuickAction(
               key: widget.quickActionKeys[2],
               icon: Icons.newspaper,
-              label: 'News',
+              label: translate('home.quick_actions.news'),
               color: Colors.deepOrange,
               onTap: () => Navigator.push(
                 context,
@@ -657,7 +696,7 @@ class _HomePageContentState extends State<HomePageContent> {
             _buildQuickAction(
               key: widget.quickActionKeys[3],
               icon: Icons.people,
-              label: 'Community',
+              label: translate('home.quick_actions.community'),
               color: Colors.purple,
               onTap: () => Navigator.push(
                 context,
@@ -667,7 +706,7 @@ class _HomePageContentState extends State<HomePageContent> {
             _buildQuickAction(
               key: widget.quickActionKeys[4],
               icon: Icons.local_shipping,
-              label: 'Transport',
+              label: translate('home.quick_actions.transport'),
               color: Colors.teal,
               onTap: () => Navigator.push(
                 context,
@@ -677,7 +716,7 @@ class _HomePageContentState extends State<HomePageContent> {
             _buildQuickAction(
               key: widget.quickActionKeys[5],
               icon: Icons.devices,
-              label: 'IoT',
+              label: translate('home.quick_actions.iot'),
               color: Colors.indigo,
               onTap: () => Navigator.push(
                 context,
@@ -689,7 +728,7 @@ class _HomePageContentState extends State<HomePageContent> {
             _buildQuickAction(
               key: widget.quickActionKeys[6],
               icon: Icons.account_balance_wallet,
-              label: 'Wallet',
+              label: translate('home.quick_actions.wallet'),
               color: Colors.amber,
               onTap: () => Navigator.push(
                 context,
@@ -699,7 +738,7 @@ class _HomePageContentState extends State<HomePageContent> {
             _buildQuickAction(
               key: widget.quickActionKeys[7],
               icon: Icons.help,
-              label: 'Help',
+              label: translate('home.quick_actions.help'),
               color: Colors.redAccent,
               onTap: () => showDialog(
                 context: context,
@@ -753,7 +792,7 @@ class _HomePageContentState extends State<HomePageContent> {
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
           child: Text(
-            'Recommendations',
+            translate('home.recommendations.title'),
             style: theme.textTheme.headlineSmall?.copyWith(
               color: theme.primaryColor,
             ),
@@ -766,8 +805,8 @@ class _HomePageContentState extends State<HomePageContent> {
             children: [
               _buildRecommendationCard(
                 icon: Icons.rotate_right,
-                title: 'Crop Rotation',
-                description: 'Rotate maize with beans to improve soil health',
+                title: translate('home.recommendations.crop_rotation.title'),
+                description: translate('home.recommendations.crop_rotation.desc'),
                 color: Colors.orange.shade100,
                 iconColor: Colors.orange,
               ),
@@ -849,7 +888,7 @@ class _HomePageContentState extends State<HomePageContent> {
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
           child: Text(
-            'Featured Content',
+          translate('home.gallery.featured'),
             style: theme.textTheme.headlineSmall?.copyWith(
               color: theme.primaryColor,
             ),
@@ -870,13 +909,13 @@ class _HomePageContentState extends State<HomePageContent> {
                         'https://imageproxy-ggs6evtqha-uc.a.run.app?url=${Uri.encodeComponent(url)}',
                   )
                   .toList(),
-          captions: const [
-            "Real time weather",
-            "Modern irrigation systems",
-            "Modern Market for farmers",
-            "Vehicle Hire and Delivery",
-            "Smart Farming",
-            "Notifications and Alerts on Farming News",
+          captions: [
+            translate("home.gallery.caption.weather"),
+            translate("home.gallery.caption.irrigation"),
+            translate("home.gallery.caption.market"),
+            translate("home.gallery.caption.transport"),
+            translate("home.gallery.caption.smart_farming"),
+            translate("home.gallery.caption.notifications"),
           ],
           isPausable: true,
           borderRadius: 12,
@@ -893,7 +932,7 @@ class _HomePageContentState extends State<HomePageContent> {
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
           child: Text(
-            'Market Trends',
+          translate('home.market_trends.title'),
             style: theme.textTheme.headlineSmall?.copyWith(
               color: theme.primaryColor,
             ),
@@ -915,13 +954,13 @@ class _HomePageContentState extends State<HomePageContent> {
           ),
           child: Column(
             children: [
-              _buildMarketTrendItem('Maize', '+12%', Colors.green),
+              _buildMarketTrendItem(translate('home.market_trends.maize'), '+12%', Colors.green),
               const Divider(),
-              _buildMarketTrendItem('Beans', '+5%', Colors.green),
+              _buildMarketTrendItem(translate('home.market_trends.beans'), '+5%', Colors.green),
               const Divider(),
-              _buildMarketTrendItem('Rice', '-3%', Colors.red),
+              _buildMarketTrendItem(translate('home.market_trends.rice'), '-3%', Colors.red),
               const Divider(),
-              _buildMarketTrendItem('Tomatoes', '+8%', Colors.green),
+              _buildMarketTrendItem(translate('home.market_trends.tomatoes'), '+8%', Colors.green),
             ],
           ),
         ),
@@ -940,7 +979,7 @@ class _HomePageContentState extends State<HomePageContent> {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text('View Full Market Prices'),
+            child: Text(translate('home.market_trends.view_full')),
           ),
         ),
       ],

@@ -52,38 +52,42 @@ class _ProductCardState extends State<ProductCard> {
             : null,
         child: Stack(
           children: [
-            SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ClipRRect(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                    child: SizedBox(
-                      height: 120,
-                      width: double.infinity,
-                      child: AspectRatio(
-                        aspectRatio: 1,
-                        child: FutureBuilder<String>(
-                          future: _imageUrlFuture,
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.done) {
-                              if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                                return Image.network(
-                                  snapshot.data!,
-                                  fit: BoxFit.cover,
-                                );
-                              }
-                              return _buildImageErrorWidget();
+            Column(
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(12),
+                  ),
+                  child: SizedBox(
+                    height: 120,
+                    width: double.infinity,
+                    child: AspectRatio(
+                      aspectRatio: 1,
+                      child: FutureBuilder<String>(
+                        future: _imageUrlFuture,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.done) {
+                            if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                              return Image.network(
+                                snapshot.data!,
+                                fit: BoxFit.cover,
+                              );
                             }
-                            return _buildImageLoadingWidget();
-                          },
-                        ),
+                            return _buildImageErrorWidget();
+                          }
+                          return _buildImageLoadingWidget();
+                        },
                       ),
                     ),
                   ),
-                  // Product Info Section
-                  Padding(
-                    padding: const EdgeInsets.all(12),
+                ),
+                // Product Info Section
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -103,8 +107,12 @@ class _ProductCardState extends State<ProductCard> {
                             ),
                             if (widget.isAdminView)
                               Icon(
-                                widget.product.approved ? Icons.verified : Icons.pending,
-                                color: widget.product.approved ? Colors.green : Colors.orange,
+                                widget.product.approved
+                                    ? Icons.verified
+                                    : Icons.pending,
+                                color: widget.product.approved
+                                    ? Colors.green
+                                    : Colors.orange,
                                 size: 20,
                               ),
                           ],
@@ -112,10 +120,7 @@ class _ProductCardState extends State<ProductCard> {
                         const SizedBox(height: 4),
                         Text(
                           widget.product.category,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                          ),
+                          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                         ),
                         const SizedBox(height: 8),
                         Row(
@@ -130,7 +135,10 @@ class _ProductCardState extends State<ProductCard> {
                               ),
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: widget.product.isLowStock
                                     ? Colors.orange[50]
@@ -152,8 +160,8 @@ class _ProductCardState extends State<ProductCard> {
                       ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
             if (widget.isSelected)
               Positioned.fill(
@@ -163,7 +171,11 @@ class _ProductCardState extends State<ProductCard> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Center(
-                    child: Icon(Icons.check_circle, color: Colors.white, size: 40),
+                    child: Icon(
+                      Icons.check_circle,
+                      color: Colors.white,
+                      size: 40,
+                    ),
                   ),
                 ),
               ),
@@ -193,7 +205,9 @@ class _ProductCardState extends State<ProductCard> {
   Widget _buildImageErrorWidget() {
     return Container(
       color: Colors.grey[200],
-      child: const Center(child: Icon(Icons.image_not_supported, color: Colors.grey)),
+      child: const Center(
+        child: Icon(Icons.image_not_supported, color: Colors.grey),
+      ),
     );
   }
 }

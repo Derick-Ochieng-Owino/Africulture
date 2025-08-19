@@ -20,7 +20,6 @@ class CartItemWidget extends StatelessWidget {
         padding: const EdgeInsets.all(8),
         child: Row(
           children: [
-            // Image with proper Firebase URL handling
             FutureBuilder(
               future: _getSafeImageUrl(item.product.imageUrl),
               builder: (context, snapshot) {
@@ -88,7 +87,6 @@ class CartItemWidget extends StatelessWidget {
       return await ref.getDownloadURL();
     } catch (e) {
       debugPrint('Error getting image URL: $e');
-      // Return a placeholder image URL as fallback
       return 'https://via.placeholder.com/80';
     }
   }

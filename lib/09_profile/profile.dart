@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_translate/flutter_translate.dart';
 
 class ProfilePage extends StatelessWidget {
   final User user;
@@ -11,7 +12,7 @@ class ProfilePage extends StatelessWidget {
     super.key,
     required this.user,
     this.showAppBar = true,
-    this.primaryColor = Colors.green,
+    this.primaryColor = Colors.teal,
   });
 
   Future<Map<String, dynamic>?> fetchUserData() async {
@@ -39,7 +40,7 @@ class ProfilePage extends StatelessWidget {
     return Scaffold(
       appBar: showAppBar
           ? AppBar(
-        title: const Text('My Profile',
+        title: Text(translate('profile.title'),
             style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: primaryColor,
         centerTitle: true,
@@ -60,7 +61,7 @@ class ProfilePage extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
           if (!snapshot.hasData || snapshot.data == null) {
-            return const Center(child: Text("No user data found"));
+            return Center(child: Text(translate('profile.noData')));
           }
 
           final data = snapshot.data!;
@@ -126,16 +127,16 @@ class ProfilePage extends StatelessWidget {
 
                 // Personal Info
                 _buildInfoCard(
-                  title: "Personal Information",
+                  title: translate('profile.personalInfo'),
                   children: [
                     _buildProfileRow(
-                        Icons.phone, 'Phone', data['phone'], primaryColor),
+                        Icons.phone, translate('profile.phone'), data['phone'], primaryColor),
                     _buildProfileRow(
-                        Icons.location_on, 'County', data['county'], primaryColor),
-                    _buildProfileRow(Icons.location_city, 'Sub-county',
-                        data['subcounty'], primaryColor),
+                        Icons.location_on, translate('profile.county'), data['county'], primaryColor),
                     _buildProfileRow(
-                        Icons.home, 'Village', data['village'], primaryColor),
+                        Icons.location_city, translate('profile.subcounty'), data['subcounty'], primaryColor),
+                    _buildProfileRow(
+                        Icons.home, translate('profile.village'), data['village'], primaryColor),
                   ],
                 ),
 
@@ -145,7 +146,7 @@ class ProfilePage extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     icon: const Icon(Icons.edit),
-                    label: const Text('Complete Your Profile'),
+                    label: Text(translate('profile.completeProfile')),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: primaryColor,
                       foregroundColor: Colors.white,
@@ -203,7 +204,7 @@ class ProfilePage extends StatelessWidget {
                     style:
                     const TextStyle(fontSize: 14, color: Colors.grey)),
                 const SizedBox(height: 4),
-                Text(value ?? 'Not specified',
+                Text(value ?? translate('profile.notSpecified'),
                     style: const TextStyle(fontSize: 16)),
               ],
             ),

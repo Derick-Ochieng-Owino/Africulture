@@ -1,4 +1,3 @@
-// lib/widgets/category_card.dart
 import 'package:flutter/material.dart';
 
 class CategoryCard extends StatelessWidget {
@@ -38,7 +37,7 @@ class CategoryCard extends StatelessWidget {
               Icon(
                 _getCategoryIcon(category),
                 size: 36,
-                color: Colors.green[700],
+                color: Colors.teal[700],
               ),
               const SizedBox(height: 8),
               Text(

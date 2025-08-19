@@ -24,7 +24,7 @@ class ProductDetailScreen extends StatelessWidget {
           ),
         ],
       ),
-      backgroundColor: Colors.teal[100],
+      backgroundColor: Colors.teal[50],
       body: CustomScrollView(
         slivers: [
           SliverAppBar(

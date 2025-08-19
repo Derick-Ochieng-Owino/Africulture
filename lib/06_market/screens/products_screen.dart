@@ -33,7 +33,7 @@ class ProductsScreen extends StatelessWidget {
           ),
         ],
       ),
-      backgroundColor: Colors.teal[100],
+      backgroundColor: Colors.teal[50],
       body: products.isEmpty
           ? const Center(
         child: Text('No products found'),

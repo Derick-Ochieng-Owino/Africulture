@@ -227,7 +227,7 @@ class _ProductAddPageState extends State<ProductAddPage> {
             ),
         ],
       ),
-      backgroundColor: Colors.teal[100],
+      backgroundColor: Colors.teal[50],
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
