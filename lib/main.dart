@@ -223,6 +223,7 @@ class MyApp extends StatelessWidget {
           final user = FirebaseAuth.instance.currentUser;
           return user == null
               ? const LoginPage()
+
               : EditProfilePage(uid: user.uid);
         },
         '/adminDashboard': (context) => const DashboardScreen(),
