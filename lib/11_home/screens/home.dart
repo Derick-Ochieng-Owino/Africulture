@@ -14,6 +14,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import '../../06_market/screens/agricommerce.dart';
 import '../../13_Notifications/notification_service.dart';
+import '../../AfriLearn/farm_learn.dart';
 import '../widgets/gallery_widget.dart';
 import '../../03_weather/weather_service.dart';
 import '../service/location_service.dart';
@@ -744,6 +745,18 @@ class _HomePageContentState extends State<HomePageContent> {
                 context: context,
                 builder: (context) => const HelpPage(),
               ),
+            ),
+            _buildQuickAction(
+              //key: widget.quickActionKeys[8],
+              icon: Icons.book,
+              label: translate('home.quick_actions.learn'),
+              color: Colors.blueAccent,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AfriLearnPage()),
+                );
+              },
             ),
           ],
         ),

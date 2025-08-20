@@ -86,6 +86,7 @@ flutter:
     - assets/slider/slider1.jpg
     - assets/slider/slider2.jpg
     - assets/slider/slider3.jpg
+    - assets/learn/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

@@ -44,7 +44,8 @@
       "transport": "Usafiri",
       "iot": "Vifaa vya IoT",
       "wallet": "Pochi",
-      "help": "Msaada"
+      "help": "Msaada",
+      "learn": "Soma"
     },
     "recommendations": {
       "title": "Mapendekezo",
@@ -113,6 +114,56 @@
     "farmingType": "Aina ya Kilimo",
     "completeProfile": "Kamilisha Profaili Yako",
     "notSpecified": "Haijatajwa"
+  },
+
+  "learn": {
+    "title": "Shule ya Africulture",
+    "welcome": "Karibu Shule ya Africulture",
+    "welcome_description": "Kubadilisha kilimo barani Afrika kupitia elimu bunifu, teknolojia, na mbinu endelevu. Kozi zetu zimeundwa kuimarisha wakulima wa kisasa na ujuzi wa vitendo katika kilimo cha kisasa.",
+    "explore_courses": "Chunguza Kozi",
+    "popular_categories": "Aina Maarufu",
+    "featured_courses": "Kozi Zilizopendekezwa",
+    "course": {
+      "price": "Bei",
+      "level": "Kiwango cha Kozi",
+      "duration": "Muda",
+      "certificate": "Cheti",
+      "language": "Lugha",
+      "access": "Ufikiaji"
+    }
+  },
+  "categories": {
+    "crop_farming": "Kilimo cha Mimea",
+    "livestock": "Mifugo",
+    "irrigation": "Umwagiliaji",
+    "technology": "Teknolojia",
+    "agribusiness": "Biashara ya Kilimo"
+  },
+  "courses": {
+    "avocado_timps": {
+      "title": "Avocado TIMPs",
+      "description": "Jifunze mbinu za kisasa za kilimo cha parachichi, ukuzaji wa mnyororo wa thamani, na mikakati ya soko la kuuza nje."
+    },
+    "beans_timps": {
+      "title": "Mahindi TIMPs",
+      "description": "Tafuta mbinu za kilimo cha maharagwe, usimamizi wa wadudu, na njia za uzalishaji wa hali ya juu."
+    },
+    "apiculture": {
+      "title": "Ufugaji Nyuki",
+      "description": "Gundua mbinu endelevu za ufugaji nyuki, utengenezaji wa asali, na usimamizi wa tanuru."
+    },
+    "mango_timps": {
+      "title": "Embe TIMPs",
+      "description": "Jifunze kilimo cha embe, kuongeza thamani, na mbinu za uzalishaji bora wa kuuza nje."
+    },
+    "dairy_timps": {
+      "title": "Maziwa TIMPs",
+      "description": "Tafuta mbinu za ufugaji wa maziwa, afya ya wanyama, uzalishaji wa maziwa, na usindikaji."
+    },
+    "maize_timps": {
+      "title": "Mahindi TIMPs",
+      "description": "Jifunze mbinu za kisasa za kilimo cha mahindi kwa yields ya juu na faida zaidi."
+    }
   },
 
   "language": {

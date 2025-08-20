@@ -48,7 +48,8 @@
       "transport": "Transport",
       "iot": "IoT",
       "wallet": "Wallet",
-      "help": "Help"
+      "help": "Help",
+      "learn": "Learn"
     },
     "recommendations": {
       "title": "Recommendations",
@@ -117,6 +118,58 @@
     "farmingType": "Farming Type",
     "completeProfile": "Complete Your Profile",
     "notSpecified": "Not specified"
+  },
+
+  "learn": {
+    "title": "Africulture School",
+    "welcome": "Welcome to Africulture School",
+    "welcome_description": "Transforming African agriculture through innovative education, technology, and sustainable practices. Our courses are designed to empower agripreneurs with practical knowledge and skills for modern farming.",
+    "explore_courses": "Explore Courses",
+    "popular_categories": "Popular Categories",
+    "featured_courses": "Featured Courses",
+    "course": {
+      "price": "Price",
+      "level": "Course Level",
+      "duration": "Duration",
+      "certificate": "Certificate",
+      "language": "Language",
+      "access": "Access"
+    }
+  },
+
+  "categories": {
+    "crop_farming": "Crop Farming",
+    "livestock": "Livestock",
+    "irrigation": "Irrigation",
+    "technology": "Technology",
+    "agribusiness": "Agribusiness"
+  },
+
+  "courses": {
+    "avocado_timps": {
+      "title": "Avocado TIMPs",
+      "description": "Learn modern avocado farming techniques, value chain development, and export market strategies."
+    },
+    "beans_timps": {
+      "title": "Beans TIMPs",
+      "description": "Master bean cultivation, pest management, and high-yield production methods."
+    },
+    "apiculture": {
+      "title": "Apiculture",
+      "description": "Discover sustainable beekeeping practices, honey production, and hive management."
+    },
+    "mango_timps": {
+      "title": "Mango TIMPs",
+      "description": "Learn mango cultivation, value addition, and export quality production techniques."
+    },
+    "dairy_timps": {
+      "title": "Dairy TIMPs",
+      "description": "Master dairy farming, animal health, milk production, and processing."
+    },
+    "maize_timps": {
+      "title": "Maize TIMPs",
+      "description": "Learn modern maize farming techniques for higher yields and profitability."
+    }
   },
 
   "language": {

@@ -1,3 +1,5 @@
+import 'package:africulture/AfriLearn/courses_page.dart';
+import 'package:africulture/AfriLearn/saved_courses.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -51,6 +53,10 @@ import '12_Admin/screens/notifications_screen.dart';
 import '12_Admin/screens/admin_approval_page.dart';
 import '11_home/screens/get_started.dart';
 import '11_home/screens/support_screen.dart';
+import 'AfriLearn/course_detail_page.dart';
+import 'AfriLearn/course_profile.dart';
+import 'AfriLearn/farm_learn.dart';
+import 'AfriLearn/learning_page.dart';
 
 late final LocalizationDelegate localizationDelegate;
 final FlutterLocalNotificationsPlugin notificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -183,19 +189,18 @@ class MyApp extends StatelessWidget {
       supportedLocales: localizationDelegate.supportedLocales,
       locale: localizationDelegate.currentLocale,
 
-      // ✅ FIX: start from Splash only on cold start, not on hot reload
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const SplashScreen(); // Show splash while checking
+            return const SplashScreen();
           }
 
           if (snapshot.hasData) {
-            return const MyHomePage(); // User is logged in
+            return const MyHomePage();
           }
 
-          return const SplashScreen(); // User is not logged in
+          return const SplashScreen();
         },
       ),
 
@@ -240,6 +245,43 @@ class MyApp extends StatelessWidget {
           final user = FirebaseAuth.instance.currentUser;
           return OrderHistoryPage(uid: user?.uid ?? '');
         },
+        '/afrilearn': (context) => const AfriLearnPage(),
+        '/course_detail': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          return CourseDetailPage(course: args);
+        },
+        '/courses': (context) => CoursesPage(),
+        '/saved_courses': (context) => SavedCourses(),
+        '/profile_course': (context) => CourseProfile(),
+        // '/learn': (context) {
+        //   final args = ModalRoute.of(context)!.settings.arguments;
+        //   if (args == null || args is! String) {
+        //     return const Scaffold(
+        //       body: Center(
+        //         child: Text("No course selected."),
+        //       ),
+        //     );
+        //   }
+        //   return LearningPage(courseId: args);
+        // },
+      },
+      onGenerateRoute: (settings) {
+        if (settings.name == '/learn') {
+          final courseId = settings.arguments as String?;
+
+          if (courseId == null) {
+            return MaterialPageRoute(
+              builder: (context) => const Scaffold(
+                body: Center(child: Text("No course selected.")),
+              ),
+            );
+          }
+
+          return MaterialPageRoute(
+            builder: (context) => LearningPage(courseId: courseId),
+          );
+        }
+        return null;
       },
     );
   }
