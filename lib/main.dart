@@ -11,8 +11,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:provider/provider.dart';
-
-// Screens & services imports
 import '11_home/screens/splash_screen.dart';
 import '11_home/screens/home.dart';
 import '10_authenticication/login_page.dart';
@@ -43,7 +41,6 @@ import '12_Admin/providers/analytics_provider.dart';
 import '12_Admin/providers/content_provider.dart';
 import '12_Admin/providers/user_provider.dart';
 import '12_Admin/screens/dashboard_screen.dart';
-import '12_Admin/screens/orders_screen.dart';
 import '12_Admin/screens/users_screen.dart';
 import '12_Admin/screens/analytics_screen.dart';
 import '12_Admin/screens/settings_screen.dart';
@@ -60,8 +57,6 @@ import 'AfriLearn/learning_page.dart';
 
 late final LocalizationDelegate localizationDelegate;
 final FlutterLocalNotificationsPlugin notificationsPlugin = FlutterLocalNotificationsPlugin();
-
-// 🔑 Keep navigatorKey global so it survives hot reload
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
@@ -72,7 +67,6 @@ Future<void> main() async {
     FlutterError.dumpErrorToConsole(details);
   };
 
-  // Notifications setup
   const AndroidInitializationSettings initSettingsAndroid =
   AndroidInitializationSettings('@mipmap/ic_launcher');
   final InitializationSettings initializationSettings =
@@ -97,16 +91,22 @@ Future<void> main() async {
         authDomain: dotenv.get('FIREBASE_AUTH_DOMAIN', fallback: ''),
         projectId: dotenv.get('FIREBASE_PROJECT_ID', fallback: ''),
         storageBucket: dotenv.get('FIREBASE_STORAGE_BUCKET', fallback: ''),
-        messagingSenderId:
-        dotenv.get('FIREBASE_MESSAGING_SENDER_ID', fallback: ''),
+        messagingSenderId: dotenv.get('FIREBASE_MESSAGING_SENDER_ID', fallback: ''),
         appId: dotenv.get('FIREBASE_APP_ID', fallback: ''),
+        measurementId: dotenv.get('FIREBASE_MEASUREMENT_ID'),
       ),
     );
 
-    // Firestore persistence
+    if (kIsWeb) {
+      await FirebaseAppCheck.instance.activate(
+        webProvider: ReCaptchaV3Provider(dotenv.get('FIREBASE_RECAPTCHA_KEY')),
+      );
+    }
+
     try {
       if (kIsWeb) {
         await FirebaseFirestore.instance.enablePersistence();
+        debugPrint('Web persistence enabled');
       } else {
         FirebaseFirestore.instance.settings =
         const Settings(persistenceEnabled: true);
@@ -115,12 +115,10 @@ Future<void> main() async {
       debugPrint("[DEBUG] Firestore persistence error: $e");
     }
 
-    // ✅ Firebase App Check
     await FirebaseAppCheck.instance.activate(
       androidProvider: AndroidProvider.debug,
     );
 
-    // Localization
     localizationDelegate = await LocalizationDelegate.create(
       fallbackLocale: 'en',
       supportedLocales: ['en', 'sw'],
@@ -253,17 +251,6 @@ class MyApp extends StatelessWidget {
         '/courses': (context) => CoursesPage(),
         '/saved_courses': (context) => SavedCourses(),
         '/profile_course': (context) => CourseProfile(),
-        // '/learn': (context) {
-        //   final args = ModalRoute.of(context)!.settings.arguments;
-        //   if (args == null || args is! String) {
-        //     return const Scaffold(
-        //       body: Center(
-        //         child: Text("No course selected."),
-        //       ),
-        //     );
-        //   }
-        //   return LearningPage(courseId: args);
-        // },
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/learn') {
